@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Хуза Нейросеть</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+  :root {
+    --bg: #000000;
+    --surface: #111111;
+    --surface2: #1a1a1a;
+    --border: rgba(255,255,255,0.08);
+    --text: #ffffff;
+    --text-secondary: rgba(255,255,255,0.5);
+    --accent: #2e7cf6;
+    --accent-glow: rgba(46,124,246,0.3);
+    --selected-bg: rgba(46,124,246,0.15);
+    --selected-border: rgba(46,124,246,0.6);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* HEADER */
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .header-title {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.3px;
+  }
+
+  .header-subtitle {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 1px;
+  }
+
+  .header-left { flex: 1; }
+
+  .current-badge {
+    background: var(--accent);
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+
+  /* SEARCH */
+  .search-wrap {
+    padding: 12px 16px 8px;
+    position: sticky;
+    top: 65px;
+    z-index: 99;
+    background: var(--bg);
+  }
+
+  .search-input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 16px 10px 38px;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-input::placeholder { color: var(--text-secondary); }
+  .search-input:focus { border-color: rgba(46,124,246,0.5); }
+
+  .search-icon {
+    position: absolute;
+    left: 28px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+    pointer-events: none;
+  }
+
+  .search-container { position: relative; }
+
+  /* CATEGORIES */
+  .categories {
+    display: flex;
+    gap: 8px;
+    padding: 10px 16px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .categories::-webkit-scrollbar { display: none; }
+
+  .cat-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 6px 14px;
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
+  }
+  .cat-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
+
+  /* MODEL LIST */
+  .model-list {
+    padding: 8px 0 100px;
+  }
+
+  .model-item {
+    display: flex;
+    align-items: center;
+    padding: 14px 16px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+    position: relative;
+  }
+  .model-item:active { background: rgba(255,255,255,0.04); }
+  .model-item.selected {
+    background: var(--selected-bg);
+  }
+  .model-item.selected::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--accent);
+    border-radius: 0 2px 2px 0;
+  }
+
+  .model-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+    margin-right: 14px;
+    position: relative;
+  }
+
+  .model-info { flex: 1; min-width: 0; }
+
+  .model-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.2px;
+    margin-bottom: 3px;
+  }
+
+  .model-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .model-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+    margin-left: 10px;
+    flex-shrink: 0;
+  }
+
+  .check-icon {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s, transform 0.2s;
+    transform: scale(0.7);
+  }
+  .model-item.selected .check-icon {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .vision-badge {
+    font-size: 10px;
+    font-weight: 600;
+    background: rgba(255,180,0,0.15);
+    color: #ffb400;
+    border: 1px solid rgba(255,180,0,0.3);
+    padding: 2px 7px;
+    border-radius: 6px;
+    letter-spacing: 0.3px;
+  }
+
+  /* SECTION HEADER */
+  .section-header {
+    padding: 16px 16px 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    background: var(--bg);
+  }
+
+  /* BOTTOM BAR */
+  .bottom-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 12px 16px;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom));
+    background: rgba(0,0,0,0.9);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid var(--border);
+    z-index: 200;
+  }
+
+  .confirm-btn {
+    width: 100%;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 14px;
+    padding: 15px;
+    font-size: 16px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+    letter-spacing: -0.2px;
+  }
+  .confirm-btn:active { transform: scale(0.98); opacity: 0.85; }
+  .confirm-btn:disabled { opacity: 0.3; }
+
+  /* EMPTY */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-secondary);
+    font-size: 15px;
+  }
+
+  /* Avatar backgrounds */
+  .avatar-claude { background: linear-gradient(135deg, #d4845a 0%, #c9512f 100%); }
+  .avatar-gpt    { background: linear-gradient(135deg, #10a37f 0%, #0a7a5f 100%); }
+  .avatar-deepseek { background: linear-gradient(135deg, #4e6ef2 0%, #2a42c4 100%); }
+  .avatar-qwen   { background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); }
+  .avatar-llama  { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+  .avatar-command { background: linear-gradient(135deg, #6b7280 0%, #374151 100%); }
+  .avatar-kimi   { background: linear-gradient(135deg, #ec4899 0%, #be185d 100%); }
+  .avatar-glm    { background: linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%); }
+  .avatar-c4ai   { background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); }
+  .avatar-sonar  { background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); }
+
+  /* Ripple */
+  @keyframes ripple {
+    from { transform: scale(0); opacity: 0.4; }
+    to   { transform: scale(2.5); opacity: 0; }
+  }
+  .ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(46,124,246,0.3);
+    animation: ripple 0.5s ease-out forwards;
+    pointer-events: none;
+    width: 60px; height: 60px;
+    margin: -30px;
+  }
+
+  /* Fade in animation */
+  @keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .model-item {
+    animation: fadeSlideIn 0.3s ease both;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="header-title">Выбор нейросети</div>
+    <div class="header-subtitle" id="currentModelLabel">Загрузка...</div>
+  </div>
+  <div class="current-badge" id="currentBadge">—</div>
+</div>
+
+<div class="search-wrap">
+  <div class="search-container">
+    <svg class="search-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+    </svg>
+    <input class="search-input" id="searchInput" placeholder="Поиск модели..." autocomplete="off" autocorrect="off" spellcheck="false">
+  </div>
+</div>
+
+<div class="categories" id="categories"></div>
+
+<div class="model-list" id="modelList"></div>
+
+<div class="bottom-bar">
+  <button class="confirm-btn" id="confirmBtn" disabled>Выбрать модель</button>
+</div>
+
+<script>
+const tg = window.Telegram.WebApp;
+tg.ready();
+tg.expand();
+
+// ─── Данные моделей ───────────────────────────────────────────────
+const MODELS = [
+  // Claude
+  { key: "claude_sonnet", name: "Claude Sonnet 4.5",  emoji: "🔷", avatar: "avatar-claude",   cat: "Claude",   desc: "Сбалансированная модель от Anthropic — умная, быстрая, детальная" },
+  { key: "claude_haiku",  name: "Claude Haiku 4.5",   emoji: "💎", avatar: "avatar-claude",   cat: "Claude",   desc: "Самая быстрая версия Claude, идеальна для коротких задач" },
+  { key: "claude_opus",   name: "Claude Opus 4.5",    emoji: "🔵", avatar: "avatar-claude",   cat: "Claude",   desc: "Топовая модель Anthropic — глубокий анализ и сложные задачи" },
+  // GPT
+  { key: "gpt52",         name: "GPT-5.2",            emoji: "⚡", avatar: "avatar-gpt",      cat: "GPT",      desc: "Новейшая и самая прогрессивная модель от OpenAI на данный момент" },
+  { key: "gpt52_chat",    name: "GPT-5.2 Chat",       emoji: "💬", avatar: "avatar-gpt",      cat: "GPT",      desc: "Версия GPT-5.2 оптимизированная для диалогов и бесед" },
+  // DeepSeek
+  { key: "deepseek_v3",   name: "DeepSeek V3.2",      emoji: "🧬", avatar: "avatar-deepseek", cat: "DeepSeek", desc: "Умнейшая китайская модель — прямой конкурент OpenAI o1" },
+  { key: "deepseek_r1",   name: "DeepSeek R1",        emoji: "🧠", avatar: "avatar-deepseek", cat: "DeepSeek", desc: "Reasoning-модель с цепочкой рассуждений, топ для логики и математики" },
+  { key: "deepseek_v3_sq",name: "DeepSeek V3",        emoji: "🧬", avatar: "avatar-deepseek", cat: "DeepSeek", desc: "Стабильная версия DeepSeek V3 — быстрая и надёжная" },
+  // Qwen
+  { key: "qwen3_max",     name: "Qwen3-Max",          emoji: "🌐", avatar: "avatar-qwen",     cat: "Qwen",     desc: "Флагманская модель Alibaba — многоязычная, мощная" },
+  { key: "qwen3_vl",      name: "Qwen3-VL",           emoji: "👁️", avatar: "avatar-qwen",     cat: "Qwen",     desc: "Vision модель — анализирует изображения и фото 📸", vision: true },
+  { key: "qwen_vision",   name: "Qwen2.5-VL 32B",     emoji: "🖼️", avatar: "avatar-qwen",     cat: "Qwen",     desc: "Мощный анализ фото и документов, 32 миллиарда параметров 📸", vision: true },
+  // Llama
+  { key: "llama32_90b",   name: "Llama 3.2 90B",      emoji: "🦙", avatar: "avatar-llama",    cat: "Llama",    desc: "Open-source гигант от Meta — 90 миллиардов параметров, Vision 📸", vision: true },
+  // Command
+  { key: "command_a",     name: "Command-A",          emoji: "⚙️", avatar: "avatar-command",  cat: "Command",  desc: "Бизнес-модель от Cohere — точная и структурированная" },
+  { key: "command_vision",name: "Command Vision",      emoji: "👁️", avatar: "avatar-command",  cat: "Command",  desc: "Command с поддержкой изображений для анализа фото 📸", vision: true },
+  { key: "command_reason",name: "Command Reasoning",  emoji: "🧩", avatar: "avatar-command",  cat: "Command",  desc: "Версия Command с углублённым рассуждением для сложных задач" },
+  // Kimi & GLM
+  { key: "moonshot",      name: "Kimi K2",            emoji: "🌙", avatar: "avatar-kimi",     cat: "Kimi",     desc: "Модель от Moonshot AI — отличается нестандартным мышлением" },
+  { key: "glm47",         name: "GLM-4.7",            emoji: "🔮", avatar: "avatar-glm",      cat: "GLM",      desc: "Новейшая версия GLM от Zhipu AI с улучшенным рассуждением" },
+  { key: "glm46",         name: "GLM-4.6",            emoji: "🔮", avatar: "avatar-glm",      cat: "GLM",      desc: "Стабильная модель GLM-4.6 для разнообразных задач" },
+  // C4AI
+  { key: "c4ai_32b",      name: "C4AI Aya 32B",       emoji: "🌀", avatar: "avatar-c4ai",     cat: "C4AI",     desc: "Мощная многоязычная модель — 32B параметров, 23 языка" },
+  { key: "c4ai_8b",       name: "C4AI Aya 8B",        emoji: "🌀", avatar: "avatar-c4ai",     cat: "C4AI",     desc: "Лёгкая и быстрая версия Aya — 8B параметров" },
+  { key: "c4ai_vis32b",   name: "C4AI Vision 32B",    emoji: "🌀", avatar: "avatar-c4ai",     cat: "C4AI",     desc: "Vision версия Aya 32B — анализ изображений 📸", vision: true },
+  { key: "c4ai_vis8b",    name: "C4AI Vision 8B",     emoji: "🌀", avatar: "avatar-c4ai",     cat: "C4AI",     desc: "Быстрая Vision версия Aya 8B для анализа фото 📸", vision: true },
+  // Sonar
+  { key: "sonar",         name: "Sonar",              emoji: "🔍", avatar: "avatar-sonar",    cat: "Sonar",    desc: "Perplexity Sonar — поиск в интернете + ИИ в одном" },
+  { key: "sonar_pro",     name: "Sonar Pro",          emoji: "🔍", avatar: "avatar-sonar",    cat: "Sonar",    desc: "Расширенная версия Sonar Pro с более глубоким поиском" },
+];
+
+const CATEGORIES = ["Все", "Claude", "GPT", "DeepSeek", "Qwen", "Llama", "Command", "Kimi", "GLM", "C4AI", "Sonar"];
+
+let selectedKey = null;
+let currentCategory = "Все";
+let searchQuery = "";
+let currentModelKey = null;
+
+// Получаем текущую модель из параметров
+const params = new URLSearchParams(window.location.search);
+currentModelKey = params.get("model") || "claude_sonnet";
+selectedKey = currentModelKey;
+
+// Находим текущую модель
+const getCurrentModel = () => MODELS.find(m => m.key === selectedKey);
+
+function updateHeader() {
+  const m = MODELS.find(m => m.key === currentModelKey);
+  const sel = getCurrentModel();
+  document.getElementById("currentModelLabel").textContent = m ? m.name : "Не выбрана";
+  const badge = document.getElementById("currentBadge");
+  badge.textContent = sel ? sel.emoji : "—";
+
+  const btn = document.getElementById("confirmBtn");
+  if (selectedKey && selectedKey !== currentModelKey) {
+    const sm = getCurrentModel();
+    btn.textContent = `Выбрать ${sm ? sm.name : ""}`;
+    btn.disabled = false;
+  } else if (selectedKey === currentModelKey) {
+    btn.textContent = "Уже выбрана ✓";
+    btn.disabled = true;
+  } else {
+    btn.textContent = "Выбрать модель";
+    btn.disabled = true;
+  }
+}
+
+function renderCategories() {
+  const wrap = document.getElementById("categories");
+  wrap.innerHTML = CATEGORIES.map(cat => `
+    <button class="cat-btn ${cat === currentCategory ? 'active' : ''}" onclick="setCategory('${cat}')">
+      ${cat}
+    </button>
+  `).join("");
+}
+
+function setCategory(cat) {
+  currentCategory = cat;
+  renderCategories();
+  renderModels();
+}
+
+function getFilteredModels() {
+  return MODELS.filter(m => {
+    const matchCat = currentCategory === "Все" || m.cat === currentCategory;
+    const q = searchQuery.toLowerCase();
+    const matchSearch = !q || m.name.toLowerCase().includes(q) || m.desc.toLowerCase().includes(q) || m.cat.toLowerCase().includes(q);
+    return matchCat && matchSearch;
+  });
+}
+
+function renderModels() {
+  const list = document.getElementById("modelList");
+  const filtered = getFilteredModels();
+
+  if (filtered.length === 0) {
+    list.innerHTML = `<div class="empty-state">😔 Ничего не найдено</div>`;
+    return;
+  }
+
+  // Группируем по категориям если показываем "Все"
+  let html = "";
+  if (currentCategory === "Все" && !searchQuery) {
+    let lastCat = null;
+    filtered.forEach((m, i) => {
+      if (m.cat !== lastCat) {
+        html += `<div class="section-header">${m.cat}</div>`;
+        lastCat = m.cat;
+      }
+      html += modelHtml(m, i);
+    });
+  } else {
+    filtered.forEach((m, i) => html += modelHtml(m, i));
+  }
+
+  list.innerHTML = html;
+
+  // Animation delays
+  list.querySelectorAll(".model-item").forEach((el, i) => {
+    el.style.animationDelay = `${i * 30}ms`;
+  });
+}
+
+function modelHtml(m, i) {
+  const isSelected = m.key === selectedKey;
+  return `
+    <div class="model-item ${isSelected ? 'selected' : ''}" onclick="selectModel('${m.key}', event)" id="item-${m.key}">
+      <div class="model-avatar ${m.avatar}">${m.emoji}</div>
+      <div class="model-info">
+        <div class="model-name">${m.name}</div>
+        <div class="model-desc">${m.desc}</div>
+      </div>
+      <div class="model-right">
+        <div class="check-icon">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        ${m.vision ? '<span class="vision-badge">📸 VISION</span>' : ''}
+      </div>
+    </div>
+  `;
+}
+
+function selectModel(key, event) {
+  // Ripple effect
+  const item = document.getElementById(`item-${key}`);
+  const ripple = document.createElement("div");
+  ripple.className = "ripple";
+  const rect = item.getBoundingClientRect();
+  ripple.style.left = (event.clientX - rect.left) + "px";
+  ripple.style.top = (event.clientY - rect.top) + "px";
+  item.appendChild(ripple);
+  setTimeout(() => ripple.remove(), 600);
+
+  // Deselect old
+  if (selectedKey) {
+    const oldEl = document.getElementById(`item-${selectedKey}`);
+    if (oldEl) oldEl.classList.remove("selected");
+  }
+
+  selectedKey = key;
+  item.classList.add("selected");
+
+  // Haptic
+  if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
+
+  updateHeader();
+}
+
+document.getElementById("confirmBtn").addEventListener("click", () => {
+  if (!selectedKey) return;
+  if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred("medium");
+  tg.sendData(JSON.stringify({ action: "set_model", model: selectedKey }));
+});
+
+document.getElementById("searchInput").addEventListener("input", (e) => {
+  searchQuery = e.target.value;
+  if (searchQuery && currentCategory !== "Все") {
+    currentCategory = "Все";
+    renderCategories();
+  }
+  renderModels();
+});
+
+// Init
+renderCategories();
+renderModels();
+updateHeader();
+
+// Theme
+tg.onEvent("themeChanged", () => {
+  const colorScheme = tg.colorScheme;
+  // Stay dark always for consistency
+});
+</script>
+</body>
+</html>
