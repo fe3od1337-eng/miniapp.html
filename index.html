@@ -683,6 +683,12 @@ let pendingImgs = []; // [{file, b64, url}]
 let messages  = [];   // [{role, content, imgUrl?}]
 let isLoading = false;
 
+// ── API Config ───────────────────────────────────────────────
+// Замени на реальный URL твоего сервера (где запущен бот)
+// Например: "https://yourserver.com" или "http://1.2.3.4:8080"
+const API_BASE = params.get("api") || window.TG_API_BASE || "http://localhost:8080";
+const USER_ID  = tg.initDataUnsafe?.user?.id || 0;
+
 // ── Init ─────────────────────────────────────────────────────
 updateHeader();
 renderCats();
@@ -796,10 +802,8 @@ function selectModel(key) {
   updateHeader();
   renderModels();
   closeSheet();
-  // Notify bot about model change
-  try {
-    tg.sendData(JSON.stringify({ action: "set_model", model: key }));
-  } catch(e) {
+  // Просто обновляем локально — модель применится при следующем запросе
+  {
     // Mini app not opened via KeyboardButton — just update UI
   }
   showToast(`✅ ${getModel(key).name}`);
@@ -903,7 +907,7 @@ function removeImg(i) {
 // ── Send ──────────────────────────────────────────────────────
 document.getElementById("sendBtn").addEventListener("click", sendMessage);
 
-function sendMessage() {
+async function sendMessage() {
   if (isLoading) return;
   const text = msgInput.value.trim();
   const imgs  = [...pendingImgs];
@@ -926,51 +930,61 @@ function sendMessage() {
   // Add typing indicator
   const typingId = addTyping();
 
-  // Build history for bot
+  // Store user message in history
+  messages.push({ role: "user", content: text || (imgs.length ? "[Фото]" : ""), imgUrls });
+
+  // Build history for bot (last 10 messages)
   const historyForBot = messages.slice(-10).map(m => ({
     role: m.role,
     content: m.content
   }));
 
-  // Send to bot via sendData
   const payload = {
     action: "chat",
+    uid:    USER_ID,
     model:  curModel,
     text:   text || "",
     images: imgs.map(i => i.b64),
     history: historyForBot
   };
 
-  // Store user message in history
-  messages.push({ role: "user", content: text || (imgs.length ? "[Фото]" : ""), imgUrls });
-
   try {
-    tg.sendData(JSON.stringify(payload));
-    // Bot will respond via new message — remove typing after 30s timeout
-    setTimeout(() => {
-      removeTyping(typingId);
-      isLoading = false;
-      updateSendBtn();
-    }, 30000);
-  } catch(e) {
-    // sendData not available (opened via inline) — show error
+    const resp = await fetch(`${API_BASE}/api/chat`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    const data = await resp.json();
     removeTyping(typingId);
-    addAiMsg("⚠️ Для работы чата открой бота через кнопку меню (reply keyboard), а не через inline кнопку.\n\nИли напиши вопрос напрямую в чат бота — он ответит там.");
-    isLoading = false;
-    updateSendBtn();
+
+    if (data.ok) {
+      addAiMsg(data.answer, data.model_label);
+      // Update limits display
+      if (data.fast_left !== undefined) {
+        document.getElementById("limitBar").style.display = "flex";
+        document.getElementById("fastLeft").textContent = data.fast_left;
+        document.getElementById("proLeft").textContent  = data.pro_left;
+      }
+    } else if (data.error === "subscription_required") {
+      // Show subscription required
+      let chText = "\n\nПодпишись на каналы:\n";
+      (data.channels || []).forEach(ch => { chText += `• ${ch.title}\n`; });
+      addAiMsg("🔐 Для доступа нужно подписаться на канал!" + chText);
+    } else if (data.error === "limit_exceeded") {
+      addAiMsg(`🚫 Лимит запросов исчерпан!\n⏰ Сброс через: ${data.reset_in || "?"}\n\nОсталось: ⚡${data.fast_left} быстрых | 🧠${data.pro_left} проф.`);
+    } else {
+      addAiMsg(`❌ Ошибка: ${data.error || "Неизвестная ошибка"}`);
+    }
+  } catch(e) {
+    removeTyping(typingId);
+    addAiMsg("❌ Ошибка соединения с сервером.\n\n💡 Напиши вопрос напрямую в чат бота — он ответит там.");
   }
+
+  isLoading = false;
+  updateSendBtn();
 }
 
-// ── Receive answer from bot ───────────────────────────────────
-// Bot sends answer back through a special event (if using MainButton / back channel)
-// In practice: bot sends message after receiving sendData, mini app should be closed
-// For demo — handle tg.onEvent for message receiving
-tg.onEvent("mainButtonClicked", () => {});
-
-// If bot sends answer back via web_app_data echo (not standard)
-// Standard flow: user sends → mini app closes / stays → bot responds in chat
-// For inline chat experience we need a polling approach or websocket
-// Here we implement a "local demo" fallback when sendData fails
+// ── Ответы приходят напрямую через fetch() ───────────────────
 
 // ── DOM helpers ───────────────────────────────────────────────
 function hideEmpty() {
@@ -991,18 +1005,19 @@ function addUserMsg(text, imgUrls) {
   scrollBottom();
 }
 
-function addAiMsg(text) {
+function addAiMsg(text, modelLabel) {
   const area = document.getElementById("chatArea");
   const m = getModel(curModel);
+  const displayName = modelLabel || m.name;
   const div = document.createElement("div");
   div.className = "msg ai";
   div.innerHTML = `
     <div class="ai-label">
       <div class="ai-dot ${m.av}">${m.emoji}</div>
-      ${m.name}
+      ${displayName}
     </div>
     <div class="bubble">${formatText(text)}</div>
-    <div class="msg-meta">${m.name} · ${timeNow()}</div>`;
+    <div class="msg-meta">${displayName} · ${timeNow()}</div>`;
   area.appendChild(div);
   messages.push({ role: "assistant", content: text });
   scrollBottom();
@@ -1072,14 +1087,18 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove("show"), 2000);
 }
 
-// ── Handle incoming data from bot (tg.initDataUnsafe / URL) ───
-// When bot sends answer back — it re-opens mini app with answer in URL params
-const answerParam = params.get("answer");
-if (answerParam) {
-  hideEmpty();
-  const q = params.get("q") || "";
-  if (q) addUserMsg(decodeURIComponent(q), []);
-  addAiMsg(decodeURIComponent(answerParam));
+// ── Загрузка лимитов при открытии мини-аппа ─────────────────
+if (USER_ID) {
+  fetch(`${API_BASE}/api/limits?uid=${USER_ID}`)
+    .then(r => r.json())
+    .then(d => {
+      if (d.ok) {
+        document.getElementById("limitBar").style.display = "flex";
+        document.getElementById("fastLeft").textContent = d.fast_left;
+        document.getElementById("proLeft").textContent  = d.pro_left;
+      }
+    })
+    .catch(() => {});
 }
 
 // ── tg theme ─────────────────────────────────────────────────
