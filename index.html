@@ -528,12 +528,33 @@ function selectModel(key, event) {
   if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
 
   updateHeader();
+  
+  // Обновляем MainButton
+  if (window._updateMainBtn) window._updateMainBtn(key);
 }
 
 document.getElementById("confirmBtn").addEventListener("click", () => {
   if (!selectedKey) return;
   if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred("medium");
-  tg.sendData(JSON.stringify({ action: "set_model", model: selectedKey }));
+  
+  const payload = JSON.stringify({ action: "set_model", model: selectedKey });
+  
+  // sendData работает только если Mini App открыта через KeyboardButton
+  // В остальных случаях используем MainButton или закрываем с данными
+  try {
+    tg.sendData(payload);
+  } catch(e) {
+    // Fallback: показываем уведомление что данные отправлены
+    console.warn("sendData failed:", e);
+    // Пробуем через MainButton
+    if (tg.MainButton) {
+      tg.MainButton.hide();
+    }
+    // Показываем пользователю что произошло
+    const btn = document.getElementById("confirmBtn");
+    btn.textContent = "✓ Закрывается...";
+    setTimeout(() => tg.close(), 500);
+  }
 });
 
 document.getElementById("searchInput").addEventListener("input", (e) => {
@@ -549,6 +570,32 @@ document.getElementById("searchInput").addEventListener("input", (e) => {
 renderCategories();
 renderModels();
 updateHeader();
+
+// Настройка MainButton Telegram (дублирует кнопку "Выбрать")
+if (tg.MainButton) {
+  tg.MainButton.setText("Выбрать модель");
+  tg.MainButton.color = "#2e7cf6";
+  
+  tg.MainButton.onClick(function() {
+    if (!selectedKey) return;
+    if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred("medium");
+    tg.sendData(JSON.stringify({ action: "set_model", model: selectedKey }));
+  });
+  
+  // Обновляем MainButton при выборе
+  const _origSelect = selectModel;
+  window._updateMainBtn = function(key) {
+    if (key && key !== currentModelKey) {
+      const m = MODELS.find(m => m.key === key);
+      if (m) {
+        tg.MainButton.setText(`Выбрать ${m.name}`);
+        tg.MainButton.show();
+      }
+    } else {
+      tg.MainButton.hide();
+    }
+  };
+}
 
 // Theme
 tg.onEvent("themeChanged", () => {
