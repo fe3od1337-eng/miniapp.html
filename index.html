@@ -687,7 +687,30 @@ let isLoading = false;
 // Замени на реальный URL твоего сервера (где запущен бот)
 // Например: "https://yourserver.com" или "http://1.2.3.4:8080"
 const API_BASE = params.get("api") || window.TG_API_BASE || "http://localhost:8080";
-const USER_ID  = tg.initDataUnsafe?.user?.id || 0;
+// Получаем uid из Telegram — несколько способов для надёжности
+let USER_ID = 0;
+try {
+  // Способ 1: прямой доступ
+  if (tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.id) {
+    USER_ID = tg.initDataUnsafe.user.id;
+  }
+  // Способ 2: парсим initData строку
+  if (!USER_ID && tg.initData) {
+    const parsed = new URLSearchParams(tg.initData);
+    const userStr = parsed.get("user");
+    if (userStr) {
+      const userObj = JSON.parse(decodeURIComponent(userStr));
+      USER_ID = userObj.id || 0;
+    }
+  }
+  // Способ 3: из URL параметра (когда бот открывает с ?uid=)
+  if (!USER_ID) {
+    USER_ID = parseInt(params.get("uid") || "0");
+  }
+} catch(e) {
+  console.warn("USER_ID parse error:", e);
+}
+console.log("USER_ID:", USER_ID);
 
 // ── Init ─────────────────────────────────────────────────────
 updateHeader();
