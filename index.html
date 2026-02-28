@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
@@ -7,6 +6,13 @@
 <title>Хуза ИИ</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<!-- highlight.js для подсветки кода -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<!-- KaTeX для LaTeX формул -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
 <style>
 :root {
   --bg: #0a0a0f;
@@ -29,294 +35,298 @@
   --yellow: #fbbf24;
 }
 
-- { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 
 body {
-font-family: ‘Manrope’, sans-serif;
-background: var(–bg);
-color: var(–text);
-height: 100dvh;
-display: flex;
-flex-direction: column;
-overflow: hidden;
+  font-family: 'Manrope', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 /* ── HEADER ── */
 .header {
-display: flex;
-align-items: center;
-padding: 10px 14px;
-background: var(–surface);
-border-bottom: 1px solid var(–border);
-gap: 10px;
-flex-shrink: 0;
-z-index: 10;
+  display: flex;
+  align-items: center;
+  padding: 10px 14px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  gap: 10px;
+  flex-shrink: 0;
+  z-index: 10;
 }
 
 .model-selector {
-display: flex;
-align-items: center;
-gap: 8px;
-background: var(–surface2);
-border: 1px solid var(–border2);
-border-radius: 22px;
-padding: 7px 14px 7px 10px;
-cursor: pointer;
-flex: 1;
-transition: all 0.15s;
-min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 22px;
+  padding: 7px 14px 7px 10px;
+  cursor: pointer;
+  flex: 1;
+  transition: all 0.15s;
+  min-width: 0;
 }
 .model-selector:active { opacity: 0.8; transform: scale(0.98); }
 
 .model-avatar {
-width: 28px; height: 28px;
-border-radius: 8px;
-display: flex; align-items: center; justify-content: center;
-font-size: 14px;
-flex-shrink: 0;
+  width: 28px; height: 28px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+  overflow: hidden;
 }
+.model-avatar svg { width: 20px; height: 20px; }
 
 .model-selector-info { flex: 1; min-width: 0; }
 .model-selector-name {
-font-size: 14px; font-weight: 700;
-white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-color: var(–text);
+  font-size: 14px; font-weight: 700;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  color: var(--text);
 }
 .model-selector-sub {
-font-size: 10px; color: var(–text2); margin-top: 1px;
+  font-size: 10px; color: var(--text2); margin-top: 1px;
 }
 
-.chevron { color: var(–text3); font-size: 10px; flex-shrink: 0; }
+.chevron { color: var(--text3); font-size: 10px; flex-shrink: 0; }
 
 .header-actions { display: flex; gap: 6px; flex-shrink: 0; }
 .header-btn {
-width: 36px; height: 36px;
-background: var(–surface2);
-border: 1px solid var(–border);
-border-radius: 12px;
-display: flex; align-items: center; justify-content: center;
-cursor: pointer; color: var(–text2);
-transition: all 0.15s;
-font-size: 16px;
+  width: 36px; height: 36px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--text2);
+  transition: all 0.15s;
+  font-size: 16px;
 }
 .header-btn:active { opacity: 0.7; transform: scale(0.95); }
 
 /* ── MODEL PICKER SHEET ── */
 .sheet-overlay {
-position: fixed; inset: 0;
-background: rgba(0,0,0,0.6);
-z-index: 100;
-opacity: 0; pointer-events: none;
-transition: opacity 0.25s;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 100;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s;
 }
 .sheet-overlay.open { opacity: 1; pointer-events: all; }
 
 .sheet {
-position: fixed; bottom: 0; left: 0; right: 0;
-background: var(–surface);
-border-radius: 20px 20px 0 0;
-z-index: 101;
-max-height: 80dvh;
-display: flex; flex-direction: column;
-transform: translateY(100%);
-transition: transform 0.3s cubic-bezier(0.32,0.72,0,1);
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: var(--surface);
+  border-radius: 20px 20px 0 0;
+  z-index: 101;
+  max-height: 80dvh;
+  display: flex; flex-direction: column;
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.32,0.72,0,1);
 }
 .sheet.open { transform: translateY(0); }
 
 .sheet-handle {
-width: 36px; height: 4px;
-background: var(–border2);
-border-radius: 2px;
-margin: 10px auto 0;
-flex-shrink: 0;
+  width: 36px; height: 4px;
+  background: var(--border2);
+  border-radius: 2px;
+  margin: 10px auto 0;
+  flex-shrink: 0;
 }
 
 .sheet-header {
-padding: 14px 16px 10px;
-flex-shrink: 0;
+  padding: 14px 16px 10px;
+  flex-shrink: 0;
 }
 .sheet-title { font-size: 17px; font-weight: 800; }
-.sheet-sub { font-size: 12px; color: var(–text2); margin-top: 2px; }
+.sheet-sub { font-size: 12px; color: var(--text2); margin-top: 2px; }
 
 .sheet-search {
-padding: 0 16px 10px;
-flex-shrink: 0;
+  padding: 0 16px 10px;
+  flex-shrink: 0;
 }
 .sheet-search input {
-width: 100%;
-background: var(–surface2);
-border: 1px solid var(–border);
-border-radius: 12px;
-padding: 9px 14px 9px 36px;
-color: var(–text);
-font-family: ‘Manrope’, sans-serif;
-font-size: 14px;
-outline: none;
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 9px 14px 9px 36px;
+  color: var(--text);
+  font-family: 'Manrope', sans-serif;
+  font-size: 14px;
+  outline: none;
 }
-.sheet-search input::placeholder { color: var(–text3); }
+.sheet-search input::placeholder { color: var(--text3); }
 .search-icon-wrap {
-position: relative;
+  position: relative;
 }
 .search-icon-wrap svg {
-position: absolute; left: 26px; top: 50%;
-transform: translateY(-50%);
-color: var(–text3);
-pointer-events: none;
+  position: absolute; left: 26px; top: 50%;
+  transform: translateY(-50%);
+  color: var(--text3);
+  pointer-events: none;
 }
 
 .sheet-cats {
-display: flex; gap: 6px;
-padding: 0 16px 10px;
-overflow-x: auto; scrollbar-width: none;
-flex-shrink: 0;
+  display: flex; gap: 6px;
+  padding: 0 16px 10px;
+  overflow-x: auto; scrollbar-width: none;
+  flex-shrink: 0;
 }
 .sheet-cats::-webkit-scrollbar { display: none; }
 
 .cat-pill {
-background: var(–surface2);
-border: 1px solid var(–border);
-border-radius: 20px;
-padding: 5px 12px;
-font-size: 12px; font-weight: 600;
-color: var(–text2);
-white-space: nowrap;
-cursor: pointer;
-transition: all 0.15s;
-flex-shrink: 0;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-size: 12px; font-weight: 600;
+  color: var(--text2);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.15s;
+  flex-shrink: 0;
 }
 .cat-pill.active {
-background: var(–accent);
-border-color: var(–accent);
-color: #fff;
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
 }
 
 .sheet-list {
-overflow-y: auto;
-flex: 1;
-padding-bottom: calc(env(safe-area-inset-bottom) + 10px);
+  overflow-y: auto;
+  flex: 1;
+  padding-bottom: calc(env(safe-area-inset-bottom) + 10px);
 }
 
 .model-row {
-display: flex; align-items: center;
-padding: 11px 16px;
-cursor: pointer;
-transition: background 0.12s;
-border-bottom: 1px solid var(–border);
-gap: 12px;
+  display: flex; align-items: center;
+  padding: 11px 16px;
+  cursor: pointer;
+  transition: background 0.12s;
+  border-bottom: 1px solid var(--border);
+  gap: 12px;
 }
 .model-row:active { background: rgba(255,255,255,0.04); }
 .model-row.selected { background: rgba(91,110,245,0.1); }
 .model-row.selected::before {
-content: ‘’; position: absolute; left: 0;
-width: 3px; height: 100%;
-background: var(–accent);
-border-radius: 0 2px 2px 0;
+  content: ''; position: absolute; left: 0;
+  width: 3px; height: 100%;
+  background: var(--accent);
+  border-radius: 0 2px 2px 0;
 }
 .model-row { position: relative; }
 
 .row-avatar {
-width: 44px; height: 44px;
-border-radius: 13px;
-display: flex; align-items: center; justify-content: center;
-font-size: 20px;
-flex-shrink: 0;
+  width: 44px; height: 44px;
+  border-radius: 13px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+  overflow: hidden;
 }
+.row-avatar svg { width: 28px; height: 28px; }
 
 .row-info { flex: 1; min-width: 0; }
 .row-name {
-font-size: 15px; font-weight: 700;
-white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  font-size: 15px; font-weight: 700;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .row-desc {
-font-size: 12px; color: var(–text2);
-line-height: 1.4;
-display: -webkit-box;
--webkit-line-clamp: 2; -webkit-box-orient: vertical;
-overflow: hidden;
-margin-top: 2px;
+  font-size: 12px; color: var(--text2);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-top: 2px;
 }
 .row-right {
-display: flex; flex-direction: column;
-align-items: flex-end; gap: 5px;
-flex-shrink: 0;
+  display: flex; flex-direction: column;
+  align-items: flex-end; gap: 5px;
+  flex-shrink: 0;
 }
-.check { width: 20px; height: 20px; border-radius: 50%; background: var(–accent);
-display: flex; align-items: center; justify-content: center;
-opacity: 0; transform: scale(0.6); transition: all 0.2s;
+.check { width: 20px; height: 20px; border-radius: 50%; background: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transform: scale(0.6); transition: all 0.2s;
 }
 .model-row.selected .check { opacity: 1; transform: scale(1); }
 .vision-tag {
-font-size: 9px; font-weight: 700;
-background: rgba(251,191,36,0.15);
-color: var(–yellow);
-border: 1px solid rgba(251,191,36,0.3);
-padding: 2px 6px; border-radius: 5px;
-letter-spacing: 0.3px;
+  font-size: 9px; font-weight: 700;
+  background: rgba(251,191,36,0.15);
+  color: var(--yellow);
+  border: 1px solid rgba(251,191,36,0.3);
+  padding: 2px 6px; border-radius: 5px;
+  letter-spacing: 0.3px;
 }
 .section-label {
-padding: 12px 16px 5px;
-font-size: 10px; font-weight: 700;
-color: var(–text3);
-letter-spacing: 1px;
-text-transform: uppercase;
+  padding: 12px 16px 5px;
+  font-size: 10px; font-weight: 700;
+  color: var(--text3);
+  letter-spacing: 1px;
+  text-transform: uppercase;
 }
 
 /* ── CHAT AREA ── */
 .chat-area {
-flex: 1;
-overflow-y: auto;
-padding: 12px 14px;
-display: flex;
-flex-direction: column;
-gap: 10px;
-scrollbar-width: thin;
-scrollbar-color: var(–surface3) transparent;
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--surface3) transparent;
 }
 
 .empty-state {
-flex: 1;
-display: flex;
-flex-direction: column;
-align-items: center;
-justify-content: center;
-gap: 16px;
-padding: 20px;
-text-align: center;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 20px;
+  text-align: center;
 }
 .empty-icon {
-width: 64px; height: 64px;
-border-radius: 20px;
-background: var(–surface2);
-border: 1px solid var(–border2);
-display: flex; align-items: center; justify-content: center;
-font-size: 30px;
+  width: 64px; height: 64px;
+  border-radius: 20px;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 30px;
 }
 .empty-title { font-size: 20px; font-weight: 800; }
-.empty-sub { font-size: 13px; color: var(–text2); line-height: 1.5; }
+.empty-sub { font-size: 13px; color: var(--text2); line-height: 1.5; }
 
 .suggestions {
-display: flex; gap: 8px;
-overflow-x: auto; scrollbar-width: none;
-padding-bottom: 2px;
-width: 100%;
+  display: flex; gap: 8px;
+  overflow-x: auto; scrollbar-width: none;
+  padding-bottom: 2px;
+  width: 100%;
 }
 .suggestions::-webkit-scrollbar { display: none; }
 .sugg-chip {
-background: var(–surface2);
-border: 1px solid var(–border2);
-border-radius: 14px;
-padding: 10px 14px;
-font-size: 12px; font-weight: 600;
-color: var(–text2);
-white-space: nowrap;
-cursor: pointer;
-flex-shrink: 0;
-max-width: 160px;
-white-space: normal;
-line-height: 1.3;
-transition: all 0.15s;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 14px;
+  padding: 10px 14px;
+  font-size: 12px; font-weight: 600;
+  color: var(--text2);
+  white-space: nowrap;
+  cursor: pointer;
+  flex-shrink: 0;
+  max-width: 160px;
+  white-space: normal;
+  line-height: 1.3;
+  transition: all 0.15s;
 }
-.sugg-chip:active { background: var(–surface3); }
+.sugg-chip:active { background: var(--surface3); }
 
 /* Messages */
 .msg { display: flex; flex-direction: column; max-width: 88%; animation: fadeUp 0.25s ease both; }
@@ -326,89 +336,91 @@ transition: all 0.15s;
 .msg.ai   { align-self: flex-start; }
 
 .bubble {
-padding: 10px 14px;
-border-radius: 18px;
-font-size: 14px; line-height: 1.55;
-word-break: break-word;
+  padding: 10px 14px;
+  border-radius: 18px;
+  font-size: 14px; line-height: 1.55;
+  word-break: break-word;
 }
 .msg.user .bubble {
-background: var(–user-bubble);
-border: 1px solid var(–user-border);
-border-bottom-right-radius: 5px;
-color: #e8ecff;
+  background: var(--user-bubble);
+  border: 1px solid var(--user-border);
+  border-bottom-right-radius: 5px;
+  color: #e8ecff;
 }
 .msg.ai .bubble {
-background: var(–ai-bubble);
-border: 1px solid var(–border);
-border-bottom-left-radius: 5px;
+  background: var(--ai-bubble);
+  border: 1px solid var(--border);
+  border-bottom-left-radius: 5px;
 }
 
 .msg-img {
-max-width: 100%; border-radius: 12px;
-margin-bottom: 6px;
-border: 1px solid var(–border);
+  max-width: 100%; border-radius: 12px;
+  margin-bottom: 6px;
+  border: 1px solid var(--border);
 }
 
 .msg-meta {
-font-size: 10px; color: var(–text3);
-margin-top: 3px;
-padding: 0 4px;
+  font-size: 10px; color: var(--text3);
+  margin-top: 3px;
+  padding: 0 4px;
 }
 .msg.user .msg-meta { text-align: right; }
 .msg.ai   .msg-meta { text-align: left; }
 
 /* AI label */
 .ai-label {
-display: flex; align-items: center; gap: 5px;
-font-size: 10px; font-weight: 700;
-color: var(–text3);
-margin-bottom: 4px;
-padding: 0 2px;
+  display: flex; align-items: center; gap: 5px;
+  font-size: 10px; font-weight: 700;
+  color: var(--text3);
+  margin-bottom: 4px;
+  padding: 0 2px;
 }
 .ai-dot {
-width: 16px; height: 16px;
-border-radius: 5px;
-display: flex; align-items: center; justify-content: center;
-font-size: 9px;
+  width: 20px; height: 20px;
+  border-radius: 5px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px;
+  overflow: hidden;
 }
+.ai-dot svg { width: 14px; height: 14px; }
 
 /* Typing indicator */
 .typing-bubble {
-display: flex; gap: 4px;
-align-items: center;
-padding: 12px 16px;
+  display: flex; gap: 4px;
+  align-items: center;
+  padding: 12px 16px;
 }
 .typing-dot {
-width: 7px; height: 7px;
-border-radius: 50%;
-background: var(–text3);
-animation: blink 1.2s ease infinite;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--text3);
+  animation: blink 1.2s ease infinite;
 }
 .typing-dot:nth-child(2) { animation-delay: 0.2s; }
 .typing-dot:nth-child(3) { animation-delay: 0.4s; }
 @keyframes blink {
-0%,80%,100% { transform: scale(1); opacity: 0.5; }
-40% { transform: scale(1.3); opacity: 1; }
+  0%,80%,100% { transform: scale(1); opacity: 0.5; }
+  40% { transform: scale(1.3); opacity: 1; }
 }
 
 /* code blocks */
 .bubble pre {
-background: #0d0d14;
-border: 1px solid var(–border2);
-border-radius: 10px;
-padding: 10px 12px;
-overflow-x: auto;
-margin: 8px 0;
-font-size: 12px;
-font-family: ‘SF Mono’, monospace;
-line-height: 1.6;
+  background: #0d0d14;
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 10px 12px;
+  overflow-x: auto;
+  margin: 8px 0;
+  font-size: 12px;
+  font-family: 'SF Mono', monospace;
+  line-height: 1.6;
 }
 .bubble code {
-background: rgba(255,255,255,0.08);
-padding: 1px 5px;
-border-radius: 4px;
-font-size: 12px;
-font-family: ‘SF Mono’, monospace;
+  background: rgba(255,255,255,0.08);
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: 'SF Mono', monospace;
 }
 .bubble pre code { background: none; padding: 0; }
 .bubble p { margin-bottom: 6px; }
@@ -417,117 +429,117 @@ font-family: ‘SF Mono’, monospace;
 
 /* ── INPUT BAR ── */
 .input-bar {
-background: var(–surface);
-border-top: 1px solid var(–border);
-padding: 8px 10px;
-padding-bottom: calc(8px + env(safe-area-inset-bottom));
-flex-shrink: 0;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 8px 10px;
+  padding-bottom: calc(8px + env(safe-area-inset-bottom));
+  flex-shrink: 0;
 }
 
 .input-row {
-display: flex; align-items: flex-end; gap: 7px;
+  display: flex; align-items: flex-end; gap: 7px;
 }
 
 .attach-btn, .send-btn {
-width: 40px; height: 40px;
-border-radius: 13px;
-border: none;
-display: flex; align-items: center; justify-content: center;
-cursor: pointer;
-flex-shrink: 0;
-transition: all 0.15s;
+  width: 40px; height: 40px;
+  border-radius: 13px;
+  border: none;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.15s;
 }
 .attach-btn {
-background: var(–surface2);
-color: var(–text2);
-font-size: 18px;
+  background: var(--surface2);
+  color: var(--text2);
+  font-size: 18px;
 }
 .attach-btn:active { opacity: 0.7; }
 
 .send-btn {
-background: var(–accent);
-color: #fff;
-font-size: 17px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 17px;
 }
 .send-btn:active { transform: scale(0.92); }
-.send-btn:disabled { background: var(–surface3); color: var(–text3); }
+.send-btn:disabled { background: var(--surface3); color: var(--text3); }
 
 .input-wrap {
-flex: 1;
-background: var(–surface2);
-border: 1px solid var(–border);
-border-radius: 16px;
-display: flex; align-items: flex-end;
-padding: 8px 12px;
-gap: 6px;
-min-height: 40px;
-transition: border-color 0.2s;
+  flex: 1;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  display: flex; align-items: flex-end;
+  padding: 8px 12px;
+  gap: 6px;
+  min-height: 40px;
+  transition: border-color 0.2s;
 }
 .input-wrap:focus-within { border-color: rgba(91,110,245,0.5); }
 
 #msgInput {
-flex: 1;
-background: none;
-border: none;
-outline: none;
-color: var(–text);
-font-family: ‘Manrope’, sans-serif;
-font-size: 14px;
-line-height: 1.5;
-resize: none;
-max-height: 120px;
-min-height: 20px;
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text);
+  font-family: 'Manrope', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  resize: none;
+  max-height: 120px;
+  min-height: 20px;
 }
-#msgInput::placeholder { color: var(–text3); }
+#msgInput::placeholder { color: var(--text3); }
 
 /* image preview strip */
 .img-preview {
-display: flex; gap: 6px;
-margin-bottom: 6px;
+  display: flex; gap: 6px;
+  margin-bottom: 6px;
 }
 .preview-thumb {
-position: relative;
-width: 56px; height: 56px;
+  position: relative;
+  width: 56px; height: 56px;
 }
 .preview-thumb img {
-width: 56px; height: 56px;
-border-radius: 10px;
-object-fit: cover;
-border: 1px solid var(–border2);
+  width: 56px; height: 56px;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 1px solid var(--border2);
 }
 .preview-rm {
-position: absolute; top: -5px; right: -5px;
-width: 18px; height: 18px;
-border-radius: 50%;
-background: var(–red);
-color: #fff;
-font-size: 11px;
-display: flex; align-items: center; justify-content: center;
-cursor: pointer;
-border: 1.5px solid var(–bg);
+  position: absolute; top: -5px; right: -5px;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: var(--red);
+  color: #fff;
+  font-size: 11px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  border: 1.5px solid var(--bg);
 }
 
 /* vision hint bar */
 .vision-hint {
-background: rgba(251,191,36,0.08);
-border: 1px solid rgba(251,191,36,0.2);
-border-radius: 10px;
-padding: 7px 12px;
-font-size: 11px;
-color: #fbbf24;
-font-weight: 600;
-margin-bottom: 6px;
-display: flex; align-items: center; gap: 6px;
+  background: rgba(251,191,36,0.08);
+  border: 1px solid rgba(251,191,36,0.2);
+  border-radius: 10px;
+  padding: 7px 12px;
+  font-size: 11px;
+  color: #fbbf24;
+  font-weight: 600;
+  margin-bottom: 6px;
+  display: flex; align-items: center; gap: 6px;
 }
 
 /* limit bar */
 .limit-bar {
-display: flex; gap: 8px; align-items: center;
-padding: 6px 10px;
-background: var(–surface2);
-border-radius: 10px;
-margin-bottom: 6px;
-font-size: 11px; color: var(–text2);
+  display: flex; gap: 8px; align-items: center;
+  padding: 6px 10px;
+  background: var(--surface2);
+  border-radius: 10px;
+  margin-bottom: 6px;
+  font-size: 11px; color: var(--text2);
 }
 .limit-item { display: flex; gap: 4px; align-items: center; }
 .limit-dot { width: 6px; height: 6px; border-radius: 50%; }
@@ -549,26 +561,109 @@ font-size: 11px; color: var(–text2);
 
 /* toast */
 .toast {
-position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px);
-background: var(–surface3);
-border: 1px solid var(–border2);
-border-radius: 12px;
-padding: 8px 16px;
-font-size: 13px; font-weight: 600;
-opacity: 0;
-transition: all 0.25s;
-white-space: nowrap;
-z-index: 200;
-pointer-events: none;
+  position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px);
+  background: var(--surface3);
+  border: 1px solid var(--border2);
+  border-radius: 12px;
+  padding: 8px 16px;
+  font-size: 13px; font-weight: 600;
+  opacity: 0;
+  transition: all 0.25s;
+  white-space: nowrap;
+  z-index: 200;
+  pointer-events: none;
 }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-</style>
 
+/* ── MODEL ICONS ── */
+.av-claude  { background: linear-gradient(135deg,#667eea,#764ba2); }
+.av-gpt     { background: linear-gradient(135deg,#11998e,#38ef7d); }
+.av-deepseek{ background: linear-gradient(135deg,#2193b0,#6dd5ed); }
+.av-qwen    { background: linear-gradient(135deg,#f7971e,#ffd200); }
+.av-llama   { background: linear-gradient(135deg,#834d9b,#d04ed6); }
+.av-command { background: linear-gradient(135deg,#1a1a2e,#16213e); border:1px solid rgba(255,255,255,0.15); }
+.av-kimi    { background: linear-gradient(135deg,#0f3460,#533483); }
+.av-glm     { background: linear-gradient(135deg,#6a3093,#a044ff); }
+.av-c4ai    { background: linear-gradient(135deg,#f953c6,#b91d73); }
+.av-sonar   { background: linear-gradient(135deg,#4facfe,#00f2fe); }
+
+/* ── THINK TIMER ── */
+.think-timer {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px;
+  background: rgba(91,110,245,0.08);
+  border: 1px solid rgba(91,110,245,0.2);
+  border-radius: 14px;
+  font-size: 13px; color: var(--text2);
+}
+.think-timer .timer-icon { font-size: 16px; animation: spin 2s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.think-timer .timer-secs { font-weight: 700; color: var(--accent2); font-size: 15px; min-width: 28px; }
+
+/* ── CODE BLOCKS ── */
+.code-wrapper {
+  position: relative;
+  margin: 8px 0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.code-header {
+  display: flex; justify-content: space-between; align-items: center;
+  background: #1a1b26;
+  padding: 6px 12px;
+  font-size: 11px; color: rgba(255,255,255,0.5);
+  font-family: monospace;
+}
+.copy-btn {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.7);
+  padding: 3px 10px;
+  border-radius: 5px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: 'Manrope', sans-serif;
+}
+.copy-btn:active, .copy-btn.copied { background: rgba(52,211,153,0.2); color: #34d399; }
+.code-wrapper pre {
+  margin: 0 !important;
+  border-radius: 0 0 10px 10px !important;
+  background: #1a1b26 !important;
+  padding: 12px !important;
+  overflow-x: auto;
+  font-size: 12px !important;
+}
+.code-wrapper pre code { font-family: "SF Mono", "Fira Code", monospace !important; }
+
+/* ── TABLES ── */
+.bubble table {
+  border-collapse: collapse;
+  width: 100%; margin: 8px 0;
+  font-size: 13px;
+  border-radius: 8px; overflow: hidden;
+}
+.bubble th {
+  background: var(--accent);
+  color: #fff;
+  padding: 8px 12px;
+  text-align: left; font-weight: 700;
+}
+.bubble td {
+  padding: 7px 12px;
+  border-bottom: 1px solid var(--border);
+}
+.bubble tr:nth-child(even) td { background: rgba(255,255,255,0.03); }
+.bubble tr:last-child td { border-bottom: none; }
+
+/* ── KATEX ── */
+.katex { font-size: 1em !important; }
+.katex-display { overflow-x: auto; padding: 4px 0; }
+</style>
 </head>
 <body>
 
 <!-- HEADER -->
-
 <div class="header">
   <div class="model-selector" id="modelSelector">
     <div class="model-avatar av-claude" id="hdrAvatar">🔷</div>
@@ -584,7 +679,6 @@ pointer-events: none;
 </div>
 
 <!-- CHAT -->
-
 <div class="chat-area" id="chatArea">
   <div class="empty-state" id="emptyState">
     <div class="empty-icon">🤖</div>
@@ -600,7 +694,6 @@ pointer-events: none;
 </div>
 
 <!-- INPUT -->
-
 <div class="input-bar" id="inputBar">
   <div class="vision-hint" id="visionHint" style="display:none">
     📸 Эта модель поддерживает фото — нажми 📎 чтобы прикрепить
@@ -621,7 +714,6 @@ pointer-events: none;
 </div>
 
 <!-- MODEL SHEET -->
-
 <div class="sheet-overlay" id="sheetOverlay"></div>
 <div class="sheet" id="sheet">
   <div class="sheet-handle"></div>
@@ -649,32 +741,64 @@ const tg = window.Telegram.WebApp;
 tg.ready();
 tg.expand();
 
+// ── Иконки моделей (SVG/PNG через публичные URL) ─────────────
+const MODEL_ICONS = {
+  claude_sonnet: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="18" height="18"><circle cx="12" cy="12" r="10" fill="#CC785C"/><path d="M8 12.5c1-2 3-3.5 4-3.5s3 1.5 4 3.5" stroke="white" stroke-width="1.5" stroke-linecap="round"/><circle cx="9" cy="9.5" r="1" fill="white"/><circle cx="15" cy="9.5" r="1" fill="white"/></svg>`,
+  claude_haiku:  `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="18" height="18"><circle cx="12" cy="12" r="10" fill="#CC785C"/><path d="M9 12.5c.8-1.5 1.8-2.5 3-2.5s2.2 1 3 2.5" stroke="white" stroke-width="1.5" stroke-linecap="round"/><circle cx="9.5" cy="10" r="0.8" fill="white"/><circle cx="14.5" cy="10" r="0.8" fill="white"/></svg>`,
+  claude_opus:   `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="18" height="18"><circle cx="12" cy="12" r="10" fill="#8B4513"/><path d="M7.5 13c1.5-3 3-4.5 4.5-4.5s3 1.5 4.5 4.5" stroke="white" stroke-width="2" stroke-linecap="round"/><circle cx="8.5" cy="9" r="1.2" fill="white"/><circle cx="15.5" cy="9" r="1.2" fill="white"/></svg>`,
+  gpt52:         `<svg viewBox="0 0 24 24" fill="none" width="18" height="18"><circle cx="12" cy="12" r="10" fill="#10a37f"/><path d="M12 6.5A5.5 5.5 0 0112 17.5M8.5 8.5a5.5 5.5 0 017 7M7 12h10" stroke="white" stroke-width="1.4" stroke-linecap="round"/></svg>`,
+  gpt52_chat:    `<svg viewBox="0 0 24 24" fill="none" width="18" height="18"><circle cx="12" cy="12" r="10" fill="#10a37f"/><path d="M7 9h10M7 13h7" stroke="white" stroke-width="1.8" stroke-linecap="round"/><circle cx="17" cy="15" r="2" fill="white"/></svg>`,
+  deepseek_v3:   `<svg viewBox="0 0 24 24" fill="none" width="18" height="18"><circle cx="12" cy="12" r="10" fill="#1e4d8c"/><path d="M7 12c0-2.8 2.2-5 5-5s5 2.2 5 5-2.2 5-5 5" stroke="white" stroke-width="1.5" stroke-linecap="round"/><circle cx="12" cy="12" r="2" fill="white"/></svg>`,
+  deepseek_r1:   `<svg viewBox="0 0 24 24" fill="none" width="18" height="18"><circle cx="12" cy="12" r="10" fill="#0f2d5e"/><path d="M9 8l2 4-2 4M15 8l-2 4 2 4" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  deepseek_v3_sq:`<svg viewBox="0 0 24 24" fill="none" width="18" height="18"><circle cx="12" cy="12" r="10" fill="#1a3a6b"/><path d="M7 12c0-2.8 2.2-5 5-5s5 2.2 5 5-2.2 5-5 5" stroke="white" stroke-width="1.5" stroke-linecap="round"/><circle cx="12" cy="12" r="2" fill="white"/></svg>`,
+  qwen3_max:     `<svg viewBox="0 0 24 24" fill="none" width="18" height="18"><circle cx="12" cy="12" r="10" fill="#FF6A00"/><text x="12" y="16" text-anchor="middle" font-size="9" fill="white" font-weight="bold">Q</text></svg>`,
+  qwen3_vl:      `<svg viewBox="0 0 24 24" fill="none" width="18" height="18"><circle cx="12" cy="12" r="10" fill="#FF8C00"/><ellipse cx="12" cy="12" rx="5" ry="3.5" stroke="white" stroke-width="1.5"/><circle cx="12" cy="12" r="1.5" fill="white"/></svg>`,
+  qwen_vision:   `<svg viewBox="0 0 24 24" fill="none" width="18" height="18"><circle cx="12" cy="12" r="10" fill="#e65c00"/><ellipse cx="12" cy="12" rx="5" ry="3.5" stroke="white" stroke-width="1.5"/><circle cx="12" cy="12" r="2" fill="white"/></svg>`,
+  llama32_90b:   `<svg viewBox="0 0 24 24" fill="none" width="18" height="18"><circle cx="12" cy="12" r="10" fill="#7B2D8B"/><path d="M9 8v8M12 8v8M15 8v8" stroke="white" stroke-width="1.5" stroke-linecap="round"/><path d="M9 12h6" stroke="white" stroke-width="1.5"/></svg>`,
+  command_a:     `<svg viewBox="0 0 24 24" fill="none" width="18" height="18"><circle cx="12" cy="12" r="10" fill="#2c3e50"/><path d="M9 8l5 4-5 4" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  command_vision:`<svg viewBox="0 0 24 24" fill="none" width="18" height="18"><circle cx="12" cy="12" r="10" fill="#34495e"/><ellipse cx="12" cy="12" rx="4" ry="3" stroke="white" stroke-width="1.5"/><circle cx="12" cy="12" r="1.2" fill="white"/></svg>`,
+  command_reason:`<svg viewBox="0 0 24 24" fill="none" width="18" height="18"><circle cx="12" cy="12" r="10" fill="#1a252f"/><path d="M8 10h8M8 14h5" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>`,
+  moonshot:      `<svg viewBox="0 0 24 24" fill="none" width="18" height="18"><circle cx="12" cy="12" r="10" fill="#1a237e"/><path d="M15 8A6 6 0 009 8a6 6 0 000 8 6 6 0 006 0" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>`,
+  glm47:         `<svg viewBox="0 0 24 24" fill="none" width="18" height="18"><circle cx="12" cy="12" r="10" fill="#6a1b9a"/><text x="12" y="16" text-anchor="middle" font-size="8" fill="white" font-weight="bold">GLM</text></svg>`,
+  glm46:         `<svg viewBox="0 0 24 24" fill="none" width="18" height="18"><circle cx="12" cy="12" r="10" fill="#7b1fa2"/><text x="12" y="16" text-anchor="middle" font-size="8" fill="white" font-weight="bold">GLM</text></svg>`,
+  c4ai_32b:      `<svg viewBox="0 0 24 24" fill="none" width="18" height="18"><circle cx="12" cy="12" r="10" fill="#e91e8c"/><path d="M8 12a4 4 0 108 0" stroke="white" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="8" r="1" fill="white"/></svg>`,
+  c4ai_8b:       `<svg viewBox="0 0 24 24" fill="none" width="18" height="18"><circle cx="12" cy="12" r="10" fill="#c2185b"/><path d="M8 12a4 4 0 108 0" stroke="white" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="8" r="1" fill="white"/></svg>`,
+  c4ai_vis32b:   `<svg viewBox="0 0 24 24" fill="none" width="18" height="18"><circle cx="12" cy="12" r="10" fill="#ad1457"/><path d="M8 12a4 4 0 108 0" stroke="white" stroke-width="1.5" stroke-linecap="round"/><ellipse cx="12" cy="12" rx="2" ry="1.5" fill="white"/></svg>`,
+  c4ai_vis8b:    `<svg viewBox="0 0 24 24" fill="none" width="18" height="18"><circle cx="12" cy="12" r="10" fill="#880e4f"/><path d="M8 12a4 4 0 108 0" stroke="white" stroke-width="1.5" stroke-linecap="round"/><ellipse cx="12" cy="12" rx="2" ry="1.5" fill="white"/></svg>`,
+  sonar:         `<svg viewBox="0 0 24 24" fill="none" width="18" height="18"><circle cx="12" cy="12" r="10" fill="#0369a1"/><circle cx="12" cy="12" r="2" fill="white"/><path d="M12 12 L18 6M12 12 L6 18" stroke="white" stroke-width="1.2" stroke-linecap="round"/></svg>`,
+  sonar_pro:     `<svg viewBox="0 0 24 24" fill="none" width="18" height="18"><circle cx="12" cy="12" r="10" fill="#0284c7"/><circle cx="12" cy="12" r="2.5" fill="white"/><path d="M12 12 L18 6M12 12 L6 18M12 12 L18 18" stroke="white" stroke-width="1.2" stroke-linecap="round"/></svg>`,
+};
+
+function getModelIcon(key) {
+  return MODEL_ICONS[key] || `<svg viewBox="0 0 24 24" fill="none" width="18" height="18"><circle cx="12" cy="12" r="10" fill="#5b6ef5"/><text x="12" y="16" text-anchor="middle" font-size="10" fill="white">AI</text></svg>`;
+}
+
 // ── Модели ──────────────────────────────────────────────────
 const MODELS = [
-  { key:"claude_sonnet", name:"Claude Sonnet 4.5", emoji:"🔷", av:"av-claude", cat:"Claude", desc:"Сбалансированная модель — умная, быстрая, детальная" },
-  { key:"claude_haiku",  name:"Claude Haiku 4.5",  emoji:"💎", av:"av-claude", cat:"Claude", desc:"Самая быстрая версия Claude" },
-  { key:"claude_opus",   name:"Claude Opus 4.5",   emoji:"🔵", av:"av-claude", cat:"Claude", desc:"Топовая модель Anthropic — глубокий анализ" },
-  { key:"gpt52",         name:"GPT-5.2",           emoji:"⚡", av:"av-gpt",    cat:"GPT",    desc:"Новейшая модель от OpenAI" },
-  { key:"gpt52_chat",    name:"GPT-5.2 Chat",      emoji:"💬", av:"av-gpt",    cat:"GPT",    desc:"GPT-5.2 оптимизированная для диалогов" },
-  { key:"deepseek_v3",   name:"DeepSeek V3.2",     emoji:"🧬", av:"av-deepseek",cat:"DeepSeek",desc:"Умнейшая китайская модель — конкурент OpenAI o1" },
-  { key:"deepseek_r1",   name:"DeepSeek R1",       emoji:"🧠", av:"av-deepseek",cat:"DeepSeek",desc:"Reasoning-модель с цепочкой рассуждений" },
-  { key:"deepseek_v3_sq",name:"DeepSeek V3",       emoji:"🧬", av:"av-deepseek",cat:"DeepSeek",desc:"Стабильная версия DeepSeek V3" },
-  { key:"qwen3_max",     name:"Qwen3-Max",         emoji:"🌐", av:"av-qwen",   cat:"Qwen",   desc:"Флагманская модель Alibaba — многоязычная" },
-  { key:"qwen3_vl",      name:"Qwen3-VL",          emoji:"👁️", av:"av-qwen",   cat:"Qwen",   desc:"Vision модель — анализирует изображения 📸", vision:true },
-  { key:"qwen_vision",   name:"Qwen2.5-VL 32B",    emoji:"🖼️", av:"av-qwen",   cat:"Qwen",   desc:"Мощный анализ фото и документов 📸", vision:true },
-  { key:"llama32_90b",   name:"Llama 3.2 90B",     emoji:"🦙", av:"av-llama",  cat:"Llama",  desc:"Open-source гигант от Meta — Vision 📸", vision:true },
-  { key:"command_a",     name:"Command-A",         emoji:"⚙️", av:"av-command",cat:"Command", desc:"Бизнес-модель от Cohere" },
-  { key:"command_vision",name:"Command Vision",    emoji:"👁️", av:"av-command",cat:"Command", desc:"Command с поддержкой изображений 📸", vision:true },
-  { key:"command_reason",name:"Command Reasoning", emoji:"🧩", av:"av-command",cat:"Command", desc:"Углублённое рассуждение для сложных задач" },
-  { key:"moonshot",      name:"Kimi K2",           emoji:"🌙", av:"av-kimi",   cat:"Kimi",   desc:"Модель от Moonshot AI — нестандартное мышление" },
-  { key:"glm47",         name:"GLM-4.7",           emoji:"🔮", av:"av-glm",    cat:"GLM",    desc:"Новейшая версия GLM с улучшенным рассуждением" },
-  { key:"glm46",         name:"GLM-4.6",           emoji:"🔮", av:"av-glm",    cat:"GLM",    desc:"Стабильная модель GLM-4.6" },
-  { key:"c4ai_32b",      name:"C4AI Aya 32B",      emoji:"🌀", av:"av-c4ai",   cat:"C4AI",   desc:"Многоязычная модель — 32B параметров, 23 языка" },
-  { key:"c4ai_8b",       name:"C4AI Aya 8B",       emoji:"🌀", av:"av-c4ai",   cat:"C4AI",   desc:"Лёгкая и быстрая версия Aya — 8B параметров" },
-  { key:"c4ai_vis32b",   name:"C4AI Vision 32B",   emoji:"🌀", av:"av-c4ai",   cat:"C4AI",   desc:"Vision версия Aya 32B — анализ изображений 📸", vision:true },
-  { key:"c4ai_vis8b",    name:"C4AI Vision 8B",    emoji:"🌀", av:"av-c4ai",   cat:"C4AI",   desc:"Быстрая Vision версия Aya 8B 📸", vision:true },
-  { key:"sonar",         name:"Sonar",             emoji:"🔍", av:"av-sonar",  cat:"Sonar",  desc:"Perplexity Sonar — поиск в интернете + ИИ" },
-  { key:"sonar_pro",     name:"Sonar Pro",         emoji:"🔍", av:"av-sonar",  cat:"Sonar",  desc:"Расширенная версия с глубоким поиском" },
+  { key:"claude_sonnet", name:"Claude Sonnet 4.5", av:"av-claude", cat:"Claude", desc:"Сбалансированная модель — умная, быстрая, детальная" },
+  { key:"claude_haiku",  name:"Claude Haiku 4.5",  av:"av-claude", cat:"Claude", desc:"Самая быстрая версия Claude" },
+  { key:"claude_opus",   name:"Claude Opus 4.5",   av:"av-claude", cat:"Claude", desc:"Топовая модель Anthropic — глубокий анализ" },
+  { key:"gpt52",         name:"GPT-5.2",           av:"av-gpt",    cat:"GPT",    desc:"Новейшая модель от OpenAI" },
+  { key:"gpt52_chat",    name:"GPT-5.2 Chat",      av:"av-gpt",    cat:"GPT",    desc:"GPT-5.2 оптимизированная для диалогов" },
+  { key:"deepseek_v3",   name:"DeepSeek V3.2",     av:"av-deepseek",cat:"DeepSeek",desc:"Умнейшая китайская модель — конкурент OpenAI o1" },
+  { key:"deepseek_r1",   name:"DeepSeek R1",       av:"av-deepseek",cat:"DeepSeek",desc:"Reasoning-модель с цепочкой рассуждений" },
+  { key:"deepseek_v3_sq",name:"DeepSeek V3",       av:"av-deepseek",cat:"DeepSeek",desc:"Стабильная версия DeepSeek V3" },
+  { key:"qwen3_max",     name:"Qwen3-Max",         av:"av-qwen",   cat:"Qwen",   desc:"Флагманская модель Alibaba — многоязычная" },
+  { key:"qwen3_vl",      name:"Qwen3-VL",          av:"av-qwen",   cat:"Qwen",   desc:"Vision модель — анализирует изображения 📸", vision:true },
+  { key:"qwen_vision",   name:"Qwen2.5-VL 32B",    av:"av-qwen",   cat:"Qwen",   desc:"Мощный анализ фото и документов 📸", vision:true },
+  { key:"llama32_90b",   name:"Llama 3.2 90B",     av:"av-llama",  cat:"Llama",  desc:"Open-source гигант от Meta — Vision 📸", vision:true },
+  { key:"command_a",     name:"Command-A",         av:"av-command",cat:"Command", desc:"Бизнес-модель от Cohere" },
+  { key:"command_vision",name:"Command Vision",    av:"av-command",cat:"Command", desc:"Command с поддержкой изображений 📸", vision:true },
+  { key:"command_reason",name:"Command Reasoning", av:"av-command",cat:"Command", desc:"Углублённое рассуждение для сложных задач" },
+  { key:"moonshot",      name:"Kimi K2",           av:"av-kimi",   cat:"Kimi",   desc:"Модель от Moonshot AI — нестандартное мышление" },
+  { key:"glm47",         name:"GLM-4.7",           av:"av-glm",    cat:"GLM",    desc:"Новейшая версия GLM с улучшенным рассуждением" },
+  { key:"glm46",         name:"GLM-4.6",           av:"av-glm",    cat:"GLM",    desc:"Стабильная модель GLM-4.6" },
+  { key:"c4ai_32b",      name:"C4AI Aya 32B",      av:"av-c4ai",   cat:"C4AI",   desc:"Многоязычная модель — 32B параметров, 23 языка" },
+  { key:"c4ai_8b",       name:"C4AI Aya 8B",       av:"av-c4ai",   cat:"C4AI",   desc:"Лёгкая и быстрая версия Aya — 8B параметров" },
+  { key:"c4ai_vis32b",   name:"C4AI Vision 32B",   av:"av-c4ai",   cat:"C4AI",   desc:"Vision версия Aya 32B — анализ изображений 📸", vision:true },
+  { key:"c4ai_vis8b",    name:"C4AI Vision 8B",    av:"av-c4ai",   cat:"C4AI",   desc:"Быстрая Vision версия Aya 8B 📸", vision:true },
+  { key:"sonar",         name:"Sonar",             av:"av-sonar",  cat:"Sonar",  desc:"Perplexity Sonar — поиск в интернете + ИИ" },
+  { key:"sonar_pro",     name:"Sonar Pro",         av:"av-sonar",  cat:"Sonar",  desc:"Расширенная версия с глубоким поиском" },
 ];
 
 const CATS = ["Все", "Claude", "GPT", "DeepSeek", "Qwen", "Llama", "Command", "Kimi", "GLM", "C4AI", "Sonar"];
@@ -747,11 +871,11 @@ function getModel(key) {
 }
 function updateHeader() {
   const m = getModel(curModel);
-  document.getElementById("hdrAvatar").className = `model-avatar ${m.av}`;
-  document.getElementById("hdrAvatar").textContent = m.emoji;
+  const av = document.getElementById("hdrAvatar");
+  av.className = `model-avatar ${m.av}`;
+  av.innerHTML = getModelIcon(m.key);
   document.getElementById("hdrName").textContent = m.name;
   document.getElementById("hdrSub").textContent  = m.vision ? "📸 Поддержка фото" : "Нажми чтобы сменить";
-  // vision hint in input
   const vh = document.getElementById("visionHint");
   vh.style.display = m.vision ? "flex" : "none";
 }
@@ -811,7 +935,7 @@ function renderModels() {
     const sel = m.key === curModel;
     html += `
       <div class="model-row${sel?" selected":""}" onclick="selectModel('${m.key}')">
-        <div class="row-avatar ${m.av}">${m.emoji}</div>
+        <div class="row-avatar ${m.av}">${getModelIcon(m.key)}</div>
         <div class="row-info">
           <div class="row-name">${m.name}</div>
           <div class="row-desc">${m.desc}</div>
@@ -956,8 +1080,8 @@ async function sendMessage() {
   pendingImgs = [];
   renderImgPreview();
 
-  // Add typing indicator
-  const typingId = addTyping();
+  // Add think timer
+  const timerId = addThinkTimer();
 
   // Store user message in history
   messages.push({ role: "user", content: text || (imgs.length ? "[Фото]" : ""), imgUrls });
@@ -984,7 +1108,7 @@ async function sendMessage() {
       body: JSON.stringify(payload)
     });
     const data = await resp.json();
-    removeTyping(typingId);
+    removeThinkTimer(timerId);
 
     if (data.ok) {
       addAiMsg(data.answer, data.model_label);
@@ -1005,7 +1129,7 @@ async function sendMessage() {
       addAiMsg(`❌ Ошибка: ${data.error || "Неизвестная ошибка"}`);
     }
   } catch(e) {
-    removeTyping(typingId);
+    removeThinkTimer(timerId);
     addAiMsg("❌ Ошибка соединения с сервером.\n\n💡 Напиши вопрос напрямую в чат бота — он ответит там.");
   }
 
@@ -1042,7 +1166,7 @@ function addAiMsg(text, modelLabel) {
   div.className = "msg ai";
   div.innerHTML = `
     <div class="ai-label">
-      <div class="ai-dot ${m.av}">${m.emoji}</div>
+      <div class="ai-dot ${m.av}">${getModelIcon(m.key)}</div>
       ${displayName}
     </div>
     <div class="bubble">${formatText(text)}</div>
@@ -1050,35 +1174,61 @@ function addAiMsg(text, modelLabel) {
   area.appendChild(div);
   messages.push({ role: "assistant", content: text });
   scrollBottom();
+  // Подсветка кода highlight.js
+  div.querySelectorAll("pre code").forEach(block => {
+    hljs.highlightElement(block);
+  });
+  // Рендер LaTeX формул KaTeX
+  try {
+    renderMathInElement(div, {
+      delimiters: [
+        {left: "$$", right: "$$", display: true},
+        {left: "$", right: "$", display: false},
+        {left: "\\(", right: "\\)", display: false},
+        {left: "\\[", right: "\\]", display: true}
+      ],
+      throwOnError: false
+    });
+  } catch(e) {}
+  // Инициализируем кнопки копирования с правильным текстом
+  div.querySelectorAll(".copy-btn").forEach(btn => {
+    btn.textContent = "Копировать";
+  });
 }
 
-let typingCounter = 0;
-function addTyping() {
-  const id = ++typingCounter;
+let timerCounter = 0;
+let timerIntervals = {};
+
+function addThinkTimer() {
+  const id = ++timerCounter;
   const area = document.getElementById("chatArea");
-  const m = getModel(curModel);
   const div = document.createElement("div");
   div.className = "msg ai";
-  div.id = `typing-${id}`;
+  div.id = `timer-${id}`;
   div.innerHTML = `
-    <div class="ai-label">
-      <div class="ai-dot ${m.av}">${m.emoji}</div>
-      ${m.name}
-    </div>
     <div class="bubble">
-      <div class="typing-bubble">
-        <div class="typing-dot"></div>
-        <div class="typing-dot"></div>
-        <div class="typing-dot"></div>
+      <div class="think-timer">
+        <span class="timer-icon">⚙️</span>
+        <span>Думаю...</span>
+        <span class="timer-secs" id="secs-${id}">0</span>
+        <span style="color:var(--text3);font-size:12px">сек</span>
       </div>
     </div>`;
   area.appendChild(div);
   scrollBottom();
+  let secs = 0;
+  timerIntervals[id] = setInterval(() => {
+    secs++;
+    const el = document.getElementById(`secs-${id}`);
+    if (el) el.textContent = secs;
+  }, 1000);
   return id;
 }
 
-function removeTyping(id) {
-  const el = document.getElementById(`typing-${id}`);
+function removeThinkTimer(id) {
+  clearInterval(timerIntervals[id]);
+  delete timerIntervals[id];
+  const el = document.getElementById(`timer-${id}`);
   if (el) el.remove();
 }
 
@@ -1091,49 +1241,116 @@ function escHtml(s) {
   return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\n/g,"<br>");
 }
 
-function formatText(text) {
-  // code blocks
-  text = text.replace(/```(\w*)\n?([\s\S]*?)```/g, (_, lang, code) =>
-    `<pre><code>${escHtml(code.trim())}</code></pre>`);
+function formatText(rawText) {
+  let text = rawText;
 
-// inline code
-text = text.replace(/`([^`]+)`/g, “<code>$1</code>”);
-// bold
-text = text.replace(/**(.+?)**/g, “<strong>$1</strong>”);
-// newlines
-text = text.replace(/\n/g, “<br>”);
-return text;
+  // 1. Code blocks — wrap with copy button + highlight.js
+  let codeIdx = 0;
+  const codePlaceholders = {};
+  text = text.replace(/```(\w*)\n?([\s\S]*?)```/g, (_, lang, code) => {
+    const id = "CODE_" + (codeIdx++);
+    const escapedCode = escHtml(code.trim());
+    const langLabel = lang ? lang.toUpperCase() : "CODE";
+    codePlaceholders[id] = `<div class="code-wrapper">
+      <div class="code-header">
+        <span>${langLabel}</span>
+        <button class="copy-btn" onclick="copyCode(this)">${escHtml(code.trim())}</button>
+      </div>
+      <pre><code class="${lang ? 'language-' + lang : ''}">${escapedCode}</code></pre>
+    </div>`;
+    return id;
+  });
+
+  // 2. Tables — render markdown tables
+  text = text.replace(/\n?((?:\|.+\|\n?)+)/g, (match) => {
+    const lines = match.trim().split("\n").filter(l => l.trim());
+    if (lines.length < 2) return match;
+    const isSep = l => /^[\|\s\-:]+$/.test(l);
+    let html = '<table>';
+    let firstRow = true;
+    for (const line of lines) {
+      if (isSep(line)) continue;
+      const cells = line.split("|").filter((_, i, a) => i > 0 && i < a.length - 1);
+      if (firstRow) {
+        html += '<tr>' + cells.map(c => `<th>${c.trim()}</th>`).join('') + '</tr>';
+        firstRow = false;
+      } else {
+        html += '<tr>' + cells.map(c => `<td>${c.trim()}</td>`).join('') + '</tr>';
+      }
+    }
+    html += '</table>';
+    return html;
+  });
+
+  // 3. Bold, italic
+  text = text.replace(/\*\*\*(.+?)\*\*\*/g, "<strong><em>$1</em></strong>");
+  text = text.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+  text = text.replace(/\*(.+?)\*/g, "<em>$1</em>");
+
+  // 4. Headers
+  text = text.replace(/^###\s+(.+)$/gm, "<h4>$1</h4>");
+  text = text.replace(/^##\s+(.+)$/gm, "<h3>$1</h3>");
+  text = text.replace(/^#\s+(.+)$/gm, "<h2>$1</h2>");
+
+  // 5. Lists
+  text = text.replace(/^[-*]\s+(.+)$/gm, "<li>$1</li>");
+  text = text.replace(/(<li>.*<\/li>)/gs, "<ul>$1</ul>");
+
+  // 6. Inline code
+  text = text.replace(/`([^`]+)`/g, "<code>$1</code>");
+
+  // 7. Newlines
+  text = text.replace(/\n/g, "<br>");
+
+  // 8. Restore code blocks
+  for (const [id, html] of Object.entries(codePlaceholders)) {
+    text = text.replace(id, html);
+  }
+
+  return text;
+}
+
+function copyCode(btn) {
+  // Get the actual code text stored as button's text content (set during formatText)
+  const codeEl = btn.closest(".code-wrapper").querySelector("code");
+  const raw = codeEl ? codeEl.innerText : "";
+  navigator.clipboard.writeText(raw).then(() => {
+    btn.textContent = "✓ Скопировано";
+    btn.classList.add("copied");
+    setTimeout(() => { btn.textContent = "Копировать"; btn.classList.remove("copied"); }, 2000);
+  }).catch(() => {
+    btn.textContent = "Копировать";
+  });
 }
 
 function timeNow() {
-const d = new Date();
-return d.getHours().toString().padStart(2,“0”) + “:” + d.getMinutes().toString().padStart(2,“0”);
+  const d = new Date();
+  return d.getHours().toString().padStart(2,"0") + ":" + d.getMinutes().toString().padStart(2,"0");
 }
 
 function showToast(msg) {
-const t = document.getElementById(“toast”);
-t.textContent = msg;
-t.classList.add(“show”);
-setTimeout(() => t.classList.remove(“show”), 2000);
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2000);
 }
 
 // ── Загрузка лимитов при открытии мини-аппа ─────────────────
 if (USER_ID) {
-fetch(`${API_BASE}/api/limits?uid=${USER_ID}`)
-.then(r => r.json())
-.then(d => {
-if (d.ok) {
-document.getElementById(“limitBar”).style.display = “flex”;
-document.getElementById(“fastLeft”).textContent = d.fast_left;
-document.getElementById(“proLeft”).textContent  = d.pro_left;
-}
-})
-.catch(() => {});
+  fetch(`${API_BASE}/api/limits?uid=${USER_ID}`)
+    .then(r => r.json())
+    .then(d => {
+      if (d.ok) {
+        document.getElementById("limitBar").style.display = "flex";
+        document.getElementById("fastLeft").textContent = d.fast_left;
+        document.getElementById("proLeft").textContent  = d.pro_left;
+      }
+    })
+    .catch(() => {});
 }
 
 // ── tg theme ─────────────────────────────────────────────────
-tg.onEvent(“themeChanged”, () => {});
+tg.onEvent("themeChanged", () => {});
 </script>
-
 </body>
 </html>
