@@ -1412,30 +1412,37 @@ function scrollBottom() {
 }
 
 function escHtml(s) {
+  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+// Отдельная функция для экранирования текста с заменой переносов на <br>
+function escHtmlBr(s) {
   return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\n/g,"<br>");
 }
 
 function formatText(rawText) {
   let text = rawText;
 
-  // 1. Code blocks — wrap with copy button + highlight.js
+  // 1. Code blocks — сначала вырезаем и сохраняем плейсхолдерами
   let codeIdx = 0;
   const codePlaceholders = {};
   text = text.replace(/```(\w*)\n?([\s\S]*?)```/g, (_, lang, code) => {
-    const id = "CODE_" + (codeIdx++);
-    const escapedCode = escHtml(code.trim());
+    const id = "\x00CODE_" + (codeIdx++) + "\x00";
+    const rawCode = code.trim();
+    const escapedCode = escHtml(rawCode); // БЕЗ замены \n — нужны реальные переносы строк!
     const langLabel = lang ? lang.toUpperCase() : "CODE";
+    // Код сохраняем в data-атрибуте для копирования
     codePlaceholders[id] = `<div class="code-wrapper">
       <div class="code-header">
         <span>${langLabel}</span>
-        <button class="copy-btn" onclick="copyCode(this)">${escHtml(code.trim())}</button>
+        <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
       </div>
-      <pre><code class="${lang ? 'language-' + lang : ''}">${escapedCode}</code></pre>
+      <pre><code class="${lang ? 'language-' + lang : ''}" data-raw="${escHtml(rawCode).replace(/"/g,'&quot;')}">${escapedCode}</code></pre>
     </div>`;
     return id;
   });
 
-  // 2. Tables — render markdown tables with scroll wrapper
+  // 2. Tables
   text = text.replace(/\n?((?:\|.+\|\n?)+)/g, (match) => {
     const lines = match.trim().split("\n").filter(l => l.trim());
     if (lines.length < 2) return match;
@@ -1471,24 +1478,26 @@ function formatText(rawText) {
   text = text.replace(/(<li>.*<\/li>)/gs, "<ul>$1</ul>");
 
   // 6. Inline code
-  text = text.replace(/`([^`]+)`/g, "<code>$1</code>");
+  text = text.replace(/`([^`\n]+)`/g, (_, c) => `<code>${escHtml(c)}</code>`);
 
-  // 7. Newlines
+  // 7. Newlines → <br> (только для обычного текста, не кода)
   text = text.replace(/\n/g, "<br>");
 
-  // 8. Restore code blocks
+  // 8. Восстанавливаем code-блоки (после замены \n)
   for (const [id, html] of Object.entries(codePlaceholders)) {
-    text = text.replace(id, html);
+    text = text.split(id).join(html);
   }
 
   return text;
 }
 
 function copyCode(btn) {
-  // Get the actual code text stored as button's text content (set during formatText)
   const codeEl = btn.closest(".code-wrapper").querySelector("code");
-  const raw = codeEl ? codeEl.innerText : "";
-  navigator.clipboard.writeText(raw).then(() => {
+  // Берём оригинальный код из data-raw, или innerText как fallback
+  const raw = codeEl ? (codeEl.getAttribute("data-raw") || codeEl.innerText) : "";
+  // Decode HTML entities
+  const decoded = raw.replace(/&amp;/g,"&").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&quot;/g,'"');
+  navigator.clipboard.writeText(decoded).then(() => {
     btn.textContent = "✓ Скопировано";
     btn.classList.add("copied");
     setTimeout(() => { btn.textContent = "Копировать"; btn.classList.remove("copied"); }, 2000);
