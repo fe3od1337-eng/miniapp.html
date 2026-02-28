@@ -677,36 +677,38 @@ body {
 .table-wrap {
   width: 100%;
   overflow-x: auto;
-  margin: 10px 0;
-  border-radius: 10px;
-  border: 1px solid rgba(255,255,255,0.1);
+  margin: 12px 0;
+  border-radius: 12px;
+  border: 1px solid rgba(91,110,245,0.25);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.2);
 }
 .bubble table {
   border-collapse: collapse;
   width: 100%;
-  min-width: 100%;
-  font-size: 13px;
+  min-width: 340px;
+  font-size: 13.5px;
 }
 .bubble th {
   background: linear-gradient(135deg, #3d4fd4, #5b6ef5);
   color: #fff;
-  padding: 10px 14px;
+  padding: 11px 16px;
   text-align: left;
   font-weight: 700;
-  font-size: 12px;
+  font-size: 13px;
   letter-spacing: 0.3px;
   white-space: nowrap;
 }
 .bubble td {
-  padding: 9px 14px;
-  border-bottom: 1px solid rgba(255,255,255,0.07);
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
   color: var(--text);
-  line-height: 1.5;
+  line-height: 1.6;
   vertical-align: top;
+  font-size: 13px;
 }
-.bubble tr:nth-child(even) td { background: rgba(91,110,245,0.05); }
+.bubble tr:nth-child(even) td { background: rgba(91,110,245,0.07); }
 .bubble tr:last-child td { border-bottom: none; }
-.bubble tr:hover td { background: rgba(255,255,255,0.04); }
+.bubble tr:hover td { background: rgba(255,255,255,0.05); transition: background 0.15s; }
 
 /* ── KATEX ── */
 .katex { font-size: 1em !important; }
@@ -949,6 +951,7 @@ const MODEL_ICONS = {
   c4ai_vis8b:    `<svg viewBox="0 0 24 24" fill="none" width="18" height="18"><circle cx="12" cy="12" r="10" fill="#880e4f"/><path d="M8 12a4 4 0 108 0" stroke="white" stroke-width="1.5" stroke-linecap="round"/><ellipse cx="12" cy="12" rx="2" ry="1.5" fill="white"/></svg>`,
   sonar:         `<svg viewBox="0 0 24 24" fill="none" width="18" height="18"><circle cx="12" cy="12" r="10" fill="#0369a1"/><circle cx="12" cy="12" r="2" fill="white"/><path d="M12 12 L18 6M12 12 L6 18" stroke="white" stroke-width="1.2" stroke-linecap="round"/></svg>`,
   sonar_pro:     `<svg viewBox="0 0 24 24" fill="none" width="18" height="18"><circle cx="12" cy="12" r="10" fill="#0284c7"/><circle cx="12" cy="12" r="2.5" fill="white"/><path d="M12 12 L18 6M12 12 L6 18M12 12 L18 18" stroke="white" stroke-width="1.2" stroke-linecap="round"/></svg>`,
+  searchgpt:     `<svg viewBox="0 0 24 24" fill="none" width="18" height="18"><circle cx="12" cy="12" r="10" fill="#10a37f"/><circle cx="10" cy="10" r="3.5" stroke="white" stroke-width="1.5"/><path d="M13 13 L17 17" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>`,
 };
 
 function getModelIcon(key) {
@@ -975,9 +978,12 @@ const MODELS = [
   { key:"c4ai_32b",      name:"C4AI Aya 32B",      av:"av-c4ai",   cat:"C4AI",   desc:"Многоязычная модель — 32B параметров, 23 языка" },
   { key:"c4ai_8b",       name:"C4AI Aya 8B",       av:"av-c4ai",   cat:"C4AI",   desc:"Лёгкая и быстрая версия Aya — 8B параметров" },
   { key:"c4ai_vis32b",   name:"C4AI Vision 32B",   av:"av-c4ai",   cat:"C4AI",   desc:"Vision версия Aya 32B — анализ изображений 📸", vision:true },
+  { key:"sonar",         name:"Sonar",             av:"av-sonar",  cat:"Веб",    desc:"Perplexity Sonar — поиск в интернете 🌐" },
+  { key:"sonar_pro",     name:"Sonar Pro",         av:"av-sonar",  cat:"Веб",    desc:"Расширенный поиск — глубокий анализ 🌐" },
+  { key:"searchgpt",     name:"SearchGPT",         av:"av-gpt",    cat:"Веб",    desc:"GPT с поиском в интернете в реальном времени 🌐" },
 ];
 
-const CATS = ["Все", "Claude", "GPT", "DeepSeek", "Qwen", "Command", "Kimi", "GLM", "C4AI"];
+const CATS = ["Все", "Claude", "GPT", "DeepSeek", "Qwen", "Command", "Kimi", "GLM", "C4AI", "Веб"];
 
 // ── State ────────────────────────────────────────────────────
 const params = new URLSearchParams(location.search);
