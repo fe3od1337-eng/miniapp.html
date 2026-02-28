@@ -455,6 +455,12 @@ body {
   font-size: 18px;
 }
 .attach-btn:active { opacity: 0.7; }
+.attach-btn.vision-active {
+  background: rgba(251,191,36,0.15);
+  color: #fbbf24;
+  border: 1.5px solid rgba(251,191,36,0.35);
+  box-shadow: 0 0 8px rgba(251,191,36,0.15);
+}
 
 .send-btn {
   background: var(--accent);
@@ -530,7 +536,10 @@ body {
   font-weight: 600;
   margin-bottom: 6px;
   display: flex; align-items: center; gap: 6px;
+  cursor: pointer;
+  transition: background 0.15s;
 }
+.vision-hint:active { background: rgba(251,191,36,0.15); }
 
 /* limit bar */
 .limit-bar {
@@ -853,8 +862,8 @@ body {
 
 <!-- INPUT -->
 <div class="input-bar" id="inputBar">
-  <div class="vision-hint" id="visionHint" style="display:none">
-    📸 Эта модель поддерживает фото — нажми 📎 чтобы прикрепить
+  <div class="vision-hint" id="visionHint" style="display:none" onclick="document.getElementById('fileInput').click()">
+    📸 Эта модель поддерживает фото — нажми чтобы прикрепить
   </div>
   <div class="img-preview" id="imgPreview" style="display:none"></div>
   <div class="limit-bar" id="limitBar" style="display:none">
@@ -1043,8 +1052,19 @@ function updateHeader() {
   av.innerHTML = getModelIcon(m.key);
   document.getElementById("hdrName").textContent = m.name;
   document.getElementById("hdrSub").textContent  = m.vision ? "📸 Поддержка фото" : "Нажми чтобы сменить";
+
   const vh = document.getElementById("visionHint");
-  vh.style.display = m.vision ? "flex" : "none";
+  const ab = document.getElementById("attachBtn");
+
+  if (m.vision) {
+    vh.style.display = "flex";
+    ab.classList.add("vision-active");
+    ab.title = "📸 Прикрепить фото";
+  } else {
+    vh.style.display = "none";
+    ab.classList.remove("vision-active");
+    ab.title = "Эта модель не поддерживает фото";
+  }
 }
 
 // ── Sheet ────────────────────────────────────────────────────
@@ -1185,8 +1205,12 @@ function updateSendBtn() {
 document.getElementById("attachBtn").addEventListener("click", () => {
   const m = getModel(curModel);
   if (!m.vision) {
-    showToast("⚠️ Эта модель не поддерживает фото");
-    return;
+    // Предлагаем переключиться, но всё равно открываем
+    showToast("💡 Смени модель на Claude/GPT-5.2 для лучшего анализа фото");
+    // Автоматически переключаем на claude_sonnet (vision модель)
+    curModel = "claude_sonnet";
+    updateHeader();
+    renderModels();
   }
   document.getElementById("fileInput").click();
 });
@@ -1316,10 +1340,22 @@ function addUserMsg(text, imgUrls) {
   const area = document.getElementById("chatArea");
   const div = document.createElement("div");
   div.className = "msg user";
-  let imgsHtml = imgUrls.map(u => `<img class="msg-img" src="${u}" alt="фото">`).join("");
+
+  let imgsHtml = "";
+  if (imgUrls && imgUrls.length) {
+    // Несколько фото — сетка, одно фото — крупнее
+    if (imgUrls.length === 1) {
+      imgsHtml = `<img class="msg-img" src="${imgUrls[0]}" alt="фото" style="max-width:220px;border-radius:12px;display:block;margin-bottom:${text?'6px':'0'}">`;
+    } else {
+      imgsHtml = `<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:${text?'6px':'0'}">` +
+        imgUrls.map(u => `<img src="${u}" alt="фото" style="width:100px;height:100px;object-fit:cover;border-radius:10px;">`).join("") +
+        `</div>`;
+    }
+  }
+
   div.innerHTML = `
     ${imgsHtml}
-    ${text ? `<div class="bubble">${escHtml(text)}</div>` : ""}
+    ${text ? `<div class="bubble">${escHtmlBr(text)}</div>` : ""}
     <div class="msg-meta">Вы · ${timeNow()}</div>`;
   area.appendChild(div);
   scrollBottom();
