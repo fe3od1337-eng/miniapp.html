@@ -948,33 +948,27 @@ function getModelIcon(key) {
 
 // ── Модели ──────────────────────────────────────────────────
 const MODELS = [
-  { key:"claude_sonnet", name:"Claude Sonnet 4.5", av:"av-claude", cat:"Claude", desc:"Сбалансированная модель — умная, быстрая, детальная" },
-  { key:"claude_haiku",  name:"Claude Haiku 4.5",  av:"av-claude", cat:"Claude", desc:"Самая быстрая версия Claude" },
-  { key:"claude_opus",   name:"Claude Opus 4.5",   av:"av-claude", cat:"Claude", desc:"Топовая модель Anthropic — глубокий анализ" },
-  { key:"gpt52",         name:"GPT-5.2",           av:"av-gpt",    cat:"GPT",    desc:"Новейшая модель от OpenAI" },
+  { key:"claude_sonnet", name:"Claude Sonnet 4.5", av:"av-claude", cat:"Claude", desc:"Сбалансированная модель — умная, быстрая, детальная 📸", vision:true },
+  { key:"claude_haiku",  name:"Claude Haiku 4.5",  av:"av-claude", cat:"Claude", desc:"Самая быстрая версия Claude 📸", vision:true },
+  { key:"claude_opus",   name:"Claude Opus 4.5",   av:"av-claude", cat:"Claude", desc:"Топовая модель Anthropic — глубокий анализ 📸", vision:true },
+  { key:"gpt52",         name:"GPT-5.2",           av:"av-gpt",    cat:"GPT",    desc:"Новейшая модель от OpenAI 📸", vision:true },
   { key:"gpt52_chat",    name:"GPT-5.2 Chat",      av:"av-gpt",    cat:"GPT",    desc:"GPT-5.2 оптимизированная для диалогов" },
   { key:"deepseek_v3",   name:"DeepSeek V3.2",     av:"av-deepseek",cat:"DeepSeek",desc:"Умнейшая китайская модель — конкурент OpenAI o1" },
   { key:"deepseek_r1",   name:"DeepSeek R1",       av:"av-deepseek",cat:"DeepSeek",desc:"Reasoning-модель с цепочкой рассуждений" },
   { key:"deepseek_v3_sq",name:"DeepSeek V3",       av:"av-deepseek",cat:"DeepSeek",desc:"Стабильная версия DeepSeek V3" },
   { key:"qwen3_max",     name:"Qwen3-Max",         av:"av-qwen",   cat:"Qwen",   desc:"Флагманская модель Alibaba — многоязычная" },
   { key:"qwen3_vl",      name:"Qwen3-VL",          av:"av-qwen",   cat:"Qwen",   desc:"Vision модель — анализирует изображения 📸", vision:true },
-  { key:"qwen_vision",   name:"Qwen2.5-VL 32B",    av:"av-qwen",   cat:"Qwen",   desc:"Мощный анализ фото и документов 📸", vision:true },
-  { key:"llama32_90b",   name:"Llama 3.2 90B",     av:"av-llama",  cat:"Llama",  desc:"Open-source гигант от Meta — Vision 📸", vision:true },
   { key:"command_a",     name:"Command-A",         av:"av-command",cat:"Command", desc:"Бизнес-модель от Cohere" },
   { key:"command_vision",name:"Command Vision",    av:"av-command",cat:"Command", desc:"Command с поддержкой изображений 📸", vision:true },
   { key:"command_reason",name:"Command Reasoning", av:"av-command",cat:"Command", desc:"Углублённое рассуждение для сложных задач" },
   { key:"moonshot",      name:"Kimi K2",           av:"av-kimi",   cat:"Kimi",   desc:"Модель от Moonshot AI — нестандартное мышление" },
   { key:"glm47",         name:"GLM-4.7",           av:"av-glm",    cat:"GLM",    desc:"Новейшая версия GLM с улучшенным рассуждением" },
-  { key:"glm46",         name:"GLM-4.6",           av:"av-glm",    cat:"GLM",    desc:"Стабильная модель GLM-4.6" },
   { key:"c4ai_32b",      name:"C4AI Aya 32B",      av:"av-c4ai",   cat:"C4AI",   desc:"Многоязычная модель — 32B параметров, 23 языка" },
   { key:"c4ai_8b",       name:"C4AI Aya 8B",       av:"av-c4ai",   cat:"C4AI",   desc:"Лёгкая и быстрая версия Aya — 8B параметров" },
   { key:"c4ai_vis32b",   name:"C4AI Vision 32B",   av:"av-c4ai",   cat:"C4AI",   desc:"Vision версия Aya 32B — анализ изображений 📸", vision:true },
-  { key:"c4ai_vis8b",    name:"C4AI Vision 8B",    av:"av-c4ai",   cat:"C4AI",   desc:"Быстрая Vision версия Aya 8B 📸", vision:true },
-  { key:"sonar",         name:"Sonar",             av:"av-sonar",  cat:"Sonar",  desc:"Perplexity Sonar — поиск в интернете + ИИ" },
-  { key:"sonar_pro",     name:"Sonar Pro",         av:"av-sonar",  cat:"Sonar",  desc:"Расширенная версия с глубоким поиском" },
 ];
 
-const CATS = ["Все", "Claude", "GPT", "DeepSeek", "Qwen", "Llama", "Command", "Kimi", "GLM", "C4AI", "Sonar"];
+const CATS = ["Все", "Claude", "GPT", "DeepSeek", "Qwen", "Command", "Kimi", "GLM", "C4AI"];
 
 // ── State ────────────────────────────────────────────────────
 const params = new URLSearchParams(location.search);
