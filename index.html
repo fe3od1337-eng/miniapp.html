@@ -978,12 +978,9 @@ const MODELS = [
   { key:"c4ai_32b",      name:"C4AI Aya 32B",      av:"av-c4ai",   cat:"C4AI",   desc:"Многоязычная модель — 32B параметров, 23 языка" },
   { key:"c4ai_8b",       name:"C4AI Aya 8B",       av:"av-c4ai",   cat:"C4AI",   desc:"Лёгкая и быстрая версия Aya — 8B параметров" },
   { key:"c4ai_vis32b",   name:"C4AI Vision 32B",   av:"av-c4ai",   cat:"C4AI",   desc:"Vision версия Aya 32B — анализ изображений 📸", vision:true },
-  { key:"sonar",         name:"Sonar",             av:"av-sonar",  cat:"Веб",    desc:"Perplexity Sonar — поиск в интернете 🌐" },
-  { key:"sonar_pro",     name:"Sonar Pro",         av:"av-sonar",  cat:"Веб",    desc:"Расширенный поиск — глубокий анализ 🌐" },
-  { key:"searchgpt",     name:"SearchGPT",         av:"av-gpt",    cat:"Веб",    desc:"GPT с поиском в интернете в реальном времени 🌐" },
 ];
 
-const CATS = ["Все", "Claude", "GPT", "DeepSeek", "Qwen", "Command", "Kimi", "GLM", "C4AI", "Веб"];
+const CATS = ["Все", "Claude", "GPT", "DeepSeek", "Qwen", "Command", "Kimi", "GLM", "C4AI"];
 
 // ── State ────────────────────────────────────────────────────
 const params = new URLSearchParams(location.search);
@@ -1440,8 +1437,8 @@ function addThinkTimer() {
   div.innerHTML = `
     <div class="bubble">
       <div class="think-timer">
-        <span class="timer-icon">⚙️</span>
-        <span>Думаю...</span>
+        <span class="timer-icon">🔍</span>
+        <span class="timer-label" id="label-${id}">Анализирую запрос</span>
         <span class="timer-secs" id="secs-${id}">0</span>
         <span style="color:var(--text3);font-size:12px">сек</span>
       </div>
@@ -1449,10 +1446,24 @@ function addThinkTimer() {
   area.appendChild(div);
   scrollBottom();
   let secs = 0;
+  const phases = [
+    {at:0,  icon:"🔍", text:"Анализирую запрос"},
+    {at:3,  icon:"🧠", text:"Размышляю"},
+    {at:8,  icon:"💡", text:"Формирую ответ"},
+    {at:15, icon:"⚡", text:"Ответ почти готов"},
+  ];
   timerIntervals[id] = setInterval(() => {
     secs++;
-    const el = document.getElementById(`secs-${id}`);
-    if (el) el.textContent = secs;
+    const secsEl  = document.getElementById(`secs-${id}`);
+    const labelEl = document.getElementById(`label-${id}`);
+    const iconEl  = div.querySelector(".timer-icon");
+    if (secsEl) secsEl.textContent = secs;
+    if (labelEl && iconEl) {
+      let cur = phases[0];
+      for (const p of phases) { if (secs >= p.at) cur = p; }
+      labelEl.textContent = cur.text;
+      iconEl.textContent  = cur.icon;
+    }
   }, 1000);
   return id;
 }
@@ -1539,7 +1550,19 @@ function formatText(rawText) {
   text = text.replace(/`([^`\n]+)`/g, (_, c) => `<code>${escHtml(c)}</code>`);
 
   // 7. Newlines → <br> (только для обычного текста, не кода)
+  // Сохраняем блочные LaTeX формулы ($$...$$) от замены \n → <br>
+  const latexPlaceholders = {};
+  let latexIdx = 0;
+  text = text.replace(/\$\$([\s\S]+?)\$\$/g, (match) => {
+    const pid = "\x00LATEX_" + (latexIdx++) + "\x00";
+    latexPlaceholders[pid] = match;
+    return pid;
+  });
   text = text.replace(/\n/g, "<br>");
+  // Восстанавливаем LaTeX блоки
+  for (const [pid, orig] of Object.entries(latexPlaceholders)) {
+    text = text.split(pid).join(orig);
+  }
 
   // 8. Восстанавливаем code-блоки (после замены \n)
   for (const [id, html] of Object.entries(codePlaceholders)) {
