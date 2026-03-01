@@ -596,7 +596,6 @@ body {
 
 /* file input hidden */
 #fileInput { display: none; }
-#docInput  { display: none; }
 
 /* ── VOICE BTN ── */
 .voice-btn {
@@ -1295,8 +1294,8 @@ body.light .code-wrapper pre { background: #1e1e2e !important; }
   <div class="sheet-list" id="sheetList"></div>
 </div>
 
-<input type="file" id="fileInput" accept="*/*" multiple>
-<input type="file" id="docInput" accept="image/*,.pdf,.txt,.csv,.md,.json,.xml,.yaml,.yml,.toml,.ini,.conf,.cfg,.env,.log,.py,.pyw,.js,.mjs,.ts,.jsx,.tsx,.html,.htm,.css,.scss,.java,.cpp,.cc,.c,.h,.hpp,.cs,.go,.rs,.php,.rb,.sh,.bash,.bat,.cmd,.ps1,.sql,.graphql,.tf,.kt,.swift,.dart,.vue,.svelte,.rst,.tex,.gitignore" multiple>
+<input type="file" id="fileInput" accept="image/*,.pdf,.txt,.csv,.md,.json,.xml,.yaml,.yml,.toml,.ini,.conf,.cfg,.env,.log,.py,.pyw,.js,.mjs,.ts,.jsx,.tsx,.html,.htm,.css,.scss,.java,.cpp,.cc,.c,.h,.hpp,.cs,.go,.rs,.php,.rb,.sh,.bash,.bat,.cmd,.ps1,.sql,.graphql,.tf,.kt,.swift,.dart,.vue,.svelte,.rst,.tex,.gitignore" multiple>
+
 <div class="toast" id="toast"></div>
 
 <!-- LIGHTBOX для просмотра/сохранения изображений -->
@@ -1664,10 +1663,7 @@ function updateSendBtn() {
 
 // ── File attach — 📎 открывает ЛЮБЫЕ файлы (фото + документы) ─────────────
 document.getElementById("attachBtn").addEventListener("click", () => {
-  // На iOS fileInput с accept="*/*" показывает только фото.
-  // docInput с явными расширениями правильно открывает файловый менеджер.
-  // Поэтому 📎 тоже открывает docInput — он принимает всё нужное.
-  document.getElementById("docInput").click();
+  document.getElementById("fileInput").click();
 });
 
 document.getElementById("fileInput").addEventListener("change", async e => {
@@ -1692,6 +1688,7 @@ document.getElementById("fileInput").addEventListener("change", async e => {
     }
   }
   e.target.value = "";
+  if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
 });
 
 // Сжимаем изображение до макс. 1024px и JPEG качество 75%
@@ -2788,22 +2785,7 @@ async function readFileAsDoc(file) {
 }
 
 
-document.getElementById("docInput").addEventListener("change", async (e) => {
-  const files = Array.from(e.target.files || []);
-  for (const file of files) {
-    if (file.type.startsWith("image/")) {
-      compressImage(file).then(({ b64, url }) => {
-        pendingImgs.push({ file, b64, url });
-        renderImgPreview();
-        updateSendBtn();
-      });
-    } else {
-      await readFileAsDoc(file);
-    }
-  }
-  e.target.value = "";
-  if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
-});
+
 
 function renderDocPreview() {
   const el = document.getElementById("docPreview");
