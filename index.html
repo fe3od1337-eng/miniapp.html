@@ -1295,7 +1295,7 @@ body.light .code-wrapper pre { background: #1e1e2e !important; }
   <div class="sheet-list" id="sheetList"></div>
 </div>
 
-<input type="file" id="fileInput" accept="image/*">
+<input type="file" id="fileInput" accept="*/*" multiple>
 <input type="file" id="docInput" accept=".pdf,.doc,.docx,.txt,.csv,.xlsx,.xls,.py,.js,.ts,.jsx,.tsx,.html,.css,.java,.cpp,.c,.h,.cs,.go,.rs,.php,.rb,.sh,.sql,.json,.xml,.yaml,.yml,.md,.log,.ini,.conf,.env,.kt,.swift,.dart,.rb,.bat,.ps1,.tf,.toml,.graphql,.vue,.svelte" multiple>
 <div class="toast" id="toast"></div>
 
@@ -1662,30 +1662,33 @@ function updateSendBtn() {
   document.getElementById("sendBtn").disabled = (!hasText && !hasImg) || isLoading;
 }
 
-// ── File attach ───────────────────────────────────────────────
+// ── File attach — УМНАЯ кнопка: фото → vision, код/текст → документ ─────
 document.getElementById("attachBtn").addEventListener("click", () => {
-  const m = getModel(curModel);
-  if (!m.vision) {
-    // Предлагаем переключиться, но всё равно открываем
-    showToast("💡 Смени модель на Claude/GPT-5.2 для лучшего анализа фото");
-    // Автоматически переключаем на claude_sonnet (vision модель)
-    curModel = "claude_sonnet";
-    updateHeader();
-    renderModels();
-  }
+  // Открываем выбор ЛЮБЫХ файлов — обрабатываем по типу
   document.getElementById("fileInput").click();
 });
 
-document.getElementById("fileInput").addEventListener("change", e => {
+document.getElementById("fileInput").addEventListener("change", async e => {
   const files = Array.from(e.target.files || []);
-  files.forEach(file => {
-    if (!file.type.startsWith("image/")) return;
-    compressImage(file).then(({ b64, url }) => {
-      pendingImgs.push({ file, b64, url });
-      renderImgPreview();
-      updateSendBtn();
-    });
-  });
+  for (const file of files) {
+    if (file.type.startsWith("image/")) {
+      // ── Изображение → vision ──
+      const m = getModel(curModel);
+      if (!m.vision) {
+        curModel = "claude_sonnet";
+        updateHeader();
+        renderModels();
+      }
+      compressImage(file).then(({ b64, url }) => {
+        pendingImgs.push({ file, b64, url });
+        renderImgPreview();
+        updateSendBtn();
+      });
+    } else {
+      // ── Не изображение → читаем как документ (код, текст, pdf и т.д.) ──
+      await readFileAsDoc(file);
+    }
+  }
   e.target.value = "";
 });
 
@@ -2706,11 +2709,7 @@ voiceBtn.addEventListener("click", async () => {
 // ══════════════════════════════════════════════════════════
 // pendingDocs объявлен выше вместе с остальными переменными состояния
 
-document.getElementById("docBtn").addEventListener("click", () => {
-  document.getElementById("docInput").click();
-});
-
-// Расширения текстовых/кодовых файлов — всё что можно читать как текст
+// Расширения текстовых/кодовых файлов — всё что читается как текст
 const TEXT_EXTS = new Set([
   "txt","csv","md","json","xml","yaml","yml","toml","ini","conf","cfg","env","log",
   "py","pyw","js","mjs","ts","jsx","tsx","html","htm","css","scss","sass","less",
@@ -2721,79 +2720,89 @@ const TEXT_EXTS = new Set([
   "vue","svelte","astro","mdx","rst","tex","bib","gitignore","editorconfig"
 ]);
 
+// ── Общая функция: читает файл и добавляет в pendingDocs ──
+async function readFileAsDoc(file) {
+  const nameLower = file.name.toLowerCase();
+  const extMatch  = nameLower.match(/\.([^.]+)$/);
+  const ext       = extMatch ? extMatch[1] : "";
+  const isPdf     = ext === "pdf";
+  const isText    = TEXT_EXTS.has(ext) || file.type.startsWith("text/") || ext === "";
+
+  showToast(`📄 Читаю ${file.name}...`);
+  try {
+    let content = "";
+
+    if (isText || (!isPdf && file.size < 3 * 1024 * 1024)) {
+      try {
+        content = await file.text();
+        if (content.includes("\0")) {
+          content = `[Бинарный файл: ${file.name} — ${(file.size/1024).toFixed(0)} КБ]`;
+        }
+      } catch (e) {
+        content = `[Ошибка чтения ${file.name}: ${e.message}]`;
+      }
+    } else if (isPdf) {
+      try {
+        const ab    = await file.arrayBuffer();
+        const bytes = new Uint8Array(ab);
+        let raw = "";
+        for (let i = 0; i < Math.min(bytes.length, 800000); i++) {
+          const ch = bytes[i];
+          if (ch >= 32 && ch < 127) raw += String.fromCharCode(ch);
+          else if (ch === 10 || ch === 13) raw += "\n";
+        }
+        const btBlocks = raw.match(/BT[\s\S]{0,2000}?ET/g) || [];
+        let extracted  = btBlocks.map(b =>
+          b.replace(/BT|ET/g,"")
+           .replace(/\(([^)]*)\)\s*Tj/g,"$1 ")
+           .replace(/\[([^\]]*)\]\s*TJ/g, m => m.replace(/\(([^)]*)\)/g,"$1")+" ")
+           .replace(/[^\x20-\x7Eа-яА-ЯёЁ\n]/g,"")
+           .trim()
+        ).filter(s => s.length > 3).join("\n");
+        content = extracted.length > 100
+          ? extracted
+          : `[PDF: ${file.name} — ${(file.size/1024).toFixed(0)} КБ. Текст не удалось извлечь. Скопируй текст вручную.]`;
+      } catch (e) {
+        content = `[Ошибка PDF ${file.name}: ${e.message}]`;
+      }
+    } else {
+      content = `[${file.name} — ${(file.size/1024).toFixed(0)} КБ. Формат не поддерживается.]`;
+    }
+
+    const MAX = 15000;
+    if (content.length > MAX) {
+      content = content.slice(0, MAX) + `\n\n--- [Обрезано: ${MAX} из ${content.length} симв.] ---`;
+    }
+
+    pendingDocs.push({ name: file.name, text: content, size: file.size });
+    renderDocPreview();
+    updateSendBtn();
+    showToast(`✅ ${file.name} прочитан (${content.length} симв.)`);
+  } catch (err) {
+    pendingDocs.push({ name: file.name, text: `[Ошибка: ${err.message}]`, size: 0 });
+    renderDocPreview();
+    showToast(`⚠️ Не удалось прочитать ${file.name}`);
+  }
+}
+
+// docBtn → docInput (для кнопки 📄)
+document.getElementById("docBtn").addEventListener("click", () => {
+  document.getElementById("docInput").click();
+});
+
 document.getElementById("docInput").addEventListener("change", async (e) => {
   const files = Array.from(e.target.files || []);
-  if (!files.length) return;
-
   for (const file of files) {
-    const nameLower = file.name.toLowerCase();
-    // Получаем расширение
-    const extMatch = nameLower.match(/\.([^.]+)$/);
-    const ext = extMatch ? extMatch[1] : "";
-    const isPdf  = ext === "pdf";
-    // Файл без расширения или с текстовым расширением
-    const isText = TEXT_EXTS.has(ext) || file.type.startsWith("text/") || ext === "";
-
-    showToast(`📄 Читаю ${file.name}...`);
-    try {
-      let content = "";
-
-      if (isText || (!isPdf && file.size < 2 * 1024 * 1024)) {
-        // Читаем как UTF-8 текст
-        try {
-          content = await file.text();
-          // Проверяем что это действительно текст (нет нулевых байтов)
-          if (content.includes("\0")) {
-            content = `[Бинарный файл: ${file.name} — ${(file.size/1024).toFixed(0)} КБ]`;
-          }
-        } catch (textErr) {
-          content = `[Не удалось прочитать ${file.name}: ${textErr.message}]`;
-        }
-      } else if (isPdf) {
-        // PDF: читаем бинарно и извлекаем текстовые блоки
-        try {
-          const ab = await file.arrayBuffer();
-          const bytes = new Uint8Array(ab);
-          let raw = "";
-          for (let i = 0; i < Math.min(bytes.length, 800000); i++) {
-            const ch = bytes[i];
-            if (ch >= 32 && ch < 127) raw += String.fromCharCode(ch);
-            else if (ch === 10 || ch === 13) raw += "\n";
-          }
-          // Извлекаем текст из BT...ET блоков PDF
-          const btBlocks = raw.match(/BT[\s\S]{0,2000}?ET/g) || [];
-          let extracted = btBlocks.map(b =>
-            b.replace(/BT|ET/g, "")
-             .replace(/\(([^)]*)\)\s*Tj/g, "$1 ")
-             .replace(/\[([^\]]*)\]\s*TJ/g, m => m.replace(/\(([^)]*)\)/g, "$1") + " ")
-             .replace(/[^\x20-\x7Eа-яА-ЯёЁ\n]/g, "")
-             .trim()
-          ).filter(s => s.length > 3).join("\n");
-          content = extracted.length > 100
-            ? extracted
-            : `[PDF файл: ${file.name} — ${(file.size/1024).toFixed(0)} КБ. Текст не удалось извлечь автоматически. Скопируй текст из PDF вручную и вставь в сообщение.]`;
-        } catch (pdfErr) {
-          content = `[Ошибка чтения PDF ${file.name}: ${pdfErr.message}]`;
-        }
-      } else {
-        content = `[Файл: ${file.name} — ${(file.size/1024).toFixed(0)} КБ. Формат не поддерживается для авточтения.]`;
-      }
-
-      // Обрезаем до 15000 символов
-      const MAX_CHARS = 15000;
-      if (content.length > MAX_CHARS) {
-        content = content.slice(0, MAX_CHARS) + `\n\n--- [Обрезано: показано ${MAX_CHARS} из ${content.length} символов] ---`;
-      }
-
-      pendingDocs.push({ name: file.name, text: content, size: file.size });
-      showToast(`✅ ${file.name} (${content.length} символов)`);
-    } catch (err) {
-      pendingDocs.push({ name: file.name, text: `[Ошибка: ${err.message}]`, size: 0 });
-      showToast(`⚠️ Не удалось прочитать ${file.name}`);
+    if (file.type.startsWith("image/")) {
+      compressImage(file).then(({ b64, url }) => {
+        pendingImgs.push({ file, b64, url });
+        renderImgPreview();
+        updateSendBtn();
+      });
+    } else {
+      await readFileAsDoc(file);
     }
   }
-
-  renderDocPreview();
   e.target.value = "";
   if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
 });
@@ -2803,14 +2812,15 @@ function renderDocPreview() {
   if (!pendingDocs.length) { el.style.display = "none"; el.innerHTML = ""; return; }
   el.style.display = "flex";
   el.innerHTML = pendingDocs.map((d, i) => {
-    const kb = d.size ? `${(d.size/1024).toFixed(0)} КБ` : "";
-    return `<div class="doc-chip">📄 ${d.name.slice(0,22)}${kb?" · "+kb:""}<span class="doc-chip-rm" onclick="removeDoc(${i})">✕</span></div>`;
+    const kb = d.size ? ` · ${(d.size/1024).toFixed(0)} КБ` : "";
+    return `<div class="doc-chip">📄 ${d.name.slice(0,22)}${kb}<span class="doc-chip-rm" onclick="removeDoc(${i})">✕</span></div>`;
   }).join("");
 }
 
 function removeDoc(idx) {
   pendingDocs.splice(idx, 1);
   renderDocPreview();
+  updateSendBtn();
 }
 
 // ══════════════════════════════════════════════════════════
