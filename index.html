@@ -596,6 +596,96 @@ body {
 
 /* file input hidden */
 #fileInput { display: none; }
+#docInput  { display: none; }
+
+/* ── VOICE BTN ── */
+.voice-btn {
+  width: 40px; height: 40px;
+  border-radius: 13px;
+  border: none;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text2);
+  font-size: 17px;
+  transition: all .2s;
+}
+.voice-btn:active { transform: scale(.92); }
+.voice-btn.recording {
+  background: rgba(248,113,113,.15);
+  border-color: rgba(248,113,113,.5);
+  color: var(--red);
+  animation: voice-pulse 1s ease infinite;
+}
+@keyframes voice-pulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(248,113,113,.4); }
+  50%      { box-shadow: 0 0 0 6px rgba(248,113,113,0); }
+}
+.voice-status {
+  font-size: 11px; font-weight: 600;
+  color: var(--red);
+  text-align: center;
+  margin-bottom: 4px;
+  display: none;
+}
+.voice-status.on { display: block; }
+
+/* ── DOC PREVIEW ── */
+.doc-preview {
+  display: flex; gap: 6px; flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+.doc-chip {
+  display: flex; align-items: center; gap: 5px;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 5px 10px;
+  font-size: 11px; color: var(--text2);
+  position: relative;
+}
+.doc-chip-rm {
+  position: absolute; top: -5px; right: -5px;
+  width: 16px; height: 16px;
+  background: var(--red); color: #fff;
+  border-radius: 50%; font-size: 10px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; border: 1.5px solid var(--bg);
+}
+
+/* ── IMAGE LIGHTBOX ── */
+.lightbox {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.92);
+  z-index: 500;
+  display: none; align-items: center; justify-content: center;
+  flex-direction: column;
+  gap: 14px;
+}
+.lightbox.open { display: flex; }
+.lightbox img {
+  max-width: 95vw; max-height: 75vh;
+  border-radius: 14px;
+  object-fit: contain;
+  touch-action: pinch-zoom;
+  cursor: zoom-in;
+}
+.lightbox-btns {
+  display: flex; gap: 10px;
+}
+.lightbox-btn {
+  padding: 10px 22px;
+  border-radius: 13px;
+  border: none;
+  font-size: 14px; font-weight: 700;
+  cursor: pointer;
+  font-family: 'Manrope', sans-serif;
+}
+.lightbox-btn:active { opacity: .8; }
+.lb-close { background: var(--surface3); color: var(--text); }
+.lb-save  { background: var(--accent); color: #fff; }
 
 /* Avatar colors */
 .av-claude  { background: linear-gradient(135deg,#d4845a,#c9512f); }
@@ -1141,7 +1231,9 @@ body.light .code-wrapper pre { background: #1e1e2e !important; }
   <div class="vision-hint" id="visionHint" style="display:none" onclick="document.getElementById('fileInput').click()">
     📸 Эта модель поддерживает фото — нажми чтобы прикрепить
   </div>
+  <div class="voice-status" id="voiceStatus">🔴 Запись... нажми снова чтобы остановить</div>
   <div class="img-preview" id="imgPreview" style="display:none"></div>
+  <div class="doc-preview" id="docPreview" style="display:none"></div>
   <div class="limit-bar" id="limitBar" style="display:none">
     <span>📊 Запросы:</span>
     <span class="limit-item"><span class="limit-dot" style="background:#34d399"></span><span id="fastLeft">—</span> быстрых</span>
@@ -1149,9 +1241,11 @@ body.light .code-wrapper pre { background: #1e1e2e !important; }
   </div>
   <div class="input-row">
     <button class="attach-btn" id="attachBtn">📎</button>
+    <button class="attach-btn" id="docBtn" title="Прикрепить документ" style="font-size:16px;">📄</button>
     <div class="input-wrap">
       <textarea id="msgInput" placeholder="Введите сообщение..." rows="1"></textarea>
     </div>
+    <button class="voice-btn" id="voiceBtn" title="Голосовой ввод">🎤</button>
     <button class="send-btn" id="sendBtn" disabled>↑</button>
   </div>
 </div>
@@ -1177,7 +1271,17 @@ body.light .code-wrapper pre { background: #1e1e2e !important; }
 </div>
 
 <input type="file" id="fileInput" accept="image/*">
+<input type="file" id="docInput" accept=".pdf,.doc,.docx,.txt,.csv,.xlsx,.xls" multiple>
 <div class="toast" id="toast"></div>
+
+<!-- LIGHTBOX для просмотра/сохранения изображений -->
+<div class="lightbox" id="lightbox">
+  <img id="lightboxImg" src="" alt="">
+  <div class="lightbox-btns">
+    <button class="lightbox-btn lb-save" id="lightboxSave">💾 Сохранить</button>
+    <button class="lightbox-btn lb-close" id="lightboxClose">✕ Закрыть</button>
+  </div>
+</div>
 
 <!-- PROFILE OVERLAY + SHEET -->
 <div class="profile-overlay" id="profileOverlay" onclick="closeProfile()"></div>
@@ -1606,29 +1710,44 @@ document.getElementById("sendBtn").addEventListener("click", sendMessage);
 
 async function sendMessage() {
   if (isLoading) return;
-  const text = msgInput.value.trim();
+  // Объединяем текст с документами
+  let text = msgInput.value.trim();
   const imgs  = [...pendingImgs];
-  if (!text && !imgs.length) return;
+  const docs  = [...pendingDocs];
+
+  if (!text && !imgs.length && !docs.length) return;
+
+  // Добавляем содержимое документов к тексту
+  if (docs.length) {
+    const docsBlock = docs.map(d => `--- Файл: ${d.name} ---\n${d.text}`).join("\n\n");
+    text = text ? `${text}\n\n${docsBlock}` : docsBlock;
+    // Показываем пользователю только имена файлов
+    const docsLabel = docs.map(d => `📄 ${d.name}`).join(", ");
+    // addUserMsg покажет оригинальный текст
+  }
 
   hideEmpty();
   isLoading = true;
   updateSendBtn();
 
-  // Add user message to UI
+  // Отображаем сообщение пользователя (без тела документов)
+  const displayText = msgInput.value.trim() + (docs.length ? "\n" + docs.map(d=>`📄 ${d.name}`).join(", ") : "");
   const imgUrls = imgs.map(i => i.url);
-  addUserMsg(text, imgUrls);
+  addUserMsg(displayText, imgUrls);
 
   // Clear input
   msgInput.value = "";
   msgInput.style.height = "auto";
   pendingImgs = [];
+  pendingDocs = [];
   renderImgPreview();
+  renderDocPreview();
 
   // Add think timer
   const timerId = addThinkTimer();
 
   // Store user message in history
-  messages.push({ role: "user", content: text || (imgs.length ? "[Фото]" : ""), imgUrls });
+  messages.push({ role: "user", content: displayText || (imgs.length ? "[Фото]" : ""), imgUrls });
 
   // Build history for bot (last 10 messages)
   const historyForBot = messages.slice(-10).map(m => ({
@@ -1643,7 +1762,7 @@ async function sendMessage() {
     action: "chat",
     uid:    USER_ID,
     model:  effectiveModel,
-    text:   text || "",
+    text:   text || "",   // text уже содержит документы
     images: imgs.map(i => i.b64),
     history: historyForBot,
     answer_mode: curMode,
@@ -2470,6 +2589,188 @@ document.getElementById("igToChat").addEventListener("click", () => {
 
 // Инициализация
 renderIgModels();
+
+// ══════════════════════════════════════════════════════════
+// 🎤 ГОЛОСОВОЙ ВВОД В ЧАТ
+// ══════════════════════════════════════════════════════════
+let mediaRecorder = null;
+let audioChunks   = [];
+let isRecording   = false;
+
+const voiceBtn    = document.getElementById("voiceBtn");
+const voiceStatus = document.getElementById("voiceStatus");
+
+voiceBtn.addEventListener("click", async () => {
+  if (!isRecording) {
+    // Начало записи
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      // Выбираем лучший поддерживаемый формат
+      const mimeType = MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
+        ? "audio/webm;codecs=opus"
+        : MediaRecorder.isTypeSupported("audio/ogg;codecs=opus")
+        ? "audio/ogg;codecs=opus"
+        : "audio/webm";
+      mediaRecorder = new MediaRecorder(stream, { mimeType });
+      audioChunks   = [];
+      mediaRecorder.addEventListener("dataavailable", e => { if (e.data.size > 0) audioChunks.push(e.data); });
+      mediaRecorder.start();
+      isRecording = true;
+      voiceBtn.classList.add("recording");
+      voiceBtn.textContent = "⏹";
+      voiceStatus.classList.add("on");
+      if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred("medium");
+    } catch(e) {
+      showToast("❌ Нет доступа к микрофону");
+    }
+  } else {
+    // Остановка записи и отправка
+    mediaRecorder.stop();
+    mediaRecorder.stream.getTracks().forEach(t => t.stop());
+    isRecording = false;
+    voiceBtn.classList.remove("recording");
+    voiceBtn.textContent = "🎤";
+    voiceStatus.classList.remove("on");
+
+    mediaRecorder.addEventListener("stop", async () => {
+      if (!audioChunks.length) { showToast("❌ Пустая запись"); return; }
+      if (!API_BASE) { showToast("❌ Нет сервера"); return; }
+      showToast("🎤 Распознаю речь...");
+      const ext = mediaRecorder.mimeType.includes("ogg") ? "ogg" : "webm";
+      const blob = new Blob(audioChunks, { type: mediaRecorder.mimeType });
+      const formData = new FormData();
+      formData.append("audio", blob, `voice.${ext}`);
+      formData.append("uid", USER_ID || "0");
+      try {
+        const resp = await fetch(`${API_BASE}/api/transcribe`, { method: "POST", body: formData });
+        const data = await resp.json();
+        if (data.ok && data.text) {
+          const inp = document.getElementById("msgInput");
+          inp.value = (inp.value ? inp.value + " " : "") + data.text;
+          inp.dispatchEvent(new Event("input"));
+          showToast("✅ Распознано!");
+          if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred("success");
+        } else {
+          showToast("❌ " + (data.error || "Не удалось распознать"));
+        }
+      } catch(e) {
+        showToast("❌ Ошибка соединения");
+      }
+    }, { once: true });
+  }
+});
+
+// ══════════════════════════════════════════════════════════
+// 📄 ЗАГРУЗКА ДОКУМЕНТОВ
+// ══════════════════════════════════════════════════════════
+let pendingDocs = []; // [{name, text}]
+
+document.getElementById("docBtn").addEventListener("click", () => {
+  document.getElementById("docInput").click();
+});
+
+document.getElementById("docInput").addEventListener("change", async (e) => {
+  const files = Array.from(e.target.files || []);
+  if (!files.length) return;
+  for (const file of files) {
+    try {
+      let content = "";
+      if (file.name.endsWith(".txt") || file.name.endsWith(".csv")) {
+        content = await file.text();
+      } else if (file.name.endsWith(".pdf")) {
+        content = `[PDF: ${file.name}]`;
+        showToast("📄 PDF добавлен как контекст");
+      } else {
+        content = await file.text().catch(() => `[${file.name}]`);
+      }
+      // Обрезаем до 8000 символов
+      if (content.length > 8000) content = content.slice(0, 8000) + "\n...[обрезано]";
+      pendingDocs.push({ name: file.name, text: content });
+    } catch (err) {
+      pendingDocs.push({ name: file.name, text: `[${file.name} — не удалось прочитать]` });
+    }
+  }
+  renderDocPreview();
+  e.target.value = "";
+  if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
+});
+
+function renderDocPreview() {
+  const el = document.getElementById("docPreview");
+  if (!pendingDocs.length) { el.style.display = "none"; el.innerHTML = ""; return; }
+  el.style.display = "flex";
+  el.innerHTML = pendingDocs.map((d, i) =>
+    `<div class="doc-chip">📄 ${d.name.slice(0, 20)}<span class="doc-chip-rm" onclick="removeDoc(${i})">✕</span></div>`
+  ).join("");
+}
+
+function removeDoc(idx) {
+  pendingDocs.splice(idx, 1);
+  renderDocPreview();
+}
+
+// Инжектим текст документов в запрос
+function getTextWithDocs() {
+  const inp = document.getElementById("msgInput");
+  let text = inp.value.trim();
+  if (pendingDocs.length) {
+    const docsBlock = pendingDocs.map(d =>
+      `--- Файл: ${d.name} ---\n${d.text}`
+    ).join("\n\n");
+    text = text ? `${text}\n\n${docsBlock}` : docsBlock;
+  }
+  return text;
+}
+
+// ══════════════════════════════════════════════════════════
+// 🖼 LIGHTBOX — просмотр и сохранение изображений
+// ══════════════════════════════════════════════════════════
+const lightbox      = document.getElementById("lightbox");
+const lightboxImg   = document.getElementById("lightboxImg");
+const lightboxClose = document.getElementById("lightboxClose");
+const lightboxSave  = document.getElementById("lightboxSave");
+
+function openLightbox(src) {
+  lightboxImg.src = src;
+  lightbox.classList.add("open");
+  if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred("light");
+}
+
+lightboxClose.addEventListener("click", () => lightbox.classList.remove("open"));
+lightbox.addEventListener("click", (e) => { if (e.target === lightbox) lightbox.classList.remove("open"); });
+
+lightboxSave.addEventListener("click", () => {
+  const src = lightboxImg.src;
+  if (!src) return;
+  const a = document.createElement("a");
+  a.href = src;
+  a.download = "huza_image_" + Date.now() + ".jpg";
+  a.click();
+  showToast("💾 Изображение сохранено!");
+  // Также пробуем через Telegram API
+  try { tg.showAlert("Изображение сохранено в галерею!"); } catch(e) {}
+});
+
+// Клик по изображениям в чате → открываем lightbox
+document.getElementById("chatArea").addEventListener("click", (e) => {
+  if (e.target.tagName === "IMG" && !e.target.classList.contains("preview-thumb-img")) {
+    openLightbox(e.target.src);
+  }
+});
+
+// Кнопка "Скачать" в imggen → тоже через lightbox
+document.getElementById("igImg").addEventListener("click", () => {
+  if (lastIgB64) openLightbox("data:image/png;base64," + lastIgB64);
+});
+
+// Улучшаем кнопку Скачать в imggen
+document.getElementById("igDownload").addEventListener("click", () => {
+  if (!lastIgB64) return;
+  // На мобильном открываем lightbox чтобы можно было сохранить через долгое нажатие
+  openLightbox("data:image/png;base64," + lastIgB64);
+}, true); // capture=true чтобы перехватить раньше старого обработчика
+
+// Конец скриптов мини-аппа
 </script>
 </body>
 </html>
