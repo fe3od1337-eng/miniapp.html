@@ -119,6 +119,26 @@ body {
 }
 .sheet-overlay.open { opacity: 1; pointer-events: all; }
 
+#imggenOverlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 200;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s;
+}
+#imggenOverlay.open { opacity: 1; pointer-events: all; }
+#imggenSheet {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: var(--surface);
+  border-radius: 20px 20px 0 0;
+  z-index: 201;
+  max-height: 90dvh;
+  display: flex; flex-direction: column;
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.32,0.72,0,1);
+}
+#imggenSheet.open { transform: translateY(0); }
+
 .sheet {
   position: fixed; bottom: 0; left: 0; right: 0;
   background: var(--surface);
@@ -991,6 +1011,7 @@ body.light .code-wrapper pre { background: #1e1e2e !important; }
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
     </div>
     <div class="header-btn" id="newChatBtn" title="Новый чат" style="font-size:18px;">✏️</div>
+    <div class="header-btn" id="imgGenBtn" title="Генерация картинок" style="font-size:16px;">🎨</div>
     <div class="header-btn" id="clearBtn" title="Очистить чат" style="font-size:16px;">🗑</div>
   </div>
 </div>
@@ -1089,6 +1110,55 @@ body.light .code-wrapper pre { background: #1e1e2e !important; }
   <div class="history-sub">⏳ Хранится 24 часа · нажми чтобы восстановить</div>
   <div class="history-list" id="historyList"></div>
   <button class="history-clear-btn" id="historyClearBtn">🗑 Очистить всю историю</button>
+</div>
+
+<!-- IMAGE GENERATION PANEL -->
+<div class="sheet-overlay" id="imggenOverlay"></div>
+<div class="sheet" id="imggenSheet" style="max-height:90dvh;">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <div class="sheet-title">🎨 Генерация картинок</div>
+    <div class="sheet-sub">Опиши что хочешь увидеть</div>
+  </div>
+  <div style="padding:0 16px 16px;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:12px;">
+    <!-- Model selector for imggen -->
+    <div>
+      <div style="font-size:11px;font-weight:700;color:var(--text3);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:8px;">МОДЕЛЬ</div>
+      <div id="imgModelList" style="display:flex;flex-direction:column;gap:6px;"></div>
+    </div>
+    <!-- Prompt input -->
+    <div>
+      <div style="font-size:11px;font-weight:700;color:var(--text3);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:8px;">ПРОМПТ</div>
+      <textarea id="imgPrompt" placeholder="Опиши картинку... (лучше на английском)" style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:12px;padding:12px;color:var(--text);font-family:inherit;font-size:14px;outline:none;resize:none;min-height:90px;line-height:1.5;"></textarea>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;" id="imgPromptSuggs">
+        <div onclick="setImgPromptSugg('beautiful sunset over mountains, ultra realistic, 8k')" style="background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:12px;cursor:pointer;color:var(--text2);">🌄 Закат</div>
+        <div onclick="setImgPromptSugg('futuristic city at night, neon lights, cyberpunk')" style="background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:12px;cursor:pointer;color:var(--text2);">🌆 Кибер</div>
+        <div onclick="setImgPromptSugg('cute anime girl, studio ghibli style, detailed')" style="background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:12px;cursor:pointer;color:var(--text2);">🎌 Аниме</div>
+        <div onclick="setImgPromptSugg('professional portrait photo, studio lighting, sharp')" style="background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:12px;cursor:pointer;color:var(--text2);">📸 Портрет</div>
+      </div>
+    </div>
+    <!-- Generate button -->
+    <button id="imgGenerate" style="width:100%;background:linear-gradient(135deg,#5b6ef5,#9b59b6);color:#fff;border:none;border-radius:14px;padding:15px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity 0.2s;" onclick="generateImage()">🎨 Создать картинку</button>
+    <!-- Result -->
+    <div id="imgResult" style="display:none;flex-direction:column;gap:10px;align-items:center;">
+      <img id="imgResultImg" src="" alt="result" style="width:100%;border-radius:16px;max-height:400px;object-fit:contain;">
+      <div style="display:flex;gap:8px;">
+        <button onclick="downloadImg()" style="flex:1;background:var(--surface2);border:1px solid var(--border2);border-radius:12px;padding:10px;color:var(--text);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;">💾 Скачать</button>
+        <button onclick="sendImgToChat()" style="flex:1;background:var(--accent);border:none;border-radius:12px;padding:10px;color:#fff;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;">💬 В чат</button>
+      </div>
+    </div>
+    <!-- Loading -->
+    <div id="imgLoading" style="display:none;text-align:center;padding:30px;color:var(--text2);">
+      <div style="font-size:32px;margin-bottom:12px;">🎨</div>
+      <div style="font-size:15px;font-weight:600;">Создаю картинку...</div>
+      <div style="font-size:12px;color:var(--text3);margin-top:6px;">Обычно 10-30 секунд</div>
+    </div>
+    <!-- Limit bar -->
+    <div id="imgLimitInfo" style="text-align:center;font-size:12px;color:var(--text3);padding-bottom:8px;"></div>
+  </div>
+  <div style="padding:0 16px 16px;flex-shrink:0;">
+    <button onclick="closeImggen()" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:12px;color:var(--text2);font-family:inherit;font-size:15px;cursor:pointer;">Закрыть</button>
+  </div>
 </div>
 
 <script>
@@ -1195,9 +1265,12 @@ function getUserLevel(req) {
 let userStats = { requests: 0, generations: 0, joined: "", fast_left: 0, pro_left: 0, img_left: 0 };
 
 // ── API Config ───────────────────────────────────────────────
-// Замени на реальный URL твоего сервера (где запущен бот)
-// Например: "https://yourserver.com" или "http://1.2.3.4:8080"
-const API_BASE = params.get("api") || window.TG_API_BASE || "http://localhost:8080";
+// API_BASE берётся из параметра ?api= который бот добавляет автоматически
+// Например бот открывает: miniapp.html?api=https://yourbot.railway.app&uid=123
+const API_BASE = params.get("api") || window.TG_API_BASE || "";
+if (!API_BASE) {
+  console.warn("⚠️ API_BASE не задан! Бот должен открывать mini-app с параметром ?api=https://yourserver.com");
+}
 // Получаем uid из Telegram — несколько способов для надёжности
 let USER_ID = 0;
 try {
@@ -2179,6 +2252,130 @@ function renderProfileSheet() {
 
 // ── tg theme ─────────────────────────────────────────────────
 tg.onEvent("themeChanged", () => {});
+
+// ════════════════════════════════════════════════════════════
+// 🎨 IMAGE GENERATION
+// ════════════════════════════════════════════════════════════
+
+const IMG_MODELS_LIST = [
+  { key: "flux2",       name: "Flux 2 Dev",      emoji: "⚡", desc: "Фотореализм" },
+  { key: "phoenix",     name: "Phoenix 1.0",      emoji: "🦅", desc: "Кино-портреты" },
+  { key: "lucid",       name: "Lucid Origin",     emoji: "🎭", desc: "Детальный дизайн" },
+  { key: "gptimg15",    name: "GPT-Image 1.5",    emoji: "🖌️", desc: "Лучшее качество" },
+  { key: "gptimg1",     name: "GPT-Image 1",      emoji: "🖼️", desc: "Стандарт OpenAI" },
+  { key: "gptimg_mini", name: "GPT-Image Mini",   emoji: "🔹", desc: "Быстро" },
+  { key: "flux_std",    name: "Flux Standard",    emoji: "🌊", desc: "Самый быстрый" },
+];
+
+let curImgModel = "flux2";
+let lastImgB64 = null;
+
+function renderImgModelList() {
+  const el = document.getElementById("imgModelList");
+  if (!el) return;
+  el.innerHTML = IMG_MODELS_LIST.map(m => `
+    <div onclick="curImgModel='${m.key}';renderImgModelList();if(tg.HapticFeedback)tg.HapticFeedback.selectionChanged();"
+         style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:${curImgModel===m.key?'rgba(91,110,245,0.15)':'var(--surface2)'};border:1px solid ${curImgModel===m.key?'rgba(91,110,245,0.5)':'var(--border)'};border-radius:12px;cursor:pointer;transition:all 0.15s;">
+      <span style="font-size:18px;">${m.emoji}</span>
+      <div style="flex:1;">
+        <div style="font-size:13px;font-weight:700;">${m.name}</div>
+        <div style="font-size:11px;color:var(--text3);">${m.desc}</div>
+      </div>
+      ${curImgModel===m.key ? '<span style="color:var(--accent);font-size:16px;">✓</span>' : ''}
+    </div>`).join('');
+}
+
+function openImggen() {
+  renderImgModelList();
+  const li = document.getElementById("imgLimitInfo");
+  if (li) li.textContent = "";
+  document.getElementById("imgResult").style.display = "none";
+  document.getElementById("imgLoading").style.display = "none";
+  document.getElementById("imggenOverlay").classList.add("open");
+  document.getElementById("imggenSheet").classList.add("open");
+  if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred("light");
+}
+function closeImggen() {
+  document.getElementById("imggenOverlay").classList.remove("open");
+  document.getElementById("imggenSheet").classList.remove("open");
+}
+document.getElementById("imggenOverlay").addEventListener("click", closeImggen);
+
+document.getElementById("imgGenBtn").addEventListener("click", openImggen);
+
+function setImgPromptSugg(text) {
+  document.getElementById("imgPrompt").value = text;
+  if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
+}
+
+async function generateImage() {
+  const prompt = document.getElementById("imgPrompt").value.trim();
+  if (!prompt) { showToast("✏️ Введи описание картинки"); return; }
+  if (!USER_ID) { showToast("❌ Нет UID пользователя"); return; }
+
+  const btn = document.getElementById("imgGenerate");
+  btn.disabled = true; btn.textContent = "⏳ Создаю...";
+  document.getElementById("imgResult").style.display = "none";
+  document.getElementById("imgLoading").style.display = "block";
+  if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred("medium");
+
+  try {
+    const resp = await fetch(`${API_BASE}/api/imggen`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ uid: USER_ID, prompt, model: curImgModel })
+    });
+    const data = await resp.json();
+    document.getElementById("imgLoading").style.display = "none";
+
+    if (data.ok) {
+      lastImgB64 = data.image_b64;
+      const img = document.getElementById("imgResultImg");
+      img.src = "data:image/png;base64," + data.image_b64;
+      document.getElementById("imgResult").style.display = "flex";
+      document.getElementById("imgLimitInfo").textContent = `🎨 Осталось генераций: ${data.img_left}`;
+      userStats.generations = (userStats.generations || 0) + 1;
+      if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred("success");
+      showToast("✅ Картинка готова!");
+    } else if (data.error === "img_limit_exceeded") {
+      document.getElementById("imgLimitInfo").textContent = `🚫 Лимит генераций исчерпан (${data.img_left} осталось)`;
+      showToast("🚫 Лимит генераций исчерпан");
+    } else if (data.error === "subscription_required") {
+      showToast("🔐 Сначала подпишись на канал в боте");
+    } else {
+      showToast("❌ " + (data.error || "Ошибка"));
+    }
+  } catch(e) {
+    document.getElementById("imgLoading").style.display = "none";
+    showToast("❌ Ошибка соединения с сервером");
+  }
+
+  btn.disabled = false; btn.textContent = "🎨 Создать картинку";
+}
+
+function downloadImg() {
+  if (!lastImgB64) return;
+  const a = document.createElement("a");
+  a.href = "data:image/png;base64," + lastImgB64;
+  a.download = "huza_image_" + Date.now() + ".png";
+  a.click();
+  showToast("💾 Сохранено!");
+}
+
+function sendImgToChat() {
+  if (!lastImgB64) return;
+  closeImggen();
+  // Добавляем картинку в чат как ответ ИИ
+  const area = document.getElementById("chatArea");
+  hideEmpty();
+  const div = document.createElement("div");
+  div.className = "msg ai";
+  div.innerHTML = `<img src="data:image/png;base64,${lastImgB64}" style="max-width:280px;border-radius:14px;display:block;" alt="generated"><div class="msg-meta" style="margin-top:4px;">🎨 Сгенерировано · ${timeNow()}</div>`;
+  area.appendChild(div);
+  scrollBottom();
+  showToast("✅ Картинка добавлена в чат");
+}
+
 </script>
 </body>
 </html>
