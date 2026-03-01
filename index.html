@@ -1774,8 +1774,8 @@ async function sendMessage() {
   // Add think timer
   const timerId = addThinkTimer();
 
-  // Store user message in history
-  messages.push({ role: "user", content: displayText || (imgs.length ? "[Фото]" : ""), imgUrls });
+  // Store user message in history (с полным содержимым файлов для контекста)
+  messages.push({ role: "user", content: text || (imgs.length ? "[Фото]" : ""), imgUrls });
 
   // Build history for bot (last 10 messages)
   const historyForBot = messages.slice(-10).map(m => ({
