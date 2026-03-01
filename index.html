@@ -884,58 +884,29 @@ body.light {
 body.light .msg.user .bubble { color: #ffffff; }
 body.light .code-wrapper pre { background: #1e1e2e !important; }
 
-/* ── MODE BAR ── */
+/* ── MODE SELECTOR (в mode-bar) ── */
 .mode-selector {
-  display: flex; align-items: center; gap: 8px;
-  background: var(--surface2);
-  border: 1px solid var(--border2);
-  border-radius: 22px;
-  padding: 7px 14px 7px 12px;
-  cursor: pointer; flex: 1;
-  transition: all 0.15s; min-width: 0;
+  display:flex;align-items:center;gap:8px;
+  background:var(--surface2);border:1px solid var(--border2);
+  border-radius:22px;padding:6px 12px 6px 10px;
+  cursor:pointer;flex:1;transition:all 0.15s;min-width:0;
 }
-.mode-selector:active { opacity: 0.8; transform: scale(0.98); }
-.mode-selector-ico {
-  font-size: 18px; flex-shrink: 0; line-height: 1;
-}
-.mode-selector-info { flex: 1; min-width: 0; }
-.mode-selector-name {
-  font-size: 14px; font-weight: 700;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  color: var(--text);
-}
-.mode-selector-sub { font-size: 10px; color: var(--text2); margin-top: 1px; }
-
+.mode-selector:active{opacity:0.8;transform:scale(0.98);}
+.mode-selector-ico{font-size:17px;flex-shrink:0;line-height:1;}
+.mode-selector-info{flex:1;min-width:0;}
+.mode-selector-name{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text);}
+.mode-selector-sub{font-size:10px;color:var(--text2);margin-top:1px;}
 /* ── MODE ROW (в шите) ── */
-.mode-row {
-  display: flex; align-items: center;
-  padding: 13px 16px;
-  cursor: pointer;
-  transition: background 0.12s;
-  border-bottom: 1px solid var(--border);
-  gap: 14px;
-}
-.mode-row:active { background: rgba(255,255,255,0.04); }
-.mode-row.selected { background: rgba(91,110,245,0.1); }
-.mode-row-ico {
-  width: 44px; height: 44px;
-  border-radius: 13px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 22px; flex-shrink: 0;
-  background: var(--surface2);
-}
-.mode-row-info { flex: 1; min-width: 0; }
-.mode-row-name { font-size: 15px; font-weight: 700; }
-.mode-row-desc { font-size: 12px; color: var(--text2); margin-top: 2px; line-height: 1.4; }
-.mode-row-check {
-  width: 20px; height: 20px; border-radius: 50%;
-  background: var(--accent);
-  display: flex; align-items: center; justify-content: center;
-  opacity: 0; transform: scale(0.6); transition: all 0.2s; flex-shrink: 0;
-}
-.mode-row.selected .mode-row-check { opacity: 1; transform: scale(1); }
-
-/* ── OLD MODE BAR ── */
+.mode-row{display:flex;align-items:center;padding:12px 16px;cursor:pointer;transition:background 0.12s;border-bottom:1px solid var(--border);gap:12px;}
+.mode-row:active{background:rgba(255,255,255,0.04);}
+.mode-row.selected{background:rgba(91,110,245,0.1);}
+.mode-row-ico{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.mode-row-info{flex:1;min-width:0;}
+.mode-row-name{font-size:14px;font-weight:700;}
+.mode-row-desc{font-size:11px;color:var(--text2);margin-top:2px;line-height:1.4;}
+.mode-row-check{width:20px;height:20px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;opacity:0;transform:scale(0.6);transition:all 0.2s;flex-shrink:0;}
+.mode-row.selected .mode-row-check{opacity:1;transform:scale(1);}
+/* ── MODE BAR ── */
 .mode-bar {
   display: flex; align-items: center; gap: 5px;
   padding: 5px 12px;
@@ -1127,9 +1098,9 @@ body.light .code-wrapper pre { background: #1e1e2e !important; }
   </div>
 </div>
 
-<!-- MODE BAR: кнопка-переключатель режима (открывает шит снизу) -->
+<!-- MODE BAR -->
 <div class="mode-bar" id="modeBar">
-  <div class="mode-selector" id="modeSelector" onclick="openModeSheet()">
+  <div class="mode-selector" id="modeSelector">
     <span class="mode-selector-ico" id="modeSelectorIco">⚡️</span>
     <div class="mode-selector-info">
       <div class="mode-selector-name" id="modeSelectorName">Быстро</div>
@@ -1139,9 +1110,8 @@ body.light .code-wrapper pre { background: #1e1e2e !important; }
   </div>
   <div class="auto-pill" id="autoPill" onclick="toggleAutoModel()">🤖 Авто</div>
 </div>
-
 <!-- MODE SHEET -->
-<div class="sheet-overlay" id="modeSheetOverlay" onclick="closeModeSheet()"></div>
+<div class="sheet-overlay" id="modeSheetOverlay"></div>
 <div class="sheet" id="modeSheet">
   <div class="sheet-handle"></div>
   <div class="sheet-header">
@@ -1317,6 +1287,13 @@ const MODES = {
   dev:    "💻 Разработчик",
   deep:   "🧠 Глубоко",
 };
+
+var MODE_META = {
+  fast:   { ico: "⚡️", name: "Быстро",      desc: "Краткий и точный ответ — 2-4 предложения",    bg: "linear-gradient(135deg,#f59e0b,#d97706)" },
+  simple: { ico: "🎓", name: "Просто",       desc: "Простым языком, без сложных терминов",         bg: "linear-gradient(135deg,#34d399,#059669)" },
+  dev:    { ico: "💻", name: "Разработчик",  desc: "Технически точно, код в блоках, архитектура",  bg: "linear-gradient(135deg,#5b6ef5,#7c8ff7)" },
+  deep:   { ico: "🧠", name: "Глубоко",      desc: "Детальный анализ: введение → анализ → выводы", bg: "linear-gradient(135deg,#ec4899,#be185d)" },
+};
 let curMode    = localStorage.getItem("huzaai_mode") || "fast";
 let autoModel  = localStorage.getItem("huzaai_auto") === "true";
 let curTheme   = localStorage.getItem("huzaai_theme") || "dark";
@@ -1397,14 +1374,7 @@ document.querySelectorAll(".sugg-chip").forEach(chip => {
 
 // ── Header model ─────────────────────────────────────────────
 function getModel(key) {
-  return MODELS.find(function(m) { return m.key === key; }) || MODELS[0];
-}
-function getModelByLabel(label) {
-  if (!label) return null;
-  // ищем по имени или label
-  return MODELS.find(function(m) {
-    return m.name === label || label.includes(m.name) || m.name.includes(label);
-  }) || null;
+  return MODELS.find(m => m.key === key) || MODELS[0];
 }
 function updateHeader() {
   const m = getModel(curModel);
@@ -1690,14 +1660,8 @@ async function sendMessage() {
 
     if (data.ok) {
       // Авто-модель: обновляем если сервер вернул другую
-      if (autoModel && data.model_key) {
-        // Обновляем текущую модель в UI
-        curModel = data.model_key;
-        updateHeader();
-        renderModels();
-      }
-      if (autoModel && data.model_label) {
-        addAutoModelBadge(data.model_label);
+      if (autoModel && data.used_model) {
+        addAutoModelBadge(data.used_model);
       }
       addAiMsg(data.answer, data.model_label);
       // Update limits display + userStats
@@ -2199,80 +2163,58 @@ function applyTheme(theme) {
 }
 
 // ── РЕЖИМЫ ОТВЕТА ─────────────────────────────────────────────
-const MODE_META = {
-  fast:   { ico: "⚡️", name: "Быстро",       desc: "Краткий и точный ответ — 2-4 предложения",     bg: "linear-gradient(135deg,#f59e0b,#d97706)" },
-  simple: { ico: "🎓", name: "Просто",        desc: "Простым языком, без сложных терминов",          bg: "linear-gradient(135deg,#34d399,#059669)" },
-  dev:    { ico: "💻", name: "Разработчик",   desc: "Технически точно, код в блоках, архитектура",   bg: "linear-gradient(135deg,#5b6ef5,#7c8ff7)" },
-  deep:   { ico: "🧠", name: "Глубоко",       desc: "Детальный анализ: введение → анализ → выводы", bg: "linear-gradient(135deg,#ec4899,#be185d)" },
-};
-
-let modeSheetOpen = false;
-
 function initModes() {
   updateModeSelector();
   renderAutoPill();
+  // Слушатели для mode sheet
+  var sel = document.getElementById("modeSelector");
+  if (sel) sel.addEventListener("click", openModeSheet);
+  var ov = document.getElementById("modeSheetOverlay");
+  if (ov) ov.addEventListener("click", closeModeSheet);
 }
-
 function updateModeSelector() {
-  const m = MODE_META[curMode] || MODE_META.fast;
-  const ico = document.getElementById("modeSelectorIco");
-  const name = document.getElementById("modeSelectorName");
+  var m = MODE_META[curMode] || MODE_META.fast;
+  var ico = document.getElementById("modeSelectorIco");
+  var nm  = document.getElementById("modeSelectorName");
   if (ico) ico.textContent = m.ico;
-  if (name) name.textContent = m.name;
+  if (nm)  nm.textContent  = m.name;
 }
-
 function openModeSheet() {
-  modeSheetOpen = true;
   renderModeSheetList();
   document.getElementById("modeSheetOverlay").classList.add("open");
   document.getElementById("modeSheet").classList.add("open");
   if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
 }
-
 function closeModeSheet() {
-  modeSheetOpen = false;
   document.getElementById("modeSheetOverlay").classList.remove("open");
   document.getElementById("modeSheet").classList.remove("open");
 }
-
 function renderModeSheetList() {
   var list = document.getElementById("modeSheetList");
   if (!list) return;
-  var html2 = "";
+  var out = "";
   Object.entries(MODE_META).forEach(function(entry) {
     var k = entry[0], m = entry[1];
-    var sel = k === curMode;
-    html2 += '<div class="mode-row' + (sel ? " selected" : "") + '" data-mode="' + k + '">' +
+    out += '<div class="mode-row' + (k === curMode ? " selected" : "") + '" data-mode="' + k + '">' +
       '<div class="mode-row-ico" style="background:' + m.bg + '">' + m.ico + '</div>' +
-      '<div class="mode-row-info">' +
-        '<div class="mode-row-name">' + m.name + '</div>' +
-        '<div class="mode-row-desc">' + m.desc + '</div>' +
-      '</div>' +
+      '<div class="mode-row-info"><div class="mode-row-name">' + m.name + '</div><div class="mode-row-desc">' + m.desc + '</div></div>' +
       '<div class="mode-row-check"><svg width="10" height="10" viewBox="0 0 12 12"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div>' +
     '</div>';
   });
-  list.innerHTML = html2;
-  // Вешаем обработчики через addEventListener (не inline onclick)
+  list.innerHTML = out;
   list.querySelectorAll(".mode-row").forEach(function(row) {
-    row.addEventListener("click", function() {
-      selectMode(row.getAttribute("data-mode"));
-    });
+    row.addEventListener("click", function() { setMode(row.getAttribute("data-mode")); });
   });
 }
-
-function selectMode(mode) {
+function setMode(mode) {
   curMode = mode;
   localStorage.setItem("huzaai_mode", mode);
   updateModeSelector();
   renderModeSheetList();
   closeModeSheet();
-  showToast("🎛 " + MODE_META[mode].name);
+  showToast("🎛 " + (MODE_META[mode] ? MODE_META[mode].name : mode));
   if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
 }
-
-// Совместимость: старый setMode тоже работает (используется в профиле)
-function setMode(mode) { selectMode(mode); }
-
 function renderAutoPill() {
   var el = document.getElementById("autoPill");
   if (!el) return;
@@ -2322,76 +2264,46 @@ function renderProfileSheet() {
   var levelName = levelInfo.name;
   var next = levelInfo.next;
   var pct = next ? Math.round((req / next) * 100) : 100;
-
   var body = document.getElementById("profileBody");
   if (!body) return;
-
-  var nextStr = next
-    ? "До следующего: " + (next - req) + " запросов"
-    : "👑 Максимальный уровень!";
-
-  var joinedStr = userStats.joined
-    ? '<div style="font-size:11px;color:var(--text3);margin-top:8px;text-align:center">📅 Регистрация: ' + userStats.joined + '</div>'
-    : "";
-
+  var nextStr = next ? ("До следующего: " + (next - req) + " запросов") : "👑 Максимальный уровень!";
+  var joinedStr = userStats.joined ? ('<div style="font-size:11px;color:var(--text3);margin-top:8px;text-align:center">📅 Регистрация: ' + userStats.joined + '</div>') : "";
   var modesHtml = Object.entries(MODES).map(function(entry) {
     var k = entry[0], v = entry[1];
-    var active = curMode === k ? " active" : "";
-    return '<div class="mode-pill' + active + '" onclick="setMode(\'' + k + '\');renderProfileSheet()" style="font-size:13px;padding:7px 13px">' + v + '</div>';
+    return '<div class="mode-pill' + (curMode===k ? " active" : "") + '" data-setmode="' + k + '" style="font-size:13px;padding:7px 13px">' + v + '</div>';
   }).join("");
-
-  var autoActive = autoModel ? " active" : "";
-  var autoIcon = autoModel ? "✅" : "❌";
-  var darkActive = curTheme === "dark" ? " active" : "";
-  var lightActive = curTheme === "light" ? " active" : "";
-
   var chatCount = 0;
-  for (var mi = 0; mi < messages.length; mi++) {
-    if (messages[mi].role === "assistant") chatCount++;
-  }
-
+  for (var mi = 0; mi < messages.length; mi++) { if (messages[mi].role === "assistant") chatCount++; }
   body.innerHTML =
-    '<div class="p-card">' +
-      '<div class="p-card-title">🏅 Уровень</div>' +
-      '<div class="level-badge">' + levelName + '</div>' +
-      '<div style="font-size:12px;color:var(--text3);margin-top:4px">' + nextStr + '</div>' +
-      '<div class="level-progress"><div class="level-progress-fill" style="width:' + pct + '%"></div></div>' +
-    '</div>' +
-
-    '<div class="p-card">' +
-      '<div class="p-card-title">📊 Статистика</div>' +
-      '<div class="stat-grid">' +
-        '<div class="stat-cell"><div class="stat-cell-val">' + (userStats.requests||0) + '</div><div class="stat-cell-lbl">Запросов</div></div>' +
-        '<div class="stat-cell"><div class="stat-cell-val">' + (userStats.generations||0) + '</div><div class="stat-cell-lbl">Генераций</div></div>' +
-        '<div class="stat-cell"><div class="stat-cell-val">' + chatCount + '</div><div class="stat-cell-lbl">В чате</div></div>' +
-      '</div>' +
-      joinedStr +
-    '</div>' +
-
-    '<div class="p-card">' +
-      '<div class="p-card-title">💳 Баланс лимитов</div>' +
-      '<div class="limit-row"><span>⚡ Быстрые запросы</span><span class="limit-val" style="color:var(--green)">' + (userStats.fast_left||0) + '</span></div>' +
-      '<div class="limit-row"><span>🧠 Проф. запросы</span><span class="limit-val" style="color:var(--accent2)">' + (userStats.pro_left||0) + '</span></div>' +
-      '<div class="limit-row"><span>🎨 Генерации</span><span class="limit-val" style="color:var(--yellow)">' + (userStats.img_left||0) + '</span></div>' +
-    '</div>' +
-
-    '<div class="p-card">' +
-      '<div class="p-card-title">🎛 Режим ответа</div>' +
-      '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">' + modesHtml + '</div>' +
-      '<div class="auto-pill' + autoActive + '" onclick="toggleAutoModel();renderProfileSheet()" style="display:inline-flex;font-size:13px;padding:7px 13px">' +
-        '🤖 Авто-выбор модели ' + autoIcon +
-      '</div>' +
-    '</div>' +
-
-    '<div class="p-card">' +
-      '<div class="p-card-title">🎨 Тема интерфейса</div>' +
-      '<div class="theme-toggle">' +
-        '<div class="theme-btn' + darkActive + '" data-theme="dark" onclick="applyTheme(\'dark\');renderProfileSheet()">🌙 Тёмная</div>' +
-        '<div class="theme-btn' + lightActive + '" data-theme="light" onclick="applyTheme(\'light\');renderProfileSheet()">☀️ Светлая</div>' +
-      '</div>' +
-    '</div>';
+    '<div class="p-card"><div class="p-card-title">🏅 Уровень</div><div class="level-badge">' + levelName + '</div>' +
+    '<div style="font-size:12px;color:var(--text3);margin-top:4px">' + nextStr + '</div>' +
+    '<div class="level-progress"><div class="level-progress-fill" style="width:' + pct + '%"></div></div></div>' +
+    '<div class="p-card"><div class="p-card-title">📊 Статистика</div><div class="stat-grid">' +
+    '<div class="stat-cell"><div class="stat-cell-val">' + (userStats.requests||0) + '</div><div class="stat-cell-lbl">Запросов</div></div>' +
+    '<div class="stat-cell"><div class="stat-cell-val">' + (userStats.generations||0) + '</div><div class="stat-cell-lbl">Генераций</div></div>' +
+    '<div class="stat-cell"><div class="stat-cell-val">' + chatCount + '</div><div class="stat-cell-lbl">В чате</div></div>' +
+    '</div>' + joinedStr + '</div>' +
+    '<div class="p-card"><div class="p-card-title">💳 Баланс лимитов</div>' +
+    '<div class="limit-row"><span>⚡ Быстрые запросы</span><span class="limit-val" style="color:var(--green)">' + (userStats.fast_left||0) + '</span></div>' +
+    '<div class="limit-row"><span>🧠 Проф. запросы</span><span class="limit-val" style="color:var(--accent2)">' + (userStats.pro_left||0) + '</span></div>' +
+    '<div class="limit-row"><span>🎨 Генерации</span><span class="limit-val" style="color:var(--yellow)">' + (userStats.img_left||0) + '</span></div></div>' +
+    '<div class="p-card"><div class="p-card-title">🎛 Режим ответа</div>' +
+    '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px" id="profileModes">' + modesHtml + '</div>' +
+    '<div class="auto-pill' + (autoModel ? " active" : "") + '" id="profileAutoPill" style="display:inline-flex;font-size:13px;padding:7px 13px">🤖 Авто-выбор модели ' + (autoModel ? "✅" : "❌") + '</div></div>' +
+    '<div class="p-card"><div class="p-card-title">🎨 Тема интерфейса</div><div class="theme-toggle">' +
+    '<div class="theme-btn' + (curTheme==="dark" ? " active" : "") + '" data-theme="dark">🌙 Тёмная</div>' +
+    '<div class="theme-btn' + (curTheme==="light" ? " active" : "") + '" data-theme="light">☀️ Светлая</div>' +
+    '</div></div>';
+  // Вешаем обработчики
+  body.querySelectorAll("[data-setmode]").forEach(function(el) {
+    el.addEventListener("click", function() { setMode(el.getAttribute("data-setmode")); renderProfileSheet(); });
+  });
+  body.querySelectorAll(".theme-btn").forEach(function(el) {
+    el.addEventListener("click", function() { applyTheme(el.getAttribute("data-theme")); renderProfileSheet(); });
+  });
+  var autoPillEl = body.querySelector("#profileAutoPill");
+  if (autoPillEl) autoPillEl.addEventListener("click", function() { toggleAutoModel(); renderProfileSheet(); });
 }
-
 // ── tg theme ─────────────────────────────────────────────────
 tg.onEvent("themeChanged", () => {});
 
@@ -2436,7 +2348,6 @@ function switchTab(tab) {
 }
 
 // Когда профиль закрывается — возвращаем на chat таб
-// ИСПРАВЛЕНО: убрана бесконечная рекурсия
 function _resetTabToChat() {
   curTab = "chat";
   ["chat","imggen"].forEach(function(t) {
