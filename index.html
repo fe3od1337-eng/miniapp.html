@@ -22,7 +22,7 @@
 .tab-item-ico{font-size:20px;line-height:1;}
 
 /* ─── IMG GEN SCREEN ─── */
-#screenImggen{flex:1;overflow-y:auto;padding:16px;display:none;flex-direction:column;gap:14px;min-height:0;}
+#screenImggen{flex:1;overflow-y:auto;padding:16px;display:none;flex-direction:column;gap:14px;}
 #screenImggen.on{display:flex;}
 .ig-section-title{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;}
 .ig-model-item{display:flex;align-items:center;gap:10px;padding:11px 13px;background:var(--surface2);border:1px solid var(--border);border-radius:13px;cursor:pointer;transition:all .15s;user-select:none;margin-bottom:6px;}
@@ -1023,7 +1023,39 @@ body.light .code-wrapper pre { background: #1e1e2e !important; }
   <div class="tab-item" id="tabProfile" onclick="switchTab('profile')"><span class="tab-item-ico">👤</span>Профиль</div>
 </div>
 
-<!-- IMAGE GEN SCREEN — стоит ПОСЛЕ header в DOM, показывается через flex -->
+<!-- IMAGE GEN SCREEN -->
+<div id="screenImggen">
+  <div>
+    <div class="ig-section-title">Модель генерации</div>
+    <div id="igModelGrid"></div>
+  </div>
+  <div>
+    <div class="ig-section-title">Описание картинки</div>
+    <textarea class="ig-prompt" id="igPrompt" placeholder="Опиши что хочешь увидеть... (лучше на английском)"></textarea>
+    <div class="ig-sugg-row">
+      <div class="ig-sugg" onclick="igSugg('beautiful mountain sunset, ultra realistic, 8k photography')">🌄 Закат</div>
+      <div class="ig-sugg" onclick="igSugg('futuristic cyberpunk city at night, neon lights, rain')">🌆 Киберпанк</div>
+      <div class="ig-sugg" onclick="igSugg('cute anime girl, studio ghibli style, detailed illustration')">🎌 Аниме</div>
+      <div class="ig-sugg" onclick="igSugg('professional portrait, studio lighting, sharp focus, 4k')">📸 Портрет</div>
+      <div class="ig-sugg" onclick="igSugg('abstract digital art, colorful geometric shapes, modern design')">🎨 Абстракция</div>
+      <div class="ig-sugg" onclick="igSugg('cozy coffee shop, warm lighting, bokeh, aesthetic')">☕ Уют</div>
+    </div>
+  </div>
+  <button class="ig-gen-btn" id="igGenBtn">🎨 Создать картинку</button>
+  <div class="ig-loading" id="igLoading">
+    <div class="ig-loading-ico">✨</div>
+    <div style="font-size:15px;font-weight:700">Создаю картинку...</div>
+    <div style="font-size:12px;color:var(--text2)">Обычно 10–30 секунд</div>
+  </div>
+  <div class="ig-result" id="igResult">
+    <img id="igImg" src="" alt="result">
+    <div class="ig-result-btns">
+      <button class="ig-result-btn" id="igDownload" style="background:var(--surface2);color:var(--text)">💾 Скачать</button>
+      <button class="ig-result-btn" id="igToChat" style="background:var(--accent);color:#fff">💬 В чат</button>
+    </div>
+  </div>
+  <div class="ig-limit" id="igLimit"></div>
+</div>
 
 <!-- HEADER -->
 <div class="header" id="mainHeader">
@@ -1107,40 +1139,6 @@ body.light .code-wrapper pre { background: #1e1e2e !important; }
   </div>
   <div class="sheet-cats" id="sheetCats"></div>
   <div class="sheet-list" id="sheetList"></div>
-</div>
-
-<!-- IMAGE GEN SCREEN (правильная позиция — после inputBar) -->
-<div id="screenImggen">
-  <div>
-    <div class="ig-section-title">Модель генерации</div>
-    <div id="igModelGrid"></div>
-  </div>
-  <div>
-    <div class="ig-section-title">Описание картинки</div>
-    <textarea class="ig-prompt" id="igPrompt" placeholder="Опиши что хочешь увидеть... (лучше на английском)"></textarea>
-    <div class="ig-sugg-row">
-      <div class="ig-sugg" onclick="igSugg('beautiful mountain sunset, ultra realistic, 8k photography')">🌄 Закат</div>
-      <div class="ig-sugg" onclick="igSugg('futuristic cyberpunk city at night, neon lights, rain')">🌆 Киберпанк</div>
-      <div class="ig-sugg" onclick="igSugg('cute anime girl, studio ghibli style, detailed illustration')">🎌 Аниме</div>
-      <div class="ig-sugg" onclick="igSugg('professional portrait, studio lighting, sharp focus, 4k')">📸 Портрет</div>
-      <div class="ig-sugg" onclick="igSugg('abstract digital art, colorful geometric shapes, modern design')">🎨 Абстракция</div>
-      <div class="ig-sugg" onclick="igSugg('cozy coffee shop, warm lighting, bokeh, aesthetic')">☕ Уют</div>
-    </div>
-  </div>
-  <button class="ig-gen-btn" id="igGenBtn">🎨 Создать картинку</button>
-  <div class="ig-loading" id="igLoading">
-    <div class="ig-loading-ico">✨</div>
-    <div style="font-size:15px;font-weight:700">Создаю картинку...</div>
-    <div style="font-size:12px;color:var(--text2)">Обычно 10–30 секунд</div>
-  </div>
-  <div class="ig-result" id="igResult">
-    <img id="igImg" src="" alt="result">
-    <div class="ig-result-btns">
-      <button class="ig-result-btn" id="igDownload" style="background:var(--surface2);color:var(--text)">💾 Скачать</button>
-      <button class="ig-result-btn" id="igToChat" style="background:var(--accent);color:#fff">💬 В чат</button>
-    </div>
-  </div>
-  <div class="ig-limit" id="igLimit"></div>
 </div>
 
 <input type="file" id="fileInput" accept="image/*">
@@ -2184,81 +2182,79 @@ function closeProfile() {
 }
 
 function renderProfileSheet() {
-  const req = userStats.requests || 0;
-  const { name: levelName, next } = getUserLevel(req);
-  const pct = next ? Math.round((req / next) * 100) : 100;
+  var req = userStats.requests || 0;
+  var levelInfo = getUserLevel(req);
+  var levelName = levelInfo.name;
+  var next = levelInfo.next;
+  var pct = next ? Math.round((req / next) * 100) : 100;
 
-  const body = document.getElementById("profileBody");
-  body.innerHTML = `
-    <!-- Уровень -->
-    <div class="p-card">
-      <div class="p-card-title">🏅 Уровень</div>
-      <div class="level-badge">${levelName}</div>
-      <div style="font-size:12px;color:var(--text3);margin-top:4px">
-        ${next ? \`До следующего: \${next - req} запросов\` : "👑 Максимальный уровень!"}
-      </div>
-      <div class="level-progress"><div class="level-progress-fill" style="width:\${pct}%"></div></div>
-    </div>
+  var body = document.getElementById("profileBody");
+  if (!body) return;
 
-    <!-- Статистика -->
-    <div class="p-card">
-      <div class="p-card-title">📊 Статистика</div>
-      <div class="stat-grid">
-        <div class="stat-cell">
-          <div class="stat-cell-val">\${userStats.requests}</div>
-          <div class="stat-cell-lbl">Запросов</div>
-        </div>
-        <div class="stat-cell">
-          <div class="stat-cell-val">\${userStats.generations}</div>
-          <div class="stat-cell-lbl">Генераций</div>
-        </div>
-        <div class="stat-cell">
-          <div class="stat-cell-val">\${messages.filter(m=>m.role==="assistant").length}</div>
-          <div class="stat-cell-lbl">В чате</div>
-        </div>
-      </div>
-      \${userStats.joined ? \`<div style="font-size:11px;color:var(--text3);margin-top:8px;text-align:center">📅 Регистрация: \${userStats.joined}</div>\` : ""}
-    </div>
+  var nextStr = next
+    ? "До следующего: " + (next - req) + " запросов"
+    : "👑 Максимальный уровень!";
 
-    <!-- Лимиты -->
-    <div class="p-card">
-      <div class="p-card-title">💳 Баланс лимитов</div>
-      <div class="limit-row">
-        <span>⚡ Быстрые запросы</span>
-        <span class="limit-val" style="color:var(--green)">\${userStats.fast_left}</span>
-      </div>
-      <div class="limit-row">
-        <span>🧠 Проф. запросы</span>
-        <span class="limit-val" style="color:var(--accent2)">\${userStats.pro_left}</span>
-      </div>
-      <div class="limit-row">
-        <span>🎨 Генерации</span>
-        <span class="limit-val" style="color:var(--yellow)">\${userStats.img_left}</span>
-      </div>
-    </div>
+  var joinedStr = userStats.joined
+    ? '<div style="font-size:11px;color:var(--text3);margin-top:8px;text-align:center">📅 Регистрация: ' + userStats.joined + '</div>'
+    : "";
 
-    <!-- Режим ответа -->
-    <div class="p-card">
-      <div class="p-card-title">🎛 Режим ответа</div>
-      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">
-        \${Object.entries(MODES).map(([k,v]) => \`
-          <div class="mode-pill\${curMode===k?" active":""}" onclick="setMode('\${k}');renderProfileSheet()" style="font-size:13px;padding:7px 13px">\${v}</div>
-        \`).join("")}
-      </div>
-      <div class="auto-pill\${autoModel?" active":""}" onclick="toggleAutoModel();renderProfileSheet()" style="display:inline-flex;font-size:13px;padding:7px 13px">
-        🤖 Авто-выбор модели \${autoModel ? "✅" : "❌"}
-      </div>
-    </div>
+  var modesHtml = Object.entries(MODES).map(function(entry) {
+    var k = entry[0], v = entry[1];
+    var active = curMode === k ? " active" : "";
+    return '<div class="mode-pill' + active + '" onclick="setMode(\'' + k + '\');renderProfileSheet()" style="font-size:13px;padding:7px 13px">' + v + '</div>';
+  }).join("");
 
-    <!-- Тема -->
-    <div class="p-card">
-      <div class="p-card-title">🎨 Тема интерфейса</div>
-      <div class="theme-toggle">
-        <div class="theme-btn\${curTheme==="dark"?" active":""}" data-theme="dark" onclick="applyTheme('dark');renderProfileSheet()">🌙 Тёмная</div>
-        <div class="theme-btn\${curTheme==="light"?" active":""}" data-theme="light" onclick="applyTheme('light');renderProfileSheet()">☀️ Светлая</div>
-      </div>
-    </div>
-  `;
+  var autoActive = autoModel ? " active" : "";
+  var autoIcon = autoModel ? "✅" : "❌";
+  var darkActive = curTheme === "dark" ? " active" : "";
+  var lightActive = curTheme === "light" ? " active" : "";
+
+  var chatCount = 0;
+  for (var mi = 0; mi < messages.length; mi++) {
+    if (messages[mi].role === "assistant") chatCount++;
+  }
+
+  body.innerHTML =
+    '<div class="p-card">' +
+      '<div class="p-card-title">🏅 Уровень</div>' +
+      '<div class="level-badge">' + levelName + '</div>' +
+      '<div style="font-size:12px;color:var(--text3);margin-top:4px">' + nextStr + '</div>' +
+      '<div class="level-progress"><div class="level-progress-fill" style="width:' + pct + '%"></div></div>' +
+    '</div>' +
+
+    '<div class="p-card">' +
+      '<div class="p-card-title">📊 Статистика</div>' +
+      '<div class="stat-grid">' +
+        '<div class="stat-cell"><div class="stat-cell-val">' + (userStats.requests||0) + '</div><div class="stat-cell-lbl">Запросов</div></div>' +
+        '<div class="stat-cell"><div class="stat-cell-val">' + (userStats.generations||0) + '</div><div class="stat-cell-lbl">Генераций</div></div>' +
+        '<div class="stat-cell"><div class="stat-cell-val">' + chatCount + '</div><div class="stat-cell-lbl">В чате</div></div>' +
+      '</div>' +
+      joinedStr +
+    '</div>' +
+
+    '<div class="p-card">' +
+      '<div class="p-card-title">💳 Баланс лимитов</div>' +
+      '<div class="limit-row"><span>⚡ Быстрые запросы</span><span class="limit-val" style="color:var(--green)">' + (userStats.fast_left||0) + '</span></div>' +
+      '<div class="limit-row"><span>🧠 Проф. запросы</span><span class="limit-val" style="color:var(--accent2)">' + (userStats.pro_left||0) + '</span></div>' +
+      '<div class="limit-row"><span>🎨 Генерации</span><span class="limit-val" style="color:var(--yellow)">' + (userStats.img_left||0) + '</span></div>' +
+    '</div>' +
+
+    '<div class="p-card">' +
+      '<div class="p-card-title">🎛 Режим ответа</div>' +
+      '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">' + modesHtml + '</div>' +
+      '<div class="auto-pill' + autoActive + '" onclick="toggleAutoModel();renderProfileSheet()" style="display:inline-flex;font-size:13px;padding:7px 13px">' +
+        '🤖 Авто-выбор модели ' + autoIcon +
+      '</div>' +
+    '</div>' +
+
+    '<div class="p-card">' +
+      '<div class="p-card-title">🎨 Тема интерфейса</div>' +
+      '<div class="theme-toggle">' +
+        '<div class="theme-btn' + darkActive + '" data-theme="dark" onclick="applyTheme(\'dark\');renderProfileSheet()">🌙 Тёмная</div>' +
+        '<div class="theme-btn' + lightActive + '" data-theme="light" onclick="applyTheme(\'light\');renderProfileSheet()">☀️ Светлая</div>' +
+      '</div>' +
+    '</div>';
 }
 
 // ── tg theme ─────────────────────────────────────────────────
@@ -2288,27 +2284,9 @@ function switchTab(tab) {
     el.style.display = tab === "chat" ? "" : "none";
   });
 
-  // Show/hide imggen screen — абсолютно поверх всего
+  // Show/hide imggen screen
   const ig = document.getElementById("screenImggen");
-  if (ig) {
-    if (tab === "imggen") {
-      ig.style.position = "fixed";
-      ig.style.top = "45px"; // высота tab-bar
-      ig.style.left = "0";
-      ig.style.right = "0";
-      ig.style.bottom = "0";
-      ig.style.zIndex = "10";
-      ig.classList.add("on");
-    } else {
-      ig.classList.remove("on");
-      ig.style.position = "";
-      ig.style.top = "";
-      ig.style.left = "";
-      ig.style.right = "";
-      ig.style.bottom = "";
-      ig.style.zIndex = "";
-    }
-  }
+  if (ig) ig.classList.toggle("on", tab === "imggen");
 
   // Profile: открываем профиль лист если вкладка профиль
   if (tab === "profile") {
@@ -2323,20 +2301,18 @@ function switchTab(tab) {
 }
 
 // Когда профиль закрывается — возвращаем на chat таб
-// ИСПРАВЛЕНО: убрана бесконечная рекурсия через _origCloseProfile
+// ИСПРАВЛЕНО: убрана бесконечная рекурсия
 function _resetTabToChat() {
   curTab = "chat";
-  ["chat","imggen","profile"].forEach(t => {
-    const el = document.getElementById("tab" + t.charAt(0).toUpperCase() + t.slice(1));
+  ["chat","imggen","profile"].forEach(function(t) {
+    var el = document.getElementById("tab" + t.charAt(0).toUpperCase() + t.slice(1));
     if (el) el.classList.toggle("on", t === "chat");
   });
-  CHAT_HIDE.forEach(id => {
-    const el = document.getElementById(id);
+  CHAT_HIDE.forEach(function(id) {
+    var el = document.getElementById(id);
     if (el) el.style.display = "";
   });
 }
-document.getElementById("profileOverlay").addEventListener("click", _resetTabToChat);
-document.querySelector(".profile-close").addEventListener("click", _resetTabToChat);
 
 // ══════════════════════════════════════════════════════════
 // 🎨 IMAGE GENERATION
