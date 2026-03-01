@@ -1265,8 +1265,8 @@ body.light .code-wrapper pre { background: #1e1e2e !important; }
     <span class="limit-item"><span class="limit-dot" style="background:#5b6ef5"></span><span id="proLeft">—</span> проф.</span>
   </div>
   <div class="input-row">
-    <button class="attach-btn" id="attachBtn">📎</button>
-    <button class="attach-btn" id="docBtn" title="Прикрепить документ" style="font-size:16px;">📄</button>
+    <button class="attach-btn" id="attachBtn" title="Прикрепить фото или файл">📎</button>
+    <button class="attach-btn" id="docBtn" title="Прикрепить документ/код" style="font-size:16px;">📄</button>
     <div class="input-wrap">
       <textarea id="msgInput" placeholder="Введите сообщение..." rows="1"></textarea>
     </div>
@@ -1296,7 +1296,7 @@ body.light .code-wrapper pre { background: #1e1e2e !important; }
 </div>
 
 <input type="file" id="fileInput" accept="*/*" multiple>
-<input type="file" id="docInput" accept=".pdf,.doc,.docx,.txt,.csv,.xlsx,.xls,.py,.js,.ts,.jsx,.tsx,.html,.css,.java,.cpp,.c,.h,.cs,.go,.rs,.php,.rb,.sh,.sql,.json,.xml,.yaml,.yml,.md,.log,.ini,.conf,.env,.kt,.swift,.dart,.rb,.bat,.ps1,.tf,.toml,.graphql,.vue,.svelte" multiple>
+<input type="file" id="docInput" accept="image/*,.pdf,.txt,.csv,.md,.json,.xml,.yaml,.yml,.toml,.ini,.conf,.cfg,.env,.log,.py,.pyw,.js,.mjs,.ts,.jsx,.tsx,.html,.htm,.css,.scss,.java,.cpp,.cc,.c,.h,.hpp,.cs,.go,.rs,.php,.rb,.sh,.bash,.bat,.cmd,.ps1,.sql,.graphql,.tf,.kt,.swift,.dart,.vue,.svelte,.rst,.tex,.gitignore" multiple>
 <div class="toast" id="toast"></div>
 
 <!-- LIGHTBOX для просмотра/сохранения изображений -->
@@ -1662,10 +1662,12 @@ function updateSendBtn() {
   document.getElementById("sendBtn").disabled = (!hasText && !hasImg) || isLoading;
 }
 
-// ── File attach — УМНАЯ кнопка: фото → vision, код/текст → документ ─────
+// ── File attach — 📎 открывает ЛЮБЫЕ файлы (фото + документы) ─────────────
 document.getElementById("attachBtn").addEventListener("click", () => {
-  // Открываем выбор ЛЮБЫХ файлов — обрабатываем по типу
-  document.getElementById("fileInput").click();
+  // На iOS fileInput с accept="*/*" показывает только фото.
+  // docInput с явными расширениями правильно открывает файловый менеджер.
+  // Поэтому 📎 тоже открывает docInput — он принимает всё нужное.
+  document.getElementById("docInput").click();
 });
 
 document.getElementById("fileInput").addEventListener("change", async e => {
