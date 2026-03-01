@@ -885,6 +885,57 @@ body.light .msg.user .bubble { color: #ffffff; }
 body.light .code-wrapper pre { background: #1e1e2e !important; }
 
 /* ── MODE BAR ── */
+.mode-selector {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 22px;
+  padding: 7px 14px 7px 12px;
+  cursor: pointer; flex: 1;
+  transition: all 0.15s; min-width: 0;
+}
+.mode-selector:active { opacity: 0.8; transform: scale(0.98); }
+.mode-selector-ico {
+  font-size: 18px; flex-shrink: 0; line-height: 1;
+}
+.mode-selector-info { flex: 1; min-width: 0; }
+.mode-selector-name {
+  font-size: 14px; font-weight: 700;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  color: var(--text);
+}
+.mode-selector-sub { font-size: 10px; color: var(--text2); margin-top: 1px; }
+
+/* ── MODE ROW (в шите) ── */
+.mode-row {
+  display: flex; align-items: center;
+  padding: 13px 16px;
+  cursor: pointer;
+  transition: background 0.12s;
+  border-bottom: 1px solid var(--border);
+  gap: 14px;
+}
+.mode-row:active { background: rgba(255,255,255,0.04); }
+.mode-row.selected { background: rgba(91,110,245,0.1); }
+.mode-row-ico {
+  width: 44px; height: 44px;
+  border-radius: 13px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; flex-shrink: 0;
+  background: var(--surface2);
+}
+.mode-row-info { flex: 1; min-width: 0; }
+.mode-row-name { font-size: 15px; font-weight: 700; }
+.mode-row-desc { font-size: 12px; color: var(--text2); margin-top: 2px; line-height: 1.4; }
+.mode-row-check {
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transform: scale(0.6); transition: all 0.2s; flex-shrink: 0;
+}
+.mode-row.selected .mode-row-check { opacity: 1; transform: scale(1); }
+
+/* ── OLD MODE BAR ── */
 .mode-bar {
   display: flex; align-items: center; gap: 5px;
   padding: 5px 12px;
@@ -1020,7 +1071,6 @@ body.light .code-wrapper pre { background: #1e1e2e !important; }
 <div class="tab-bar">
   <div class="tab-item on" id="tabChat" onclick="switchTab('chat')"><span class="tab-item-ico">💬</span>Чат</div>
   <div class="tab-item" id="tabImggen" onclick="switchTab('imggen')"><span class="tab-item-ico">🎨</span>Картинки</div>
-  <div class="tab-item" id="tabProfile" onclick="switchTab('profile')"><span class="tab-item-ico">👤</span>Профиль</div>
 </div>
 
 <!-- IMAGE GEN SCREEN -->
@@ -1077,13 +1127,28 @@ body.light .code-wrapper pre { background: #1e1e2e !important; }
   </div>
 </div>
 
-<!-- MODE BAR: режимы ответа + авто-режим -->
+<!-- MODE BAR: кнопка-переключатель режима (открывает шит снизу) -->
 <div class="mode-bar" id="modeBar">
-  <div class="mode-pill active" id="mode-fast"   onclick="setMode('fast')">⚡️ Быстро</div>
-  <div class="mode-pill"        id="mode-simple" onclick="setMode('simple')">🎓 Просто</div>
-  <div class="mode-pill"        id="mode-dev"    onclick="setMode('dev')">💻 Разработчик</div>
-  <div class="mode-pill"        id="mode-deep"   onclick="setMode('deep')">🧠 Глубоко</div>
-  <div class="auto-pill"        id="autoPill"    onclick="toggleAutoModel()">🤖 Авто</div>
+  <div class="mode-selector" id="modeSelector" onclick="openModeSheet()">
+    <span class="mode-selector-ico" id="modeSelectorIco">⚡️</span>
+    <div class="mode-selector-info">
+      <div class="mode-selector-name" id="modeSelectorName">Быстро</div>
+      <div class="mode-selector-sub">Режим ответа · нажми чтобы сменить</div>
+    </div>
+    <div class="chevron">▼</div>
+  </div>
+  <div class="auto-pill" id="autoPill" onclick="toggleAutoModel()">🤖 Авто</div>
+</div>
+
+<!-- MODE SHEET -->
+<div class="sheet-overlay" id="modeSheetOverlay" onclick="closeModeSheet()"></div>
+<div class="sheet" id="modeSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <div class="sheet-title">Режим ответа</div>
+    <div class="sheet-sub">Выбери стиль ответа нейросети</div>
+  </div>
+  <div class="sheet-list" id="modeSheetList"></div>
 </div>
 
 <!-- CHAT -->
@@ -1332,7 +1397,14 @@ document.querySelectorAll(".sugg-chip").forEach(chip => {
 
 // ── Header model ─────────────────────────────────────────────
 function getModel(key) {
-  return MODELS.find(m => m.key === key) || MODELS[0];
+  return MODELS.find(function(m) { return m.key === key; }) || MODELS[0];
+}
+function getModelByLabel(label) {
+  if (!label) return null;
+  // ищем по имени или label
+  return MODELS.find(function(m) {
+    return m.name === label || label.includes(m.name) || m.name.includes(label);
+  }) || null;
 }
 function updateHeader() {
   const m = getModel(curModel);
@@ -1618,8 +1690,14 @@ async function sendMessage() {
 
     if (data.ok) {
       // Авто-модель: обновляем если сервер вернул другую
-      if (autoModel && data.used_model) {
-        addAutoModelBadge(data.used_model);
+      if (autoModel && data.model_key) {
+        // Обновляем текущую модель в UI
+        curModel = data.model_key;
+        updateHeader();
+        renderModels();
+      }
+      if (autoModel && data.model_label) {
+        addAutoModelBadge(data.model_label);
       }
       addAiMsg(data.answer, data.model_label);
       // Update limits display + userStats
@@ -2121,25 +2199,82 @@ function applyTheme(theme) {
 }
 
 // ── РЕЖИМЫ ОТВЕТА ─────────────────────────────────────────────
+const MODE_META = {
+  fast:   { ico: "⚡️", name: "Быстро",       desc: "Краткий и точный ответ — 2-4 предложения",     bg: "linear-gradient(135deg,#f59e0b,#d97706)" },
+  simple: { ico: "🎓", name: "Просто",        desc: "Простым языком, без сложных терминов",          bg: "linear-gradient(135deg,#34d399,#059669)" },
+  dev:    { ico: "💻", name: "Разработчик",   desc: "Технически точно, код в блоках, архитектура",   bg: "linear-gradient(135deg,#5b6ef5,#7c8ff7)" },
+  deep:   { ico: "🧠", name: "Глубоко",       desc: "Детальный анализ: введение → анализ → выводы", bg: "linear-gradient(135deg,#ec4899,#be185d)" },
+};
+
+let modeSheetOpen = false;
+
 function initModes() {
-  renderModeBar();
+  updateModeSelector();
   renderAutoPill();
 }
-function renderModeBar() {
-  Object.keys(MODES).forEach(m => {
-    const el = document.getElementById("mode-" + m);
-    if (el) el.classList.toggle("active", m === curMode);
-  });
+
+function updateModeSelector() {
+  const m = MODE_META[curMode] || MODE_META.fast;
+  const ico = document.getElementById("modeSelectorIco");
+  const name = document.getElementById("modeSelectorName");
+  if (ico) ico.textContent = m.ico;
+  if (name) name.textContent = m.name;
 }
-function setMode(mode) {
-  curMode = mode;
-  localStorage.setItem("huzaai_mode", mode);
-  renderModeBar();
-  showToast("🎛 " + MODES[mode]);
+
+function openModeSheet() {
+  modeSheetOpen = true;
+  renderModeSheetList();
+  document.getElementById("modeSheetOverlay").classList.add("open");
+  document.getElementById("modeSheet").classList.add("open");
   if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
 }
+
+function closeModeSheet() {
+  modeSheetOpen = false;
+  document.getElementById("modeSheetOverlay").classList.remove("open");
+  document.getElementById("modeSheet").classList.remove("open");
+}
+
+function renderModeSheetList() {
+  var list = document.getElementById("modeSheetList");
+  if (!list) return;
+  var html2 = "";
+  Object.entries(MODE_META).forEach(function(entry) {
+    var k = entry[0], m = entry[1];
+    var sel = k === curMode;
+    html2 += '<div class="mode-row' + (sel ? " selected" : "") + '" data-mode="' + k + '">' +
+      '<div class="mode-row-ico" style="background:' + m.bg + '">' + m.ico + '</div>' +
+      '<div class="mode-row-info">' +
+        '<div class="mode-row-name">' + m.name + '</div>' +
+        '<div class="mode-row-desc">' + m.desc + '</div>' +
+      '</div>' +
+      '<div class="mode-row-check"><svg width="10" height="10" viewBox="0 0 12 12"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div>' +
+    '</div>';
+  });
+  list.innerHTML = html2;
+  // Вешаем обработчики через addEventListener (не inline onclick)
+  list.querySelectorAll(".mode-row").forEach(function(row) {
+    row.addEventListener("click", function() {
+      selectMode(row.getAttribute("data-mode"));
+    });
+  });
+}
+
+function selectMode(mode) {
+  curMode = mode;
+  localStorage.setItem("huzaai_mode", mode);
+  updateModeSelector();
+  renderModeSheetList();
+  closeModeSheet();
+  showToast("🎛 " + MODE_META[mode].name);
+  if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
+}
+
+// Совместимость: старый setMode тоже работает (используется в профиле)
+function setMode(mode) { selectMode(mode); }
+
 function renderAutoPill() {
-  const el = document.getElementById("autoPill");
+  var el = document.getElementById("autoPill");
   if (!el) return;
   el.classList.toggle("active", autoModel);
   el.textContent = autoModel ? "🤖 Авто ✅" : "🤖 Авто";
@@ -2272,8 +2407,8 @@ let curTab = "chat";
 function switchTab(tab) {
   curTab = tab;
   // Update tab indicators
-  ["chat","imggen","profile"].forEach(t => {
-    const el = document.getElementById("tab" + t.charAt(0).toUpperCase() + t.slice(1));
+  ["chat","imggen"].forEach(function(t) {
+    var el = document.getElementById("tab" + t.charAt(0).toUpperCase() + t.slice(1));
     if (el) el.classList.toggle("on", t === tab);
   });
 
@@ -2304,7 +2439,7 @@ function switchTab(tab) {
 // ИСПРАВЛЕНО: убрана бесконечная рекурсия
 function _resetTabToChat() {
   curTab = "chat";
-  ["chat","imggen","profile"].forEach(function(t) {
+  ["chat","imggen"].forEach(function(t) {
     var el = document.getElementById("tab" + t.charAt(0).toUpperCase() + t.slice(1));
     if (el) el.classList.toggle("on", t === "chat");
   });
