@@ -1266,7 +1266,7 @@ body.light .code-wrapper pre { background: #1e1e2e !important; }
   </div>
   <div class="input-row">
     <button class="attach-btn" id="attachBtn" title="Прикрепить фото или файл">📎</button>
-    <button class="attach-btn" id="docBtn" title="Прикрепить документ/код" style="font-size:16px;">📄</button>
+
     <div class="input-wrap">
       <textarea id="msgInput" placeholder="Введите сообщение..." rows="1"></textarea>
     </div>
@@ -2787,10 +2787,6 @@ async function readFileAsDoc(file) {
   }
 }
 
-// docBtn → docInput (для кнопки 📄)
-document.getElementById("docBtn").addEventListener("click", () => {
-  document.getElementById("docInput").click();
-});
 
 document.getElementById("docInput").addEventListener("change", async (e) => {
   const files = Array.from(e.target.files || []);
