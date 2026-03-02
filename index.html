@@ -597,6 +597,70 @@ body {
 /* file input hidden */
 #fileInput { display: none; }
 
+/* ── SHARE OVERLAY ── */
+.share-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 300;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s;
+}
+.share-overlay.open { opacity: 1; pointer-events: all; }
+
+.share-sheet {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: var(--surface);
+  border-radius: 20px 20px 0 0;
+  z-index: 301;
+  padding: 16px;
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.32,0.72,0,1);
+  padding-bottom: calc(20px + env(safe-area-inset-bottom));
+}
+.share-sheet.open { transform: translateY(0); }
+.share-sheet-title {
+  font-size: 16px; font-weight: 800;
+  text-align: center; margin-bottom: 14px;
+}
+.share-preview {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-size: 13px; line-height: 1.5;
+  color: var(--text2);
+  max-height: 180px;
+  overflow-y: auto;
+  margin-bottom: 14px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.share-btns {
+  display: flex; gap: 8px; flex-wrap: wrap;
+}
+.share-btn {
+  flex: 1; min-width: 120px;
+  padding: 12px;
+  border-radius: 13px;
+  border: none;
+  font-size: 14px; font-weight: 700;
+  font-family: 'Manrope', sans-serif;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  text-align: center;
+}
+.share-btn:active { opacity: 0.75; }
+.share-btn-copy  { background: var(--surface3); color: var(--text); }
+.share-btn-tg    { background: linear-gradient(135deg,#2aabee,#1a8dc8); color:#fff; }
+.share-btn-close { background: var(--surface2); color: var(--text2); flex-basis: 100%; }
+
+/* ── DRAG & DROP ZONE ── */
+.chat-area.drag-over {
+  outline: 2px dashed var(--accent);
+  outline-offset: -4px;
+  background: rgba(91,110,245,0.05);
+}
+
 /* ── VOICE BTN ── */
 .voice-btn {
   width: 40px; height: 40px;
@@ -1294,7 +1358,7 @@ body.light .code-wrapper pre { background: #1e1e2e !important; }
   <div class="sheet-list" id="sheetList"></div>
 </div>
 
-<input type="file" id="fileInput" accept="image/*,.pdf,.txt,.csv,.md,.json,.xml,.yaml,.yml,.toml,.ini,.conf,.cfg,.env,.log,.py,.pyw,.js,.mjs,.ts,.jsx,.tsx,.html,.htm,.css,.scss,.java,.cpp,.cc,.c,.h,.hpp,.cs,.go,.rs,.php,.rb,.sh,.bash,.bat,.cmd,.ps1,.sql,.graphql,.tf,.kt,.swift,.dart,.vue,.svelte,.rst,.tex,.gitignore" multiple>
+<input type="file" id="fileInput" accept="*/*" multiple>
 
 <div class="toast" id="toast"></div>
 
@@ -1895,6 +1959,7 @@ function addAiMsg(text, modelLabel) {
     <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:2px">
       <div class="msg-meta" style="margin:0">${escHtml(displayName)} · ${timeNow()}</div>
       <button class="copy-answer-btn" onclick="copyAnswer(this)">📋 Копировать</button>
+      <button class="copy-answer-btn" style="background:rgba(42,171,238,0.12);border-color:rgba(42,171,238,0.3);color:#2aabee" onclick="openShare(this)">📤 Поделиться</button>
     </div>`;
   area.appendChild(div);
   messages.push({ role: "assistant", content: text });
@@ -3007,7 +3072,89 @@ document.getElementById("igGenBtn").addEventListener("click", async function igG
   });
 })();
 
+// ══════════════════════════════════════════════════════════
+// 📤 ПОДЕЛИТЬСЯ ОТВЕТОМ
+// ══════════════════════════════════════════════════════════
+let shareText = "";
+
+function openShare(btn) {
+  const msgDiv = btn.closest(".msg.ai");
+  const bubble = msgDiv ? msgDiv.querySelector(".bubble") : null;
+  shareText = bubble ? bubble.innerText : "";
+  document.getElementById("sharePreview").textContent = shareText.slice(0, 500) + (shareText.length > 500 ? "..." : "");
+  document.getElementById("shareOverlay").classList.add("open");
+  document.getElementById("shareSheet").classList.add("open");
+  if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred("light");
+}
+
+function closeShare() {
+  document.getElementById("shareOverlay").classList.remove("open");
+  document.getElementById("shareSheet").classList.remove("open");
+}
+
+function shareCopy() {
+  navigator.clipboard.writeText(shareText).then(() => {
+    showToast("✅ Ответ скопирован!");
+    closeShare();
+  }).catch(() => showToast("❌ Не удалось скопировать"));
+}
+
+function shareTelegram() {
+  // Отправляем через Telegram share
+  const encoded = encodeURIComponent(shareText.slice(0, 4000));
+  const url = `https://t.me/share/url?url=&text=${encoded}`;
+  if (tg.openLink) tg.openLink(url);
+  else window.open(url, "_blank");
+  closeShare();
+}
+
+document.getElementById("shareOverlay").addEventListener("click", closeShare);
+
+// ══════════════════════════════════════════════════════════
+// 🖱 DRAG & DROP — перетаскивание файлов в чат
+// ══════════════════════════════════════════════════════════
+const chatAreaEl = document.getElementById("chatArea");
+
+chatAreaEl.addEventListener("dragover", e => {
+  e.preventDefault();
+  chatAreaEl.classList.add("drag-over");
+});
+chatAreaEl.addEventListener("dragleave", e => {
+  chatAreaEl.classList.remove("drag-over");
+});
+chatAreaEl.addEventListener("drop", async e => {
+  e.preventDefault();
+  chatAreaEl.classList.remove("drag-over");
+  const files = Array.from(e.dataTransfer.files || []);
+  for (const file of files) {
+    if (file.type.startsWith("image/")) {
+      const m = getModel(curModel);
+      if (!m.vision) { curModel = "claude_sonnet"; updateHeader(); renderModels(); }
+      const res = await compressImage(file);
+      pendingImgs.push({ file, b64: res.b64, url: res.url });
+      renderImgPreview();
+      updateSendBtn();
+    } else {
+      await readFileAsDoc(file);
+    }
+  }
+  if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
+});
+
 // Конец скриптов мини-аппа
 </script>
+
+<!-- Share overlay -->
+<div class="share-overlay" id="shareOverlay"></div>
+<div class="share-sheet" id="shareSheet">
+  <div class="share-sheet-title">📤 Поделиться ответом</div>
+  <div class="share-preview" id="sharePreview"></div>
+  <div class="share-btns">
+    <button class="share-btn share-btn-copy" onclick="shareCopy()">📋 Скопировать</button>
+    <button class="share-btn share-btn-tg" onclick="shareTelegram()">✈️ Отправить в Telegram</button>
+    <button class="share-btn share-btn-close" onclick="closeShare()">Закрыть</button>
+  </div>
+</div>
+
 </body>
 </html>
