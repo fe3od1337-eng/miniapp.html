@@ -3089,11 +3089,10 @@ function buildViewerUrl(text, modelName, modelKey) {
     modelKey: modelKey,
     time:     new Date().toLocaleString("ru", { day:"2-digit", month:"2-digit", hour:"2-digit", minute:"2-digit" })
   };
-  const json    = JSON.stringify(data);
-  const b64     = btoa(unescape(encodeURIComponent(json)));
-  // URL-safe base64
-  const b64safe = b64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
-  return VIEW_BASE_URL + "#data=" + b64safe;
+  const json       = JSON.stringify(data);
+  // LZ-сжатие — ссылка в 3-4 раза короче чем base64!
+  const compressed = LZString.compressToEncodedURIComponent(json);
+  return VIEW_BASE_URL + "#z=" + compressed;
 }
 
 function openShare(btn) {
