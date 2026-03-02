@@ -72,17 +72,18 @@ body::before {
 .header-title { font-size: 14px; font-weight: 800; }
 .header-sub { font-size: 10px; color: var(--text3); margin-top: 1px; }
 .header-copy-btn {
-  background: var(--surface2);
-  border: 1px solid var(--border2);
-  color: var(--text2);
+  background: linear-gradient(135deg, #5b6ef5, #9b59b6);
+  border: none;
+  color: #fff;
   border-radius: 10px;
   padding: 7px 13px;
   font-size: 12px; font-weight: 700;
   font-family: 'Manrope', sans-serif;
   cursor: pointer; transition: all 0.15s; flex-shrink: 0;
+  box-shadow: 0 3px 10px rgba(91,110,245,0.35);
 }
-.header-copy-btn:active { opacity: 0.7; }
-.header-copy-btn.copied { background: rgba(52,211,153,0.15); color: var(--green); border-color: rgba(52,211,153,0.3); }
+.header-copy-btn:active { opacity: 0.7; transform: scale(0.97); }
+.header-copy-btn.copied { background: linear-gradient(135deg, #34d399, #059669); box-shadow: 0 3px 10px rgba(52,211,153,0.35); }
 
 /* ── MODEL BADGE ── */
 .model-badge {
@@ -229,8 +230,17 @@ body::before {
 
 /* ── KATEX ── */
 .katex { font-size: 1em !important; }
-.katex-display { overflow-x: auto; padding: 8px 0; margin: 10px 0 !important;
-  background: rgba(91,110,245,0.05); border-radius: 10px; padding: 10px 14px; }
+.katex-display { overflow-x: auto; margin: 10px 0 !important; }
+.katex-display-wrap {
+  background: rgba(91,110,245,0.06);
+  border: 1px solid rgba(91,110,245,0.15);
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin: 10px 0;
+  overflow-x: auto;
+  text-align: center;
+}
+.katex-error { color: #f87171; font-size: 12px; }
 
 /* ── BLOCKQUOTE ── */
 .content-inner blockquote {
@@ -298,7 +308,7 @@ body::before {
       <div class="header-title">Хуза — Ответ ИИ</div>
       <div class="header-sub" id="headerSub">Загрузка...</div>
     </div>
-    <button class="header-copy-btn" id="copyBtn" onclick="copyAll()">📋 Копировать</button>
+    <button class="header-copy-btn" id="copyBtn" onclick="copyAll()">✈️ Поделиться</button>
   </div>
 
   <!-- LOADING -->
@@ -344,29 +354,45 @@ function escHtml(s) {
   return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
 }
 
-// ── Форматирование — ТОЧНО как в мини-апе ────────────────
+// ── Форматирование — с поддержкой KaTeX, таблиц, кода ────────────────
 function formatText(rawText) {
   let text = rawText;
 
-  // 1. Code blocks → placeholder
-  let codeIdx = 0;
-  const codePH = {};
+  // ШАГИ: сначала защищаем всё что не нужно трогать
+  const PH = {};  // все плейсхолдеры
+  let phIdx = 0;
+  function protect(html) {
+    const id = "\x00P" + (phIdx++) + "\x00";
+    PH[id] = html;
+    return id;
+  }
+
+  // 1. Code blocks — защищаем ПЕРВЫМИ
   text = text.replace(/```(\w*)\n?([\s\S]*?)```/g, (_, lang, code) => {
-    const id = "\x00C" + (codeIdx++) + "\x00";
     const raw = code.trim();
     const esc = escHtml(raw);
     const lbl = lang ? lang.toUpperCase() : "CODE";
-    codePH[id] = `<div class="code-wrapper">
+    return protect(`<div class="code-wrapper">
       <div class="code-header">
         <span>${lbl}</span>
         <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
       </div>
-      <pre><code class="${lang ? 'language-' + lang : ''}" data-raw="${escHtml(raw).replace(/"/g,'&quot;')}">${esc}</code></pre>
-    </div>`;
-    return id;
+      <pre><code class="${lang ? 'language-' + lang : ''}" data-raw="${esc.replace(/"/g,'&quot;')}">${esc}</code></pre>
+    </div>`);
   });
 
-  // 2. Tables
+  // 2. LaTeX display: $$...$$ и \[...\] — защищаем ВТОРЫМИ
+  text = text.replace(/\$\$([\s\S]+?)\$\$/g, (_, inner) =>
+    protect(`<div class="katex-display-wrap">$$${inner}$$</div>`));
+  text = text.replace(/\\\[([\s\S]+?)\\\]/g, (_, inner) =>
+    protect(`<div class="katex-display-wrap">\\[${inner}\\]</div>`));
+
+  // 3. LaTeX inline: $...$ и \(...\) — защищаем ТРЕТЬИМИ
+  text = text.replace(/\\\((.+?)\\\)/g, (_, inner) => protect(`\\(${inner}\\)`));
+  // Inline $...$: не трогаем если это не формула (избегаем ложных срабатываний)
+  text = text.replace(/(?<![\\$])\$([^$\n]{1,200}?)\$(?!\d)/g, (_, inner) => protect(`$${inner}$`));
+
+  // 4. Tables
   text = text.replace(/\n?((?:\|.+\|\n?)+)/g, (match) => {
     const lines = match.trim().split("\n").filter(l => l.trim());
     if (lines.length < 2) return match;
@@ -384,46 +410,45 @@ function formatText(rawText) {
       }
     }
     html += '</table></div>';
-    return html;
+    return protect(html);
   });
 
-  // 3. Bold/italic
+  // 5. Bold/italic
   text = text.replace(/\*\*\*(.+?)\*\*\*/g, "<strong><em>$1</em></strong>");
   text = text.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
   text = text.replace(/\*([^*\n]+?)\*/g, "<em>$1</em>");
 
-  // 4. Headers
+  // 6. Headers
+  text = text.replace(/^####\s+(.+)$/gm, "<h4 style='font-size:13px;color:var(--accent2);margin:10px 0 4px'>$1</h4>");
   text = text.replace(/^###\s+(.+)$/gm, "<h4>$1</h4>");
   text = text.replace(/^##\s+(.+)$/gm, "<h3>$1</h3>");
   text = text.replace(/^#\s+(.+)$/gm, "<h2>$1</h2>");
 
-  // 5. Blockquote
+  // 7. Blockquote
   text = text.replace(/^>\s+(.+)$/gm, "<blockquote>$1</blockquote>");
 
-  // 6. Lists
-  text = text.replace(/^[-*•]\s+(.+)$/gm, "<li>$1</li>");
-  text = text.replace(/(<li>.*<\/li>)/gs, "<ul>$1</ul>");
-  text = text.replace(/^\d+\.\s+(.+)$/gm, "<li>$1</li>");
+  // 8. Lists — numbered
+  text = text.replace(/^(\d+)\.\s+(.+)$/gm, (_, n, content) =>
+    `<li style="list-style:none;position:relative;padding-left:22px;margin-bottom:3px"><span style="position:absolute;left:0;top:2px;background:var(--accent);color:#fff;width:16px;height:16px;border-radius:4px;font-size:9px;font-weight:800;display:inline-flex;align-items:center;justify-content:center">${n}</span>${content}</li>`
+  );
+  // 9. Lists — bullet
+  text = text.replace(/^[-*•]\s+(.+)$/gm,
+    `<li style="list-style:none;position:relative;padding-left:16px;margin-bottom:3px"><span style="position:absolute;left:0;top:7px;width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block"></span>$1</li>`
+  );
 
-  // 7. Inline code
+  // 10. Inline code
   text = text.replace(/`([^`\n]+)`/g, (_, c) => `<code>${escHtml(c)}</code>`);
 
-  // 8. HR
+  // 11. HR
   text = text.replace(/^---+$/gm, "<hr>");
 
-  // 9. Preserve LaTeX from \n→<br>
-  const latexPH = {};
-  let lIdx = 0;
-  text = text.replace(/\$\$([\s\S]+?)\$\$/g, m => { const id="\x00L"+(lIdx++)+"\x00"; latexPH[id]=m; return id; });
-  text = text.replace(/\\\[([\s\S]+?)\\\]/g, m => { const id="\x00L"+(lIdx++)+"\x00"; latexPH[id]=m; return id; });
-
-  // 10. Newlines → <br>
+  // 12. Newlines → <br> (только обычный текст, не внутри плейсхолдеров)
   text = text.replace(/\n/g, "<br>");
 
-  // Restore LaTeX
-  for (const [id, orig] of Object.entries(latexPH)) text = text.split(id).join(orig);
-  // Restore code blocks
-  for (const [id, html] of Object.entries(codePH)) text = text.split(id).join(html);
+  // 13. Restore all placeholders
+  for (const [id, html] of Object.entries(PH)) {
+    text = text.split(id).join(html);
+  }
 
   return text;
 }
@@ -560,7 +585,7 @@ window.addEventListener("DOMContentLoaded", () => {
     hljs.highlightElement(block);
   });
 
-  // Render math (KaTeX)
+  // Render math (KaTeX) — после highlight чтобы не ломать код
   try {
     renderMathInElement(contentEl, {
       delimiters: [
@@ -569,14 +594,64 @@ window.addEventListener("DOMContentLoaded", () => {
         { left: "\\(", right: "\\)", display: false },
         { left: "\\[", right: "\\]", display: true  },
       ],
-      throwOnError: false
+      throwOnError: false,
+      errorColor: "#f87171",
+      strict: false,
     });
-  } catch(e) {}
+  } catch(e) { console.warn("KaTeX error:", e); }
 
   // Show
   document.getElementById("loadingState").style.display = "none";
   document.getElementById("mainContent").style.display = "block";
+
+  // ── ШАРИНГ ЧЕРЕЗ TELEGRAM ──────────────────────────────
+  // Устанавливаем кнопку "Поделиться" в заголовке
+  setupShareButton(data);
 });
+
+function setupShareButton(data) {
+  const btn = document.getElementById("copyBtn");
+  if (!btn) return;
+
+  // Меняем кнопку на "Поделиться"
+  btn.textContent = "✈️ Поделиться";
+  btn.onclick = function() { shareAnswer(data); };
+}
+
+function shareAnswer(data) {
+  const viewUrl = window.location.href;
+  const modelName = data.model || "ИИ";
+  const preview = (data.text || "").replace(/[*_`#\[\]]/g, "").substring(0, 120).trim();
+  const previewText = preview.length >= 120 ? preview + "..." : preview;
+
+  // Текст сообщения для шаринга
+  const shareText = `🤖 *Хуза ИИ — Ответ*\n_Модель: ${modelName}_\n\n${previewText}\n\n🔗 Полный ответ: ${viewUrl}`;
+
+  // Telegram share URL — откроет диалог выбора чата/форварда
+  const tgShareUrl = `https://t.me/share/url?url=${encodeURIComponent(viewUrl)}&text=${encodeURIComponent(`🤖 Хуза ИИ — Ответ\nМодель: ${modelName}\n\n${previewText}`)}`;
+
+  // Если открыты в Telegram WebApp — используем нативный шаринг
+  if (window.Telegram && window.Telegram.WebApp) {
+    try {
+      window.Telegram.WebApp.openTelegramLink(tgShareUrl);
+      return;
+    } catch(e) {}
+  }
+
+  // Иначе открываем t.me/share
+  window.open(tgShareUrl, "_blank");
+
+  // Также копируем ссылку в буфер
+  navigator.clipboard.writeText(viewUrl).catch(() => {});
+
+  const btn = document.getElementById("copyBtn");
+  if (btn) {
+    const orig = btn.textContent;
+    btn.textContent = "✅ Ссылка скопирована!";
+    btn.classList.add("copied");
+    setTimeout(() => { btn.textContent = orig; btn.classList.remove("copied"); }, 2500);
+  }
+}
 </script>
 </body>
 </html>
