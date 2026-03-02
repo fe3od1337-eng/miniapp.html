@@ -642,7 +642,7 @@ body {
   flex: 1; min-width: 120px;
   padding: 12px;
   border-radius: 13px;
-  border: none;
+  border: 1px solid var(--border);
   font-size: 14px; font-weight: 700;
   font-family: 'Manrope', sans-serif;
   cursor: pointer;
@@ -3073,15 +3073,40 @@ document.getElementById("igGenBtn").addEventListener("click", async function igG
 })();
 
 // ══════════════════════════════════════════════════════════
-// 📤 ПОДЕЛИТЬСЯ ОТВЕТОМ
+// 📤 ПОДЕЛИТЬСЯ ОТВЕТОМ — через view.html вьювер
 // ══════════════════════════════════════════════════════════
+
+// ⚠️ ЗАМЕНИ на реальный URL где лежит view.html (например GitHub Pages)
+const VIEW_BASE_URL = "https://fe3od1337-eng.github.io/view.html";
+
 let shareText = "";
+let shareRawText = "";
+
+function buildViewerUrl(text, modelName, modelKey) {
+  const data = {
+    text:     text,
+    model:    modelName,
+    modelKey: modelKey,
+    time:     new Date().toLocaleString("ru", { day:"2-digit", month:"2-digit", hour:"2-digit", minute:"2-digit" })
+  };
+  const json    = JSON.stringify(data);
+  const b64     = btoa(unescape(encodeURIComponent(json)));
+  // URL-safe base64
+  const b64safe = b64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
+  return VIEW_BASE_URL + "#data=" + b64safe;
+}
 
 function openShare(btn) {
   const msgDiv = btn.closest(".msg.ai");
   const bubble = msgDiv ? msgDiv.querySelector(".bubble") : null;
-  shareText = bubble ? bubble.innerText : "";
-  document.getElementById("sharePreview").textContent = shareText.slice(0, 500) + (shareText.length > 500 ? "..." : "");
+  shareRawText = bubble ? bubble.innerText : "";
+  const m = getModel(curModel);
+
+  // Генерируем ссылку на вьювер
+  const viewerUrl = buildViewerUrl(shareRawText, m.name, m.key);
+
+  document.getElementById("sharePreview").textContent = shareRawText.slice(0, 400) + (shareRawText.length > 400 ? "..." : "");
+  document.getElementById("shareViewerUrl").value = viewerUrl;
   document.getElementById("shareOverlay").classList.add("open");
   document.getElementById("shareSheet").classList.add("open");
   if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred("light");
@@ -3093,19 +3118,37 @@ function closeShare() {
 }
 
 function shareCopy() {
-  navigator.clipboard.writeText(shareText).then(() => {
+  navigator.clipboard.writeText(shareRawText).then(() => {
     showToast("✅ Ответ скопирован!");
     closeShare();
   }).catch(() => showToast("❌ Не удалось скопировать"));
 }
 
+function shareCopyLink() {
+  const url = document.getElementById("shareViewerUrl").value;
+  navigator.clipboard.writeText(url).then(() => {
+    showToast("🔗 Ссылка скопирована!");
+    const btn = document.getElementById("shareCopyLinkBtn");
+    btn.textContent = "✅ Скопировано";
+    setTimeout(() => btn.textContent = "🔗 Копировать ссылку", 2000);
+  });
+}
+
 function shareTelegram() {
-  // Отправляем через Telegram share
-  const encoded = encodeURIComponent(shareText.slice(0, 4000));
-  const url = `https://t.me/share/url?url=&text=${encoded}`;
+  const url = document.getElementById("shareViewerUrl").value;
+  const m = getModel(curModel);
+  const msgText = `🤖 Ответ от ${m.name}:\n\n${url}`;
+  const encoded = encodeURIComponent(msgText);
+  const tgUrl = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent("🤖 Ответ от " + m.name + " — открой ссылку чтобы увидеть ответ с формулами и таблицами")}`;
+  if (tg.openLink) tg.openLink(tgUrl);
+  else window.open(tgUrl, "_blank");
+  closeShare();
+}
+
+function shareOpenViewer() {
+  const url = document.getElementById("shareViewerUrl").value;
   if (tg.openLink) tg.openLink(url);
   else window.open(url, "_blank");
-  closeShare();
 }
 
 document.getElementById("shareOverlay").addEventListener("click", closeShare);
@@ -3149,9 +3192,17 @@ chatAreaEl.addEventListener("drop", async e => {
 <div class="share-sheet" id="shareSheet">
   <div class="share-sheet-title">📤 Поделиться ответом</div>
   <div class="share-preview" id="sharePreview"></div>
+  <!-- Viewer link row -->
+  <div style="display:flex;gap:6px;margin-bottom:12px">
+    <input id="shareViewerUrl" readonly
+      style="flex:1;background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:8px 12px;color:var(--text2);font-size:11px;font-family:'Manrope',sans-serif;outline:none;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
+      placeholder="Ссылка на вьювер...">
+    <button id="shareCopyLinkBtn" class="share-btn share-btn-copy" style="flex-shrink:0;min-width:unset;padding:8px 12px;font-size:12px" onclick="shareCopyLink()">🔗 Копировать ссылку</button>
+  </div>
   <div class="share-btns">
-    <button class="share-btn share-btn-copy" onclick="shareCopy()">📋 Скопировать</button>
-    <button class="share-btn share-btn-tg" onclick="shareTelegram()">✈️ Отправить в Telegram</button>
+    <button class="share-btn" style="background:rgba(108,127,245,0.15);color:var(--accent2);border:1px solid rgba(108,127,245,0.3)" onclick="shareOpenViewer()">👁 Открыть вьювер</button>
+    <button class="share-btn share-btn-tg" onclick="shareTelegram()">✈️ Отправить другу</button>
+    <button class="share-btn share-btn-copy" onclick="shareCopy()">📋 Скопировать текст</button>
     <button class="share-btn share-btn-close" onclick="closeShare()">Закрыть</button>
   </div>
 </div>
