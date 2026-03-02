@@ -158,7 +158,7 @@ body::before {
   color: var(--accent2);
 }
 
-/* ── CODE BLOCKS — как в мини-апе ── */
+/* ── CODE BLOCKS ── */
 .code-wrapper {
   position: relative; margin: 12px 0;
   border-radius: 14px; overflow: hidden;
@@ -189,10 +189,12 @@ body::before {
   font-size: 11px; cursor: pointer;
   transition: all 0.15s; font-family: 'Manrope',sans-serif; white-space: nowrap;
 }
-.copy-btn:active, .copy-btn.copied { background: rgba(52,211,153,0.2); color: #34d399; border-color: rgba(52,211,153,0.3); }
+.copy-btn:active, .copy-btn.copied {
+  background: rgba(52,211,153,0.2); color: #34d399; border-color: rgba(52,211,153,0.3);
+}
 .code-wrapper pre {
   margin: 0 !important; border-radius: 0 0 14px 14px !important;
-  background: #0f1117 !important; padding: 16px 16px !important;
+  background: #0f1117 !important; padding: 16px !important;
   overflow-x: auto !important; white-space: pre !important;
   word-break: normal !important; word-wrap: normal !important;
   font-size: 12.5px !important; line-height: 1.7 !important;
@@ -203,9 +205,10 @@ body::before {
   white-space: pre !important; word-break: normal !important;
   word-wrap: normal !important; display: block;
   background: none !important; border: none !important; padding: 0 !important;
+  color: inherit !important;
 }
 
-/* ── TABLES — как в мини-апе ── */
+/* ── TABLES ── */
 .table-wrap {
   width: 100%; overflow-x: auto; margin: 12px 0;
   border-radius: 12px; border: 1px solid rgba(91,110,245,0.25);
@@ -240,7 +243,6 @@ body::before {
   overflow-x: auto;
   text-align: center;
 }
-.katex-error { color: #f87171; font-size: 12px; }
 
 /* ── BLOCKQUOTE ── */
 .content-inner blockquote {
@@ -308,7 +310,7 @@ body::before {
       <div class="header-title">Хуза — Ответ ИИ</div>
       <div class="header-sub" id="headerSub">Загрузка...</div>
     </div>
-    <button class="header-copy-btn" id="copyBtn" onclick="copyAll()">✈️ Поделиться</button>
+    <button class="header-copy-btn" id="copyBtn" onclick="copyAll()">📋 Копировать</button>
   </div>
 
   <!-- LOADING -->
@@ -344,8 +346,7 @@ body::before {
 
 <script>
 // ══════════════════════════════════════════════════
-// LZ-String — сжатие для коротких URL
-// Минифицированная версия lz-string (MIT license)
+// LZ-String (MIT license) — для коротких ссылок
 // ══════════════════════════════════════════════════
 var LZString=function(){function o(r,n){if(!t[r]){t[r]={};for(var e=0;e<r.length;e++)t[r][r[e]]=e}return t[r][n]}var t={},i=String.fromCharCode,r="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",n="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-$",s={};s.compressToBase64=function(r){if(null==r)return"";var n=s._compress(r,6,function(r){return"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/="[r]});switch(n.length%4){default:case 0:return n;case 1:return n+"===";case 2:return n+"==";case 3:return n+"="}};s.decompressFromBase64=function(r){return null==r?"":""==r?null:s._decompress(r.length,32,function(n){return o("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",r[n])})};s.compressToUTF16=function(r){return null==r?"":s._compress(r,15,function(r){return i(r+32)})+" "};s.decompressFromUTF16=function(r){return null==r?"":""==r?null:s._decompress(r.length,16384,function(n){return r.charCodeAt(n)-32})};s.compressToUint8Array=function(r){for(var n=s.compress(r),e=new Uint8Array(2*n.length),i=0,t=n.length;i<t;i++){var o=n.charCodeAt(i);e[2*i]=o>>>8,e[2*i+1]=o%256}return e};s.decompressFromUint8Array=function(r){if(null==r)return s.decompress(r);for(var n=new Array(r.length/2),e=0,t=n.length;e<t;e++)n[e]=256*r[2*e]+r[2*e+1];var o=[];return n.forEach(function(r){o.push(i(r))}),s.decompress(o.join(""))};s.compressToEncodedURIComponent=function(r){return null==r?"":s._compress(r,6,function(r){return n[r]})};s.decompressFromEncodedURIComponent=function(r){return null==r?"":""==r?null:(r=r.replace(/ /g,"+"),s._decompress(r.length,32,function(n){return o(n,r[n])}))};s._compress=function(r,n,e){if(null==r)return"";var i,t,o,s={},a={},h="",l="",u="",f=2,c=3,g=2,d=[],p=0,m=0;for(o=0;o<r.length;o+=1){h=r.charAt(o);Object.prototype.hasOwnProperty.call(s,h)||(s[h]=c++,a[h]=!0);l=u+h;if(Object.prototype.hasOwnProperty.call(s,l))u=l;else{if(Object.prototype.hasOwnProperty.call(a,u)){if(u.charCodeAt(0)<256){for(i=0;i<g;i++)p=p<<1,m==n-1?(m=0,d.push(e(p)),p=0):m++;for(t=u.charCodeAt(0),i=0;i<8;i++)p=p<<1|1&t,m==n-1?(m=0,d.push(e(p)),p=0):m++,t>>=1}else{for(t=1,i=0;i<g;i++)p=p<<1|t,m==n-1?(m=0,d.push(e(p)),p=0):m++,t=0;for(t=u.charCodeAt(0),i=0;i<16;i++)p=p<<1|1&t,m==n-1?(m=0,d.push(e(p)),p=0):m++,t>>=1}0==--f&&(f=Math.pow(2,g),g++);delete a[u]}else for(t=s[u],i=0;i<g;i++)p=p<<1|1&t,m==n-1?(m=0,d.push(e(p)),p=0):m++,t>>=1;0==--f&&(f=Math.pow(2,g),g++);s[l]=c++;u=String(h)}}if(""!==u){if(Object.prototype.hasOwnProperty.call(a,u)){if(u.charCodeAt(0)<256){for(i=0;i<g;i++)p=p<<1,m==n-1?(m=0,d.push(e(p)),p=0):m++;for(t=u.charCodeAt(0),i=0;i<8;i++)p=p<<1|1&t,m==n-1?(m=0,d.push(e(p)),p=0):m++,t>>=1}else{for(t=1,i=0;i<g;i++)p=p<<1|t,m==n-1?(m=0,d.push(e(p)),p=0):m++,t=0;for(t=u.charCodeAt(0),i=0;i<16;i++)p=p<<1|1&t,m==n-1?(m=0,d.push(e(p)),p=0):m++,t>>=1}0==--f&&(f=Math.pow(2,g),g++);delete a[u]}else for(t=s[u],i=0;i<g;i++)p=p<<1|1&t,m==n-1?(m=0,d.push(e(p)),p=0):m++,t>>=1;0==--f&&(f=Math.pow(2,g),g++)}for(t=2,i=0;i<g;i++)p=p<<1|1&t,m==n-1?(m=0,d.push(e(p)),p=0):m++,t>>=1;for(;;){if(p=p<<1,m==n-1){d.push(e(p));break}m++}return d.join("")};s._decompress=function(r,n,e){var i,t,o,s,a,h,l,u=[],f=4,c=4,g=3,d="",p=[],m={val:e(0),position:n,index:1};for(i=0;i<3;i+=1)u[i]=i;o=0;s=Math.pow(2,2);a=1;for(;;){t=0;for(h=s;h>0;h>>=1)t=t<<1|((m.val&m.position)>0?1:0),m.position>>=1,0==m.position&&(m.position=n,m.val=e(m.index++));switch(l=t){case 0:t=0;for(h=Math.pow(2,8);h>0;h>>=1)t=t<<1|((m.val&m.position)>0?1:0),m.position>>=1,0==m.position&&(m.position=n,m.val=e(m.index++));d=String.fromCharCode(t),l=u.length,u.push(d);break;case 1:t=0;for(h=Math.pow(2,16);h>0;h>>=1)t=t<<1|((m.val&m.position)>0?1:0),m.position>>=1,0==m.position&&(m.position=n,m.val=e(m.index++));d=String.fromCharCode(t),l=u.length,u.push(d);break;case 2:return p.join("");default:}0==--a&&(a=Math.pow(2,g),g++);if(l<u.length)p.push(d=u[l]);else{if(l!==u.length)return null;p.push(d=u[u.length-1]+u[u.length-1].charAt(0))}u.push(u[c-1]+d.charAt(0));0==--f&&(f=Math.pow(2,c),c++);c=u.length};return p.join("")};return s}();
 
@@ -354,12 +355,13 @@ function escHtml(s) {
   return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
 }
 
-// ── Форматирование — с поддержкой KaTeX, таблиц, кода ────────────────
+// ══════════════════════════════════════════════════════════
+// formatText — ПОЛНОЕ форматирование: код, таблицы, формулы
+// Идентично форматированию в мини-апе
+// ══════════════════════════════════════════════════════════
 function formatText(rawText) {
   let text = rawText;
-
-  // ШАГИ: сначала защищаем всё что не нужно трогать
-  const PH = {};  // все плейсхолдеры
+  const PH = {};
   let phIdx = 0;
   function protect(html) {
     const id = "\x00P" + (phIdx++) + "\x00";
@@ -367,7 +369,7 @@ function formatText(rawText) {
     return id;
   }
 
-  // 1. Code blocks — защищаем ПЕРВЫМИ
+  // 1. Code blocks — ПЕРВЫМИ чтобы не ломать содержимое
   text = text.replace(/```(\w*)\n?([\s\S]*?)```/g, (_, lang, code) => {
     const raw = code.trim();
     const esc = escHtml(raw);
@@ -381,18 +383,18 @@ function formatText(rawText) {
     </div>`);
   });
 
-  // 2. LaTeX display: $$...$$ и \[...\] — защищаем ВТОРЫМИ
+  // 2. LaTeX display: $$...$$ — защищаем
   text = text.replace(/\$\$([\s\S]+?)\$\$/g, (_, inner) =>
     protect(`<div class="katex-display-wrap">$$${inner}$$</div>`));
+  // \[...\]
   text = text.replace(/\\\[([\s\S]+?)\\\]/g, (_, inner) =>
     protect(`<div class="katex-display-wrap">\\[${inner}\\]</div>`));
 
-  // 3. LaTeX inline: $...$ и \(...\) — защищаем ТРЕТЬИМИ
+  // 3. LaTeX inline
   text = text.replace(/\\\((.+?)\\\)/g, (_, inner) => protect(`\\(${inner}\\)`));
-  // Inline $...$: не трогаем если это не формула (избегаем ложных срабатываний)
   text = text.replace(/(?<![\\$])\$([^$\n]{1,200}?)\$(?!\d)/g, (_, inner) => protect(`$${inner}$`));
 
-  // 4. Tables
+  // 4. Tables — парсим markdown таблицы
   text = text.replace(/\n?((?:\|.+\|\n?)+)/g, (match) => {
     const lines = match.trim().split("\n").filter(l => l.trim());
     if (lines.length < 2) return match;
@@ -413,27 +415,35 @@ function formatText(rawText) {
     return protect(html);
   });
 
-  // 5. Bold/italic
+  // 5. Bold / italic
   text = text.replace(/\*\*\*(.+?)\*\*\*/g, "<strong><em>$1</em></strong>");
   text = text.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
   text = text.replace(/\*([^*\n]+?)\*/g, "<em>$1</em>");
+  text = text.replace(/__(.+?)__/g, "<strong>$1</strong>");
+  text = text.replace(/_([^_\n]+?)_/g, "<em>$1</em>");
 
   // 6. Headers
   text = text.replace(/^####\s+(.+)$/gm, "<h4 style='font-size:13px;color:var(--accent2);margin:10px 0 4px'>$1</h4>");
   text = text.replace(/^###\s+(.+)$/gm, "<h4>$1</h4>");
-  text = text.replace(/^##\s+(.+)$/gm, "<h3>$1</h3>");
-  text = text.replace(/^#\s+(.+)$/gm, "<h2>$1</h2>");
+  text = text.replace(/^##\s+(.+)$/gm,  "<h3>$1</h3>");
+  text = text.replace(/^#\s+(.+)$/gm,   "<h2>$1</h2>");
 
   // 7. Blockquote
   text = text.replace(/^>\s+(.+)$/gm, "<blockquote>$1</blockquote>");
 
-  // 8. Lists — numbered
+  // 8. Numbered lists
   text = text.replace(/^(\d+)\.\s+(.+)$/gm, (_, n, content) =>
-    `<li style="list-style:none;position:relative;padding-left:22px;margin-bottom:3px"><span style="position:absolute;left:0;top:2px;background:var(--accent);color:#fff;width:16px;height:16px;border-radius:4px;font-size:9px;font-weight:800;display:inline-flex;align-items:center;justify-content:center">${n}</span>${content}</li>`
+    `<li style="list-style:none;position:relative;padding-left:22px;margin-bottom:3px">` +
+    `<span style="position:absolute;left:0;top:2px;background:var(--accent);color:#fff;` +
+    `width:16px;height:16px;border-radius:4px;font-size:9px;font-weight:800;` +
+    `display:inline-flex;align-items:center;justify-content:center">${n}</span>${content}</li>`
   );
-  // 9. Lists — bullet
+
+  // 9. Bullet lists
   text = text.replace(/^[-*•]\s+(.+)$/gm,
-    `<li style="list-style:none;position:relative;padding-left:16px;margin-bottom:3px"><span style="position:absolute;left:0;top:7px;width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block"></span>$1</li>`
+    `<li style="list-style:none;position:relative;padding-left:16px;margin-bottom:3px">` +
+    `<span style="position:absolute;left:0;top:7px;width:6px;height:6px;border-radius:50%;` +
+    `background:var(--accent);display:inline-block"></span>$1</li>`
   );
 
   // 10. Inline code
@@ -442,10 +452,10 @@ function formatText(rawText) {
   // 11. HR
   text = text.replace(/^---+$/gm, "<hr>");
 
-  // 12. Newlines → <br> (только обычный текст, не внутри плейсхолдеров)
+  // 12. Newlines → <br>
   text = text.replace(/\n/g, "<br>");
 
-  // 13. Restore all placeholders
+  // 13. Restore placeholders
   for (const [id, html] of Object.entries(PH)) {
     text = text.split(id).join(html);
   }
@@ -472,7 +482,7 @@ function copyAll() {
   });
 }
 
-// ── MODEL ICONS (SVG) — как в мини-апе ──────────────────
+// ── MODEL ICONS ──────────────────────────────────────────
 const MODEL_ICONS = {
   claude_sonnet:`<svg viewBox="0 0 24 24" fill="none" width="14" height="14"><circle cx="12" cy="12" r="10" fill="#CC785C"/><path d="M8 12.5c1-2 3-3.5 4-3.5s3 1.5 4 3.5" stroke="white" stroke-width="1.5" stroke-linecap="round"/><circle cx="9" cy="9.5" r="1" fill="white"/><circle cx="15" cy="9.5" r="1" fill="white"/></svg>`,
   claude_haiku: `<svg viewBox="0 0 24 24" fill="none" width="14" height="14"><circle cx="12" cy="12" r="10" fill="#CC785C"/><path d="M9 12.5c.8-1.5 1.8-2.5 3-2.5s2.2 1 3 2.5" stroke="white" stroke-width="1.5" stroke-linecap="round"/><circle cx="9.5" cy="10" r="0.8" fill="white"/><circle cx="14.5" cy="10" r="0.8" fill="white"/></svg>`,
@@ -493,7 +503,6 @@ const AV_COLORS = {
   c4ai:   "linear-gradient(135deg,#f953c6,#b91d73)",
   sonar:  "linear-gradient(135deg,#4facfe,#00f2fe)",
 };
-
 function getModelStyle(modelKey) {
   const k = (modelKey || "").toLowerCase();
   let bg = "linear-gradient(135deg,#5b6ef5,#9b59b6)";
@@ -505,24 +514,22 @@ function getModelStyle(modelKey) {
 }
 
 // ══════════════════════════════════════════════════
-// DECODE — поддержка нового (LZ сжатого) и старого (base64) форматов
+// DECODE — поддержка ОБОИХ форматов:
+//   #z=...   — новый LZ-сжатый (КОРОТКИЙ)
+//   #data=.. — старый base64 (совместимость)
 // ══════════════════════════════════════════════════
 function getDataFromUrl() {
-  const hash = location.hash;
+  const hash   = location.hash;
   const search = location.search;
   let encoded = "", mode = "";
 
   if (hash.startsWith("#z=")) {
-    // НОВЫЙ формат: LZ-compressed (короткий URL)
-    encoded = hash.slice(3);
-    mode = "lz";
+    encoded = hash.slice(3); mode = "lz";
   } else if (hash.startsWith("#data=")) {
-    // СТАРЫЙ формат: plain base64
-    encoded = hash.slice(6);
-    mode = "b64";
+    encoded = hash.slice(6); mode = "b64";
   } else if (search) {
     const p = new URLSearchParams(search);
-    if (p.get("z")) { encoded = p.get("z"); mode = "lz"; }
+    if (p.get("z"))      { encoded = p.get("z"); mode = "lz"; }
     else if (p.get("d")) { encoded = p.get("d"); mode = "b64"; }
   }
   return { encoded, mode };
@@ -531,18 +538,14 @@ function getDataFromUrl() {
 function decodeData(encoded, mode) {
   try {
     if (mode === "lz") {
-      // LZ-string URI-component decode
       const json = LZString.decompressFromEncodedURIComponent(encoded);
       return JSON.parse(json);
     } else {
-      // Legacy base64
-      const b64 = encoded.replace(/-/g, "+").replace(/_/g, "/");
+      const b64  = encoded.replace(/-/g, "+").replace(/_/g, "/");
       const json = decodeURIComponent(escape(atob(b64)));
       return JSON.parse(json);
     }
-  } catch(e) {
-    return null;
-  }
+  } catch(e) { return null; }
 }
 
 // ── Init ─────────────────────────────────────────────────
@@ -566,26 +569,26 @@ window.addEventListener("DOMContentLoaded", () => {
 
   // Header
   document.getElementById("modelName").textContent = data.model || "ИИ";
-  document.getElementById("msgTime").textContent = data.time || "";
+  document.getElementById("msgTime").textContent   = data.time  || "";
   document.getElementById("headerSub").textContent = `${data.model || "ИИ"} · ${data.time || ""}`;
   document.title = "Хуза ИИ · " + (data.model || "ИИ");
 
   // Model dot
   const style = getModelStyle(data.modelKey || "");
-  const dot = document.getElementById("modelDot");
+  const dot   = document.getElementById("modelDot");
   dot.style.background = style.bg;
   dot.innerHTML = style.icon;
 
-  // Content
+  // Render content
   const contentEl = document.getElementById("contentInner");
   contentEl.innerHTML = formatText(data.text);
 
-  // Highlight code
+  // Highlight.js — подсветка кода
   contentEl.querySelectorAll("pre code").forEach(block => {
     hljs.highlightElement(block);
   });
 
-  // Render math (KaTeX) — после highlight чтобы не ломать код
+  // KaTeX — рендер формул ПОСЛЕ highlight
   try {
     renderMathInElement(contentEl, {
       delimiters: [
@@ -598,59 +601,34 @@ window.addEventListener("DOMContentLoaded", () => {
       errorColor: "#f87171",
       strict: false,
     });
-  } catch(e) { console.warn("KaTeX error:", e); }
+  } catch(e) { console.warn("KaTeX:", e); }
 
   // Show
   document.getElementById("loadingState").style.display = "none";
-  document.getElementById("mainContent").style.display = "block";
+  document.getElementById("mainContent").style.display  = "block";
 
-  // ── ШАРИНГ ЧЕРЕЗ TELEGRAM ──────────────────────────────
-  // Устанавливаем кнопку "Поделиться" в заголовке
-  setupShareButton(data);
+  // Share button
+  document.getElementById("copyBtn").onclick = () => shareAnswer(data);
+  document.getElementById("copyBtn").textContent = "✈️ Поделиться";
 });
 
-function setupShareButton(data) {
-  const btn = document.getElementById("copyBtn");
-  if (!btn) return;
-
-  // Меняем кнопку на "Поделиться"
-  btn.textContent = "✈️ Поделиться";
-  btn.onclick = function() { shareAnswer(data); };
-}
-
 function shareAnswer(data) {
-  const viewUrl = window.location.href;
+  const viewUrl   = window.location.href;
   const modelName = data.model || "ИИ";
-  const preview = (data.text || "").replace(/[*_`#\[\]]/g, "").substring(0, 120).trim();
+  const preview   = (data.text || "").replace(/[*_`#\[\]]/g,"").substring(0,120).trim();
   const previewText = preview.length >= 120 ? preview + "..." : preview;
+  const tgShareUrl  = `https://t.me/share/url?url=${encodeURIComponent(viewUrl)}&text=${encodeURIComponent(`🤖 Хуза ИИ — Ответ\nМодель: ${modelName}\n\n${previewText}`)}`;
 
-  // Текст сообщения для шаринга
-  const shareText = `🤖 *Хуза ИИ — Ответ*\n_Модель: ${modelName}_\n\n${previewText}\n\n🔗 Полный ответ: ${viewUrl}`;
-
-  // Telegram share URL — откроет диалог выбора чата/форварда
-  const tgShareUrl = `https://t.me/share/url?url=${encodeURIComponent(viewUrl)}&text=${encodeURIComponent(`🤖 Хуза ИИ — Ответ\nМодель: ${modelName}\n\n${previewText}`)}`;
-
-  // Если открыты в Telegram WebApp — используем нативный шаринг
   if (window.Telegram && window.Telegram.WebApp) {
-    try {
-      window.Telegram.WebApp.openTelegramLink(tgShareUrl);
-      return;
-    } catch(e) {}
+    try { window.Telegram.WebApp.openTelegramLink(tgShareUrl); return; } catch(e) {}
   }
-
-  // Иначе открываем t.me/share
   window.open(tgShareUrl, "_blank");
-
-  // Также копируем ссылку в буфер
   navigator.clipboard.writeText(viewUrl).catch(() => {});
 
   const btn = document.getElementById("copyBtn");
-  if (btn) {
-    const orig = btn.textContent;
-    btn.textContent = "✅ Ссылка скопирована!";
-    btn.classList.add("copied");
-    setTimeout(() => { btn.textContent = orig; btn.classList.remove("copied"); }, 2500);
-  }
+  const orig = btn.textContent;
+  btn.textContent = "✅ Скопировано!"; btn.classList.add("copied");
+  setTimeout(() => { btn.textContent = orig; btn.classList.remove("copied"); }, 2500);
 }
 </script>
 </body>
