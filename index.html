@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Хуза ИИ</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<!-- LZString для сжатия данных в короткие ссылки -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <!-- highlight.js для подсветки кода -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
@@ -640,18 +642,20 @@ body {
 }
 .share-btn {
   flex: 1; min-width: 120px;
-  padding: 12px;
+  padding: 14px 12px;
   border-radius: 13px;
   border: 1px solid var(--border);
   font-size: 14px; font-weight: 700;
   font-family: 'Manrope', sans-serif;
   cursor: pointer;
-  transition: opacity 0.15s;
+  transition: all 0.2s;
   text-align: center;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
-.share-btn:active { opacity: 0.75; }
+.share-btn:active { opacity: 0.7; transform: scale(0.97); }
 .share-btn-copy  { background: var(--surface3); color: var(--text); }
-.share-btn-tg    { background: linear-gradient(135deg,#2aabee,#1a8dc8); color:#fff; }
+.share-btn-tg    { background: linear-gradient(135deg,#2aabee,#1a8dc8); color:#fff; box-shadow: 0 4px 12px rgba(42,171,238,0.3); }
 .share-btn-close { background: var(--surface2); color: var(--text2); flex-basis: 100%; }
 
 /* ── DRAG & DROP ZONE ── */
@@ -3118,8 +3122,11 @@ function closeShare() {
 
 function shareCopy() {
   navigator.clipboard.writeText(shareRawText).then(() => {
-    showToast("✅ Ответ скопирован!");
-    closeShare();
+    showToast("✅ Текст скопирован!");
+    const btn = event.target;
+    const origText = btn.textContent;
+    btn.textContent = "✅ Скопировано";
+    setTimeout(() => btn.textContent = origText, 2000);
   }).catch(() => showToast("❌ Не удалось скопировать"));
 }
 
@@ -3196,9 +3203,11 @@ chatAreaEl.addEventListener("drop", async e => {
     <input id="shareViewerUrl" readonly
       style="flex:1;background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:8px 12px;color:var(--text2);font-size:11px;font-family:'Manrope',sans-serif;outline:none;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
       placeholder="Ссылка на вьювер...">
-    <button id="shareCopyLinkBtn" class="share-btn share-btn-copy" style="flex-shrink:0;min-width:unset;padding:8px 12px;font-size:12px" onclick="shareCopyLink()">🔗 Копировать ссылку</button>
+    <button id="shareCopyLinkBtn" class="share-btn share-btn-copy" style="flex-shrink:0;min-width:unset;padding:8px 12px;font-size:12px;font-weight:700;" onclick="shareCopyLink()">🔗 Скопировать</button>
   </div>
   <div class="share-btns">
+    <button class="share-btn share-btn-copy" onclick="shareCopy()">📋 Копировать текст</button>
+    <button class="share-btn share-btn-tg" onclick="shareTelegram()">✈️ Telegram</button>
     <button class="share-btn" style="background:rgba(108,127,245,0.15);color:var(--accent2);border:1px solid rgba(108,127,245,0.3)" onclick="shareOpenViewer()">👁 Открыть вьювер</button>
     <button class="share-btn share-btn-close" onclick="closeShare()">Закрыть</button>
   </div>
