@@ -1476,6 +1476,7 @@ let pendingImgs = []; // [{file, b64, url}]
 let pendingDocs = []; // [{name, text, size}]  ← ФАЙЛЫ/ДОКУМЕНТЫ
 let messages   = [];   // [{role, content, imgUrl?}]
 let isLoading  = false;
+let _lastSendTime = 0; // Защита от двойного вызова sendMessage
 
 // Режимы ответа
 const MODES = {
@@ -1805,7 +1806,10 @@ function removeImg(i) {
 document.getElementById("sendBtn").addEventListener("click", sendMessage);
 
 async function sendMessage() {
-  if (isLoading) return;
+  // Защита от двойного вызова (Enter + кнопка одновременно)
+  const now = Date.now();
+  if (isLoading || now - _lastSendTime < 800) return;
+  _lastSendTime = now;
   // Объединяем текст с документами
   let text = msgInput.value.trim();
   const imgs  = [...pendingImgs];
@@ -1920,13 +1924,14 @@ async function sendMessage() {
   } catch(e) {
     removeThinkTimer(timerId);
     const errMsg = e && e.name === 'AbortError'
-      ? "❌ Таймаут — сервер не ответил за 2 минуты.\n\n💡 Попробуй ещё раз или задай вопрос напрямую в чат бота."
-      : "❌ Ошибка соединения с сервером.\n\n💡 Повтори запрос — Railway иногда \"просыпается\" 10-15 секунд.";
+      ? "❌ Таймаут — сервер не ответил за 2 минуты.\n\n💡 Попробуй ещё раз."
+      : "❌ Ошибка соединения. Повтори запрос через несколько секунд.";
     addAiMsg(errMsg);
+  } finally {
+    // ВСЕГДА сбрасываем isLoading — даже если была ошибка
+    isLoading = false;
+    updateSendBtn();
   }
-
-  isLoading = false;
-  updateSendBtn();
 }
 
 // ── Ответы приходят напрямую через fetch() ───────────────────
@@ -3102,8 +3107,8 @@ document.getElementById("igGenBtn").addEventListener("click", async function igG
 // 📤 ПОДЕЛИТЬСЯ ОТВЕТОМ — через view.html вьювер
 // ══════════════════════════════════════════════════════════
 
-// ⚠️ ЗАМЕНИ на реальный URL где лежит view.html (например GitHub Pages)
-const VIEW_BASE_URL = "https://fe3od1337-eng.github.io/View.html";
+// ✅ View.html теперь раздаётся с Railway сервера — GitHub Pages не нужен!
+const VIEW_BASE_URL = "https://huzabot123-production.up.railway.app/view";
 
 let shareText = "";
 let shareRawText = "";
