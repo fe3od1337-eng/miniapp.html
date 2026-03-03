@@ -1868,6 +1868,7 @@ async function sendMessage() {
     answer_mode: curMode,
   };
 
+  let _answered = false;
   try {
     // Retry до 2 раз при сетевых ошибках (Railway может быть медленным)
     let resp, data, lastErr;
@@ -1902,6 +1903,7 @@ async function sendMessage() {
         addAutoModelBadge(data.used_model);
       }
       addAiMsg(data.answer, data.model_label);
+      _answered = true;
       // Update limits display + userStats
       if (data.fast_left !== undefined) {
         document.getElementById("limitBar").style.display = "flex";
@@ -1916,17 +1918,22 @@ async function sendMessage() {
       let chText = "\n\nПодпишись на каналы:\n";
       (data.channels || []).forEach(ch => { chText += `• ${ch.title}\n`; });
       addAiMsg("🔐 Для доступа нужно подписаться на канал!" + chText);
+      _answered = true;
     } else if (data.error === "limit_exceeded") {
       addAiMsg(`🚫 Лимит запросов исчерпан!\n⏰ Сброс через: ${data.reset_in || "?"}\n\nОсталось: 🧠${data.pro_left} проф. запросов`);
+      _answered = true;
     } else {
       addAiMsg(`❌ Ошибка: ${data.error || "Неизвестная ошибка"}`);
+      _answered = true;
     }
   } catch(e) {
     removeThinkTimer(timerId);
-    const errMsg = e && e.name === 'AbortError'
-      ? "❌ Таймаут — сервер не ответил за 2 минуты.\n\n💡 Попробуй ещё раз."
-      : "❌ Ошибка соединения. Повтори запрос через несколько секунд.";
-    addAiMsg(errMsg);
+    if (!_answered) {
+      const errMsg = e && e.name === 'AbortError'
+        ? "❌ Таймаут — сервер не ответил за 2 минуты.\n\n💡 Попробуй ещё раз."
+        : "❌ Ошибка соединения. Повтори запрос через несколько секунд.";
+      addAiMsg(errMsg);
+    }
   } finally {
     // ВСЕГДА сбрасываем isLoading — даже если была ошибка
     isLoading = false;
@@ -1997,9 +2004,11 @@ function addAiMsg(text, modelLabel) {
   scheduleHistorySave();
   scrollBottom();
   // Подсветка кода highlight.js
-  div.querySelectorAll("pre code").forEach(block => {
-    hljs.highlightElement(block);
-  });
+  try {
+    div.querySelectorAll("pre code").forEach(block => {
+      try { hljs.highlightElement(block); } catch(e) {}
+    });
+  } catch(e) {}
   // Рендер LaTeX формул KaTeX
   try {
     renderMathInElement(div, {
