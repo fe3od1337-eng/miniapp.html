@@ -1918,13 +1918,10 @@ async function sendMessage() {
       let chText = "\n\nПодпишись на каналы:\n";
       (data.channels || []).forEach(ch => { chText += `• ${ch.title}\n`; });
       addAiMsg("🔐 Для доступа нужно подписаться на канал!" + chText);
-      _answered = true;
     } else if (data.error === "limit_exceeded") {
       addAiMsg(`🚫 Лимит запросов исчерпан!\n⏰ Сброс через: ${data.reset_in || "?"}\n\nОсталось: 🧠${data.pro_left} проф. запросов`);
-      _answered = true;
     } else {
       addAiMsg(`❌ Ошибка: ${data.error || "Неизвестная ошибка"}`);
-      _answered = true;
     }
   } catch(e) {
     removeThinkTimer(timerId);
@@ -2004,11 +2001,7 @@ function addAiMsg(text, modelLabel) {
   scheduleHistorySave();
   scrollBottom();
   // Подсветка кода highlight.js
-  try {
-    div.querySelectorAll("pre code").forEach(block => {
-      try { hljs.highlightElement(block); } catch(e) {}
-    });
-  } catch(e) {}
+  try { div.querySelectorAll("pre code").forEach(block => { try { hljs.highlightElement(block); } catch(e) {} }); } catch(e) {}
   // Рендер LaTeX формул KaTeX
   try {
     renderMathInElement(div, {
@@ -3117,7 +3110,7 @@ document.getElementById("igGenBtn").addEventListener("click", async function igG
 // ══════════════════════════════════════════════════════════
 
 // ✅ View.html теперь раздаётся с Railway сервера — GitHub Pages не нужен!
-const VIEW_BASE_URL = "https://huzabot123-production.up.railway.app/view";
+const VIEW_BASE_URL = "https://fe3od1337-eng.github.io/miniapp.html/View.html";
 
 let shareText = "";
 let shareRawText = "";
