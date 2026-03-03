@@ -538,7 +538,7 @@ function decodeData(encoded, mode) {
 }
 
 // ── Init ─────────────────────────────────────────────────
-window.addEventListener("DOMContentLoaded", () => {
+function initPage() {
   const { encoded, mode } = getDataFromUrl();
 
   if (!encoded) {
@@ -644,10 +644,30 @@ function openBot() {
   window.open(botUrl, "_blank");
 }
 
-// Добавляем обработчик кнопки "Бот"
+// ── Wait for LZString, then init ─────────────────────────
 window.addEventListener("DOMContentLoaded", () => {
   const botBtn = document.getElementById("botBtn");
   if (botBtn) botBtn.onclick = openBot;
+
+  // Failsafe: если через 8 сек всё ещё лоадер — показать ошибку
+  const safetyTimer = setTimeout(() => {
+    const loading = document.getElementById("loadingState");
+    if (loading && loading.style.display !== "none") {
+      loading.style.display = "none";
+      document.getElementById("errorState").style.display = "flex";
+    }
+  }, 8000);
+
+  function tryInit() {
+    if (typeof LZString !== "undefined") {
+      clearTimeout(safetyTimer);
+      initPage();
+    } else {
+      setTimeout(tryInit, 100);
+    }
+  }
+
+  tryInit();
 });
 </script>
 </body>
