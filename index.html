@@ -1865,13 +1865,32 @@ async function sendMessage() {
   };
 
   try {
-    const resp = await fetch(`${API_BASE}/api/chat`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-    const data = await resp.json();
+    // Retry до 2 раз при сетевых ошибках (Railway может быть медленным)
+    let resp, data, lastErr;
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 120000); // 2 мин таймаут
+        resp = await fetch(`${API_BASE}/api/chat`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+          signal: controller.signal
+        });
+        clearTimeout(timeout);
+        data = await resp.json();
+        lastErr = null;
+        break; // Успех — выходим из retry
+      } catch(e) {
+        lastErr = e;
+        if (attempt < 1) {
+          await new Promise(r => setTimeout(r, 2000)); // Ждём 2с перед retry
+        }
+      }
+    }
     removeThinkTimer(timerId);
+
+    if (lastErr) throw lastErr; // Оба попытки провалились
 
     if (data.ok) {
       // Авто-модель: обновляем если сервер вернул другую
@@ -1900,7 +1919,10 @@ async function sendMessage() {
     }
   } catch(e) {
     removeThinkTimer(timerId);
-    addAiMsg("❌ Ошибка соединения с сервером.\n\n💡 Напиши вопрос напрямую в чат бота — он ответит там.");
+    const errMsg = e && e.name === 'AbortError'
+      ? "❌ Таймаут — сервер не ответил за 2 минуты.\n\n💡 Попробуй ещё раз или задай вопрос напрямую в чат бота."
+      : "❌ Ошибка соединения с сервером.\n\n💡 Повтори запрос — Railway иногда \"просыпается\" 10-15 секунд.";
+    addAiMsg(errMsg);
   }
 
   isLoading = false;
@@ -3081,7 +3103,7 @@ document.getElementById("igGenBtn").addEventListener("click", async function igG
 // ══════════════════════════════════════════════════════════
 
 // ⚠️ ЗАМЕНИ на реальный URL где лежит view.html (например GitHub Pages)
-const VIEW_BASE_URL = "https://fe3od1337-eng.github.io/miniapp.html/View.html";
+const VIEW_BASE_URL = "https://fe3od1337-eng.github.io/View.html";
 
 let shareText = "";
 let shareRawText = "";
