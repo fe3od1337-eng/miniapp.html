@@ -536,15 +536,13 @@ function getDataFromUrl() {
   const hash   = location.hash;
   const search = location.search;
   let encoded = "", mode = "";
-
-  if (hash.startsWith("#z=")) {
-    encoded = hash.slice(3); mode = "lz";
-  } else if (hash.startsWith("#data=")) {
-    encoded = hash.slice(6); mode = "b64";
-  } else if (search) {
+  if (hash.startsWith("#z="))        { encoded = hash.slice(3); mode = "lz"; }
+  else if (hash.startsWith("#data=")) { encoded = hash.slice(6); mode = "b64"; }
+  else if (search) {
     const p = new URLSearchParams(search);
     if (p.get("z"))      { encoded = p.get("z"); mode = "lz"; }
     else if (p.get("d")) { encoded = p.get("d"); mode = "b64"; }
+    else if (p.get("id") && p.get("api")) { mode = "api"; }
   }
   return { encoded, mode };
 }
@@ -560,102 +558,82 @@ function decodeData(encoded, mode) {
       const json = decodeURIComponent(escape(atob(b64)));
       return JSON.parse(json);
     }
-  } catch(e) { 
-    console.error("Decode error:", e);
-    return null; 
-  }
+  } catch(e) { console.error("Decode error:", e); return null; }
 }
 
-// ── Init ─────────────────────────────────────────────────
-function initPage() {
-  const { encoded, mode } = getDataFromUrl();
+function showError() {
+  document.getElementById("loadingState").style.display = "none";
+  document.getElementById("errorState").style.display = "flex";
+}
 
-  if (!encoded) {
-    document.getElementById("loadingState").style.display = "none";
-    document.getElementById("errorState").style.display = "flex";
-    return;
-  }
-
-  const data = decodeData(encoded, mode);
-  if (!data || !data.text) {
-    document.getElementById("loadingState").style.display = "none";
-    document.getElementById("errorState").style.display = "flex";
-    return;
-  }
-
+function renderData(data) {
   rawAnswerText = data.text;
-
-  // Header
   document.getElementById("modelName").textContent = data.model || "ИИ";
   document.getElementById("msgTime").textContent   = data.time  || "";
-  document.getElementById("headerSub").textContent = `${data.model || "ИИ"} · ${data.time || ""}`;
+  document.getElementById("headerSub").textContent = (data.model||"ИИ") + " · " + (data.time||"");
   document.title = "Хуза ИИ · " + (data.model || "ИИ");
-
-  // Model dot
   const style = getModelStyle(data.modelKey || "");
-  const dot   = document.getElementById("modelDot");
+  const dot = document.getElementById("modelDot");
   dot.style.background = style.bg;
   dot.innerHTML = style.icon;
-
-  // Render content
   const contentEl = document.getElementById("contentInner");
   contentEl.innerHTML = formatText(data.text);
-
-  // Highlight.js — подсветка кода
-  contentEl.querySelectorAll("pre code").forEach(block => {
-    hljs.highlightElement(block);
-  });
-
-  // KaTeX — рендер формул ПОСЛЕ всего остального
-  // Увеличиваем таймаут чтобы DOM успел обновиться
+  contentEl.querySelectorAll("pre code").forEach(b => hljs.highlightElement(b));
   setTimeout(() => {
     try {
       renderMathInElement(contentEl, {
         delimiters: [
-          { left: "$$",  right: "$$",  display: true  },
-          { left: "$",   right: "$",   display: false },
+          { left: "$$", right: "$$", display: true  },
+          { left: "$",  right: "$",  display: false },
           { left: "\\(", right: "\\)", display: false },
           { left: "\\[", right: "\\]", display: true  },
         ],
-        throwOnError: false,
-        errorColor: "#f87171",
-        strict: false,
-        trust: true,
-        fleqn: false,
-        macros: {
-          "\\RR": "\\mathbb{R}",
-          "\\NN": "\\mathbb{N}",
-          "\\ZZ": "\\mathbb{Z}",
-          "\\QQ": "\\mathbb{Q}",
-        }
+        throwOnError: false, errorColor: "#f87171", strict: false, trust: true,
+        macros: { "\\RR": "\\mathbb{R}", "\\NN": "\\mathbb{N}", "\\ZZ": "\\mathbb{Z}" }
       });
-      console.log("KaTeX rendered successfully");
-    } catch(e) { 
-      console.error("KaTeX error:", e); 
-    }
+    } catch(e) { console.error("KaTeX error:", e); }
   }, 200);
-
-  // Show content
   document.getElementById("loadingState").style.display = "none";
   document.getElementById("mainContent").style.display  = "block";
-
-  // Share button
   document.getElementById("copyBtn").onclick = () => shareAnswer(data);
-});
+}
+
+function initPage() {
+  const { encoded, mode } = getDataFromUrl();
+
+  // Режим API: загрузка с Railway по короткому ID
+  if (mode === "api") {
+    const p   = new URLSearchParams(location.search);
+    const id  = p.get("id");
+    const api = p.get("api");
+    fetch(api + "/api/answer/" + id)
+      .then(r => r.json())
+      .then(data => {
+        if (data.ok && data.text) { renderData(data); }
+        else { showError(); }
+      })
+      .catch(showError);
+    return;
+  }
+
+  if (!encoded) { showError(); return; }
+  const data = decodeData(encoded, mode);
+  if (!data || !data.text) { showError(); return; }
+  renderData(data);
+}
 
 function shareAnswer(data) {
   const viewUrl   = window.location.href;
   const modelName = data.model || "ИИ";
   const preview   = (data.text || "").replace(/[*_`#\[\]$]/g,"").substring(0,120).trim();
   const previewText = preview.length >= 120 ? preview + "..." : preview;
-  const tgShareUrl  = `https://t.me/share/url?url=${encodeURIComponent(viewUrl)}&text=${encodeURIComponent(`🤖 Хуза ИИ — Ответ от ${modelName}\n\n${previewText}`)}`;
-
+  const tgShareUrl  = "https://t.me/share/url?url=" + encodeURIComponent(viewUrl) +
+    "&text=" + encodeURIComponent("🤖 Хуза ИИ — Ответ от " + modelName + "\n\n" + previewText);
   if (window.Telegram && window.Telegram.WebApp) {
     try { window.Telegram.WebApp.openTelegramLink(tgShareUrl); return; } catch(e) {}
   }
   window.open(tgShareUrl, "_blank");
   navigator.clipboard.writeText(viewUrl).catch(() => {});
-
   const btn = document.getElementById("copyBtn");
   const orig = btn.textContent;
   btn.textContent = "✅ Скопировано!"; btn.classList.add("copied");
@@ -663,17 +641,14 @@ function shareAnswer(data) {
 }
 
 function openBot() {
-  const botUrl = "https://t.me/iihuzandelpiibot"; // ЗАМЕНИ на username твоего бота
+  const botUrl = "https://t.me/iihuzandelpiibot";
   if (window.Telegram && window.Telegram.WebApp) {
-    try { 
-      window.Telegram.WebApp.openTelegramLink(botUrl); 
-      return; 
-    } catch(e) {}
+    try { window.Telegram.WebApp.openTelegramLink(botUrl); return; } catch(e) {}
   }
   window.open(botUrl, "_blank");
 }
 
-// ── Wait for LZString, then init ─────────────────────────
+// ── Wait for LZString (or skip if API mode), then init ───
 window.addEventListener("DOMContentLoaded", () => {
   const botBtn = document.getElementById("botBtn");
   if (botBtn) botBtn.onclick = openBot;
@@ -688,7 +663,15 @@ window.addEventListener("DOMContentLoaded", () => {
   }, 8000);
 
   function tryInit() {
-    if (typeof LZString !== "undefined") {
+    // Проверяем нужен ли LZString для этого URL
+    const h = location.hash, s = location.search;
+    const needsLZ = h.startsWith("#z=") ||
+      (s && new URLSearchParams(s).get("z"));
+    if (!needsLZ) {
+      // base64 или API — не ждём LZString, инициализируем сразу
+      clearTimeout(safetyTimer);
+      initPage();
+    } else if (typeof LZString !== "undefined") {
       clearTimeout(safetyTimer);
       initPage();
     } else {
