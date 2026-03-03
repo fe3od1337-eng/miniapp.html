@@ -4,302 +4,306 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Хуза ИИ — Ответ</title>
-
-<!-- ── ШРИФТЫ ── -->
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-
-<!-- ── KaTeX (математика) ── -->
+<!-- LZString для декодирования сжатых ссылок -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
-
-<!-- ── Highlight.js (подсветка кода) ── -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 
-<!-- ── LZString ── -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
-
 <style>
 :root {
-  --bg:      #0a0a0f;
+  --bg: #0a0a0f;
   --surface: #13131a;
-  --surface2:#1c1c27;
-  --surface3:#252535;
-  --border:  rgba(255,255,255,0.07);
-  --border2: rgba(255,255,255,0.13);
-  --text:    #f0f0ff;
-  --text2:   rgba(240,240,255,0.55);
-  --text3:   rgba(240,240,255,0.3);
-  --accent:  #5b6ef5;
+  --surface2: #1c1c27;
+  --surface3: #252535;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --text: #f0f0ff;
+  --text2: rgba(240,240,255,0.55);
+  --text3: rgba(240,240,255,0.3);
+  --accent: #5b6ef5;
   --accent2: #7c8ff7;
-  --green:   #34d399;
-  --red:     #f87171;
+  --green: #34d399;
+  --red: #f87171;
+  --yellow: #fbbf24;
 }
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html{scroll-behavior:smooth}
-body{
-  font-family:'Manrope',sans-serif;
-  background:var(--bg);color:var(--text);
-  min-height:100vh;overflow-x:hidden;
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body {
+  font-family: 'Manrope', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
 }
-body::before{
-  content:'';position:fixed;inset:0;
+body::before {
+  content: '';
+  position: fixed; inset: 0;
   background:
-    radial-gradient(ellipse 60% 40% at 20% 0%,rgba(91,110,245,.1) 0%,transparent 60%),
-    radial-gradient(ellipse 40% 30% at 80% 100%,rgba(155,90,245,.07) 0%,transparent 50%);
-  pointer-events:none;z-index:0;
+    radial-gradient(ellipse 60% 40% at 20% 0%, rgba(91,110,245,0.1) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 30% at 80% 100%, rgba(155,90,245,0.07) 0%, transparent 50%);
+  pointer-events: none; z-index: 0;
+}
+.page {
+  position: relative; z-index: 1;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 0 60px;
 }
 
-/* LOADING / ERROR */
-#loadingState,#errorState{
-  display:flex;flex-direction:column;
-  align-items:center;justify-content:center;
-  min-height:100vh;padding:40px 20px;text-align:center;
+/* ── LOADING / ERROR STATES ── */
+#loadingState, #errorState {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  min-height: 100vh; padding: 40px 20px;
+  text-align: center;
 }
-.spinner{
-  width:50px;height:50px;
-  border:4px solid var(--border2);
-  border-top-color:var(--accent);
-  border-radius:50%;
-  animation:spin 1s linear infinite;
-  margin-bottom:20px;
+#loadingState .spinner {
+  width: 50px; height: 50px;
+  border: 4px solid var(--border2);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
 }
-@keyframes spin{to{transform:rotate(360deg)}}
-#errorState{color:var(--red)}
-#mainContent{display:none}
+@keyframes spin { to { transform: rotate(360deg); } }
+#errorState { color: var(--red); }
+#mainContent { display: none; }
 
-/* HEADER */
-.header{
-  padding:14px 16px;
-  display:flex;align-items:center;gap:8px;
-  border-bottom:1px solid var(--border);
-  background:rgba(19,19,26,0.96);
-  backdrop-filter:blur(20px);
-  -webkit-backdrop-filter:blur(20px);
-  position:sticky;top:0;z-index:10;
+/* ── HEADER ── */
+.header {
+  padding: 16px 16px 14px;
+  display: flex; align-items: center; gap: 10px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(19,19,26,0.95);
+  backdrop-filter: blur(16px);
+  position: sticky; top: 0; z-index: 10;
 }
-.header-logo{
-  width:36px;height:36px;border-radius:10px;
-  background:linear-gradient(135deg,#5b6ef5,#9b59b6);
-  display:flex;align-items:center;justify-content:center;
-  font-size:17px;flex-shrink:0;
-  box-shadow:0 4px 14px rgba(91,110,245,.35);
+.header-logo {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #5b6ef5, #9b59b6);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px; flex-shrink: 0;
+  box-shadow: 0 4px 14px rgba(91,110,245,0.35);
 }
-.header-info{flex:1;min-width:0}
-.header-title{font-size:14px;font-weight:800}
-.header-sub{font-size:10px;color:var(--text3);margin-top:1px}
-.btn{
-  border:none;color:#fff;border-radius:10px;
-  padding:7px 12px;font-size:12px;font-weight:700;
-  font-family:'Manrope',sans-serif;cursor:pointer;
-  transition:all .15s;flex-shrink:0;
+.header-info { flex: 1; min-width: 0; }
+.header-title { font-size: 14px; font-weight: 800; }
+.header-sub { font-size: 10px; color: var(--text3); margin-top: 1px; }
+.header-copy-btn {
+  background: linear-gradient(135deg, #5b6ef5, #9b59b6);
+  border: none;
+  color: #fff;
+  border-radius: 10px;
+  padding: 7px 13px;
+  font-size: 12px; font-weight: 700;
+  font-family: 'Manrope', sans-serif;
+  cursor: pointer; transition: all 0.15s; flex-shrink: 0;
+  box-shadow: 0 3px 10px rgba(91,110,245,0.35);
 }
-.btn-share{
-  background:linear-gradient(135deg,#5b6ef5,#9b59b6);
-  box-shadow:0 3px 10px rgba(91,110,245,.35);
-}
-.btn-bot{
-  background:linear-gradient(135deg,#34d399,#059669);
-  box-shadow:0 3px 10px rgba(52,211,153,.35);
-}
-.btn:active{opacity:.7;transform:scale(.97)}
-.btn.copied{background:linear-gradient(135deg,#34d399,#059669)!important;box-shadow:0 3px 10px rgba(52,211,153,.35)!important}
+.header-copy-btn:active { opacity: 0.7; transform: scale(0.97); }
+.header-copy-btn.copied { background: linear-gradient(135deg, #34d399, #059669); box-shadow: 0 3px 10px rgba(52,211,153,0.35); }
 
-/* MODEL BADGE */
-.model-badge{
-  margin:14px 16px 0;
-  display:inline-flex;align-items:center;gap:7px;
-  background:var(--surface2);border:1px solid var(--border2);
-  border-radius:20px;padding:5px 12px 5px 7px;
-  font-size:11px;font-weight:700;color:var(--text2);
+/* ── MODEL BADGE ── */
+.model-badge {
+  margin: 14px 16px 0;
+  display: inline-flex; align-items: center; gap: 7px;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 20px;
+  padding: 5px 12px 5px 7px;
+  font-size: 11px; font-weight: 700; color: var(--text2);
 }
-.model-badge-dot{
-  width:22px;height:22px;border-radius:7px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:10px;
-  background:linear-gradient(135deg,#5b6ef5,#9b59b6);
-  overflow:hidden;
+.model-badge-dot {
+  width: 22px; height: 22px; border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px;
+  background: linear-gradient(135deg, #5b6ef5, #9b59b6);
+  overflow: hidden;
 }
+.model-badge-dot svg { width: 14px; height: 14px; }
 
-/* CONTENT CARD */
-.content-card{
-  margin:12px 14px 60px;
-  background:var(--surface);
-  border:1px solid var(--border2);
-  border-radius:20px;overflow:hidden;
-  box-shadow:0 8px 40px rgba(0,0,0,.4);
+/* ── CONTENT CARD ── */
+.content-card {
+  margin: 12px 14px 0;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.4);
 }
-.content-inner{
-  padding:22px 20px 24px;
-  font-size:14.5px;line-height:1.72;color:var(--text);
-}
-
-/* ТИПОГРАФИКА */
-.content-inner h1{font-size:22px;font-weight:800;margin:22px 0 10px;color:#fff;line-height:1.3}
-.content-inner h2{font-size:19px;font-weight:800;margin:20px 0 9px;color:#fff;line-height:1.35}
-.content-inner h3{font-size:16px;font-weight:700;margin:16px 0 7px;color:#fff}
-.content-inner h4{font-size:14px;font-weight:700;margin:13px 0 5px;color:var(--accent2)}
-.content-inner h1:first-child,.content-inner h2:first-child,.content-inner h3:first-child{margin-top:0}
-.content-inner p{margin-bottom:11px}
-.content-inner p:last-child{margin-bottom:0}
-.content-inner strong{font-weight:700;color:#fff}
-.content-inner em{font-style:italic;color:var(--text2)}
-
-/* СПИСКИ */
-.content-inner ul,.content-inner ol{margin:8px 0 12px;padding-left:0;list-style:none}
-.content-inner li{position:relative;padding:4px 0 4px 24px;color:var(--text);line-height:1.65;margin-bottom:4px}
-.content-inner ul li::before{
-  content:'◆';position:absolute;left:0;
-  color:var(--accent);font-size:8px;top:10px;
-}
-.content-inner ol{counter-reset:li}
-.content-inner ol li::before{
-  counter-increment:li;content:counter(li);
-  position:absolute;left:0;
-  background:var(--accent);color:#fff;
-  width:17px;height:17px;border-radius:5px;
-  font-size:10px;font-weight:800;
-  display:flex;align-items:center;justify-content:center;top:5px;
+.content-inner {
+  padding: 20px 20px 22px;
+  font-size: 14px; line-height: 1.65; color: var(--text);
 }
 
-/* INLINE CODE */
-.content-inner code{
-  background:rgba(91,110,245,.12);
-  padding:2px 7px;border-radius:5px;
-  font-size:12.5px;
-  font-family:'JetBrains Mono','SF Mono','Fira Code','Consolas',monospace;
-  color:var(--accent2);
-  border:1px solid rgba(91,110,245,.2);
+/* ── TYPOGRAPHY ── */
+.content-inner h1 { font-size: 22px; font-weight: 800; margin: 20px 0 10px; color: #fff; }
+.content-inner h2 { font-size: 19px; font-weight: 800; margin: 18px 0 9px; color: #fff; }
+.content-inner h3 { font-size: 16px; font-weight: 700; margin: 16px 0 7px; color: #fff; }
+.content-inner h4 { font-size: 14px; font-weight: 700; margin: 13px 0 5px; color: var(--accent2); }
+.content-inner p { margin-bottom: 10px; }
+.content-inner p:last-child { margin-bottom: 0; }
+.content-inner strong { font-weight: 700; color: #fff; }
+.content-inner em { font-style: italic; color: var(--text2); }
+
+/* ── LISTS ── */
+.content-inner ul, .content-inner ol {
+  margin: 8px 0 12px; padding-left: 0; list-style: none;
+}
+.content-inner li {
+  position: relative; padding: 4px 0 4px 22px;
+  color: var(--text); line-height: 1.6;
+  margin-bottom: 4px;
+}
+.content-inner ul li::before {
+  content: '◆'; position: absolute; left: 0;
+  color: var(--accent); font-size: 8px; top: 10px;
+}
+.content-inner ol { counter-reset: li; }
+.content-inner ol li::before {
+  counter-increment: li; content: counter(li);
+  position: absolute; left: 0;
+  background: var(--accent); color: #fff;
+  width: 16px; height: 16px; border-radius: 4px;
+  font-size: 10px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  top: 4px;
 }
 
-/* КОД БЛОКИ */
-.code-wrapper{
-  position:relative;margin:14px 0;
-  border-radius:14px;overflow:hidden;
-  box-shadow:0 4px 20px rgba(0,0,0,.4);
-  border:1px solid rgba(91,110,245,.2);
-}
-.code-header{
-  display:flex;justify-content:space-between;align-items:center;
-  background:linear-gradient(135deg,#0d0e1a,#161726);
-  padding:9px 14px;font-size:11px;
-  color:rgba(255,255,255,.5);
-  font-family:'JetBrains Mono','SF Mono',monospace;
-  border-bottom:1px solid rgba(91,110,245,.15);
-}
-.code-lang{display:inline-flex;align-items:center;gap:6px;font-weight:700;letter-spacing:.5px;color:var(--accent2)}
-.code-lang::before{
-  content:'';display:inline-block;
-  width:8px;height:8px;border-radius:50%;
-  background:var(--accent);box-shadow:0 0 6px rgba(91,110,245,.6);
-}
-.copy-btn{
-  background:rgba(91,110,245,.12);
-  border:1px solid rgba(91,110,245,.25);
-  color:rgba(255,255,255,.6);
-  padding:4px 12px;border-radius:6px;
-  font-size:11px;cursor:pointer;
-  transition:all .15s;font-family:'Manrope',sans-serif;
-}
-.copy-btn:active,.copy-btn.copied{background:rgba(52,211,153,.2);color:#34d399;border-color:rgba(52,211,153,.3)}
-.code-wrapper pre{
-  margin:0!important;border-radius:0 0 14px 14px!important;
-  background:#0f1117!important;padding:16px!important;
-  overflow-x:auto!important;white-space:pre!important;
-  font-size:12.5px!important;line-height:1.7!important;
-}
-.code-wrapper pre code{
-  font-family:'JetBrains Mono','SF Mono','Fira Code',monospace!important;
-  background:transparent!important;padding:0!important;
-  color:#abb2bf!important;display:block!important;
-  border:none!important;
+/* ── INLINE CODE ── */
+.content-inner code {
+  background: rgba(255,255,255,0.08);
+  padding: 2px 6px; border-radius: 4px;
+  font-size: 12.5px; font-family: 'SF Mono','Fira Code','Consolas',monospace;
+  color: var(--accent2);
 }
 
-/* ТАБЛИЦЫ — с горизонтальной прокруткой на мобиле */
-.table-wrap{
-  overflow-x:auto;margin:16px 0;
-  border-radius:12px;
-  border:1px solid var(--border2);
-  box-shadow:0 4px 16px rgba(0,0,0,.3);
-  -webkit-overflow-scrolling:touch;
+/* ── CODE BLOCKS ── */
+.code-wrapper {
+  position: relative; margin: 14px 0;
+  border-radius: 14px; overflow: hidden;
+  width: 100%; box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  border: 1px solid rgba(91,110,245,0.2);
 }
-.table-wrap::-webkit-scrollbar{height:4px}
-.table-wrap::-webkit-scrollbar-track{background:var(--surface2)}
-.table-wrap::-webkit-scrollbar-thumb{background:var(--accent);border-radius:2px}
-.content-inner table{
-  width:100%;border-collapse:collapse;
-  font-size:13px;min-width:280px;
+.code-header {
+  display: flex; justify-content: space-between; align-items: center;
+  background: linear-gradient(135deg, #0d0e1a, #161726);
+  padding: 9px 14px; font-size: 11px;
+  color: rgba(255,255,255,0.5); font-family: "SF Mono","Fira Code",monospace;
+  border-bottom: 1px solid rgba(91,110,245,0.15);
 }
-.content-inner th{
-  background:linear-gradient(135deg,rgba(91,110,245,.18),rgba(155,89,182,.12));
-  color:var(--accent2);font-weight:700;
-  padding:11px 14px;text-align:left;
-  border-bottom:2px solid rgba(91,110,245,.25);
-  white-space:nowrap;
+.code-header > span:first-child {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-weight: 700; letter-spacing: 0.5px; color: var(--accent2);
 }
-.content-inner td{
-  padding:10px 14px;
-  border-bottom:1px solid var(--border);
-  background:var(--surface2);
-  vertical-align:top;
+.code-header > span:first-child::before {
+  content: ''; display: inline-block;
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--accent); box-shadow: 0 0 6px rgba(91,110,245,0.6);
 }
-.content-inner tr:last-child td{border-bottom:none}
-.content-inner tr:hover td{background:var(--surface3)}
+.copy-btn {
+  background: rgba(91,110,245,0.12);
+  border: 1px solid rgba(91,110,245,0.25);
+  color: rgba(255,255,255,0.6);
+  padding: 4px 12px; border-radius: 6px;
+  font-size: 11px; cursor: pointer;
+  transition: all 0.15s; font-family: 'Manrope',sans-serif; white-space: nowrap;
+}
+.copy-btn:active, .copy-btn.copied {
+  background: rgba(52,211,153,0.2); color: #34d399; border-color: rgba(52,211,153,0.3);
+}
+.code-wrapper pre {
+  margin: 0 !important; border-radius: 0 0 14px 14px !important;
+  background: #0f1117 !important; padding: 16px !important;
+  overflow-x: auto !important; white-space: pre !important;
+  word-break: normal !important; word-wrap: normal !important;
+  font-size: 12.5px !important; line-height: 1.7 !important;
+  max-height: none !important;
+}
+.code-wrapper pre code {
+  font-family: "SF Mono","Fira Code","Consolas",monospace !important;
+  background: transparent !important;
+  padding: 0 !important;
+  color: #abb2bf !important;
+  display: block !important;
+}
 
-/* ЦИТАТА */
-.content-inner blockquote{
-  margin:14px 0;padding:12px 16px 12px 18px;
-  border-left:3px solid var(--accent);
-  background:rgba(91,110,245,.06);
-  border-radius:0 10px 10px 0;
-  font-style:italic;color:var(--text2);
+/* ── TABLES ── */
+.content-inner table {
+  width: 100%; border-collapse: collapse;
+  margin: 14px 0; font-size: 13px;
+  border-radius: 10px; overflow: hidden;
+  border: 1px solid var(--border2);
+}
+.content-inner th {
+  background: linear-gradient(135deg, rgba(91,110,245,0.15), rgba(155,89,182,0.1));
+  color: var(--accent2); font-weight: 700;
+  padding: 10px 12px; text-align: left;
+  border-bottom: 2px solid var(--border2);
+}
+.content-inner td {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface2);
+}
+.content-inner tr:last-child td { border-bottom: none; }
+.content-inner tr:hover td { background: var(--surface3); }
+
+/* ── BLOCKQUOTE ── */
+.content-inner blockquote {
+  margin: 12px 0; padding: 10px 14px 10px 16px;
+  border-left: 3px solid var(--accent);
+  background: rgba(91,110,245,0.05);
+  border-radius: 0 8px 8px 0;
+  font-style: italic; color: var(--text2);
 }
 
-/* HR */
-.content-inner hr{
-  border:none;height:1px;
-  background:linear-gradient(90deg,transparent,var(--border2),transparent);
-  margin:22px 0;
+/* ── HR ── */
+.content-inner hr {
+  border: none; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border2), transparent);
+  margin: 20px 0;
 }
 
-/* МАТЕМАТИКА — KaTeX */
-.math-block{
-  display:block;margin:18px 0;
-  padding:16px 18px;
-  background:rgba(91,110,245,.06);
-  border:1px solid rgba(91,110,245,.2);
-  border-radius:14px;
-  text-align:center;
-  overflow-x:auto;overflow-y:hidden;
-  -webkit-overflow-scrolling:touch;
+/* ── MATH (KaTeX) ── */
+.math-block{display:block;margin:16px 0;padding:14px 16px;background:rgba(91,110,245,.06);border:1px solid rgba(91,110,245,.18);border-radius:12px;text-align:center;overflow-x:auto}
+.math-inline, .math-display {
+  display: inline-block;
 }
-.math-block::-webkit-scrollbar{height:4px}
-.math-block::-webkit-scrollbar-thumb{background:var(--accent);border-radius:2px}
-.katex{font-size:1.18em!important;color:var(--text)!important}
-.katex-display{margin:0!important;overflow-x:auto;overflow-y:hidden}
-.katex-html{color:var(--text)!important}
-
-/* PAGE */
-.page{position:relative;z-index:1;max-width:720px;margin:0 auto}
+.math-display {
+  display: block;
+  margin: 16px 0;
+  text-align: center;
+}
+.katex { font-size: 1.15em !important; color: var(--text) !important; }
+.katex-display { 
+  margin: 18px 0 !important; 
+  overflow-x: auto; 
+  overflow-y: hidden;
+  padding: 12px 0;
+}
+.katex-html { color: var(--text) !important; }
 </style>
 </head>
 <body>
 
-<!-- LOADING -->
+<!-- Loading State -->
 <div id="loadingState">
   <div class="spinner"></div>
-  <div style="font-size:14px;color:var(--text2)">Загрузка ответа...</div>
+  <div style="font-size:14px;color:var(--text2);">Загрузка ответа...</div>
 </div>
 
-<!-- ERROR -->
-<div id="errorState" style="display:none">
-  <div style="font-size:52px;margin-bottom:16px">⚠️</div>
-  <div style="font-size:18px;font-weight:700;margin-bottom:8px">Ошибка загрузки</div>
-  <div style="font-size:13px;color:var(--text2)">Неверная ссылка или данные повреждены</div>
+<!-- Error State -->
+<div id="errorState" style="display:none;">
+  <div style="font-size:48px;margin-bottom:16px;">⚠️</div>
+  <div style="font-size:18px;font-weight:700;margin-bottom:8px;">Ошибка загрузки</div>
+  <div style="font-size:13px;color:var(--text2);">Неверная ссылка или данные повреждены</div>
 </div>
 
-<!-- MAIN -->
+<!-- Main Content -->
 <div id="mainContent">
   <div class="page">
     <div class="header">
@@ -308,74 +312,137 @@ body::before{
         <div class="header-title" id="modelName">ИИ</div>
         <div class="header-sub" id="headerSub">Ответ</div>
       </div>
-      <button class="btn btn-share" id="copyBtn">✈️ Поделиться</button>
-      <button class="btn btn-bot"   id="botBtn">🤖 Бот</button>
+      <button class="header-copy-btn" id="copyBtn" style="margin-right:6px">✈️ Поделиться</button>
+      <button class="header-copy-btn" id="botBtn" style="background:linear-gradient(135deg,#34d399,#059669);box-shadow:0 3px 10px rgba(52,211,153,0.35)">🤖 Бот</button>
     </div>
+
     <div class="model-badge">
       <div class="model-badge-dot" id="modelDot">🤖</div>
       <span id="msgTime"></span>
     </div>
+
     <div class="content-card">
-      <div class="content-inner" id="contentInner"></div>
+      <div class="content-inner" id="contentInner">
+        <!-- Content будет добавлен через JS -->
+      </div>
     </div>
   </div>
 </div>
 
 <script>
-/* ── УТИЛИТЫ ── */
-function escHtml(s){
-  return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+// ══════════════════════════════════════════════════════════
+// ФОРМАТИРОВАНИЕ ТЕКСТА с поддержкой математики, кода, таблиц
+// ══════════════════════════════════════════════════════════
+
+function escHtml(str) {
+  return (str || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 }
 
-/* ── ФОРМАТИРОВАНИЕ ── */
-function formatText(raw){
-  if(!raw) return "";
+function formatText(raw) {
+  if (!raw) return "";
 
-  // Склейка разбитых формул
-  raw = raw.replace(/\$\$([\s\S]*?)\$\$/g, (_,m) => "$$"+m.replace(/\n+/g," ").trim()+"$$");
-  raw = raw.replace(/(?<!\$)\$(?!\$)([\s\S]{1,300}?)(?<!\$)\$(?!\$)/g, (match,inner) => {
-    if(!inner.includes("\n")) return match;
-    return "$"+inner.replace(/\n+/g," ").trim()+"$";
+  // ═══ ШАГ 0: СКЛЕЙКА РАЗБИТЫХ ФОРМУЛ ═══
+  // Бот присылает "sin\nα\nsin\nβ\n=\nv1\nv2" вместо "$\frac{\sin\alpha}{\sin\beta}=\frac{v_1}{v_2}$"
+
+  // 0а. Склеиваем уже обёрнутые $$..$$ и $..$ если внутри есть переносы строк
+  raw = raw.replace(/\$\$([\s\S]*?)\$\$/g, (_,m) => "$$" + m.replace(/\n+/g," ").trim() + "$$");
+  raw = raw.replace(/(?<!\$)\$(?!\$)([\s\S]{1,300}?)(?<!\$)\$(?!\$)/g, (match, inner) => {
+    if (!inner.includes("\n")) return match;
+    return "$" + inner.replace(/\n+/g," ").trim() + "$";
   });
+
+  // 0б. Детектируем блоки «разбитых формул» — 3+ подряд строки из матем.токенов
+  // Матем.токен: короткое слово (sin/cos/v1/n2...), цифра, знак, греческая буква
+  (function(){
+    const isMathToken = s => {
+      if (!s || s.length > 14) return false;
+      // Математические слова/функции
+      if (/^(sin|cos|tan|tg|ctg|log|ln|lim|max|min|sqrt|vec|frac|alpha|beta|gamma|omega|pi|phi|theta|mu|lambda|delta|sigma|inf|perp)$/i.test(s)) return true;
+      // Греческие буквы Unicode
+      if (/^[α-ωΑ-Ω]+$/.test(s)) return true;
+      // Цифры, возможно с буквой (v1, n2, x0)
+      if (/^[a-zA-Z]?[\d.,]+[a-zA-Z]?$/.test(s)) return true;
+      // Буква с цифровым индексом
+      if (/^[a-zA-Zα-ωΑ-Ω][₀-₉0-9]?$/.test(s)) return true;
+      // Математические знаки и операторы
+      if (/^[+\-=×÷*\/\\^_()\[\]{}|<>≈≠≤≥∞·±⊥∠→⟹]$/.test(s)) return true;
+      return false;
+    };
+
+    const rawLines = raw.split("\n");
+    const out = [];
+    let i2 = 0;
+    while (i2 < rawLines.length) {
+      const trimmed = rawLines[i2].trim();
+      if (isMathToken(trimmed)) {
+        // Считаем сколько подряд матем.строк
+        let j = i2;
+        let mathCount = 0;
+        while (j < rawLines.length && isMathToken(rawLines[j].trim())) {
+          mathCount++;
+          j++;
+        }
+        if (mathCount >= 3) {
+          // Это разбитая формула — склеиваем в блочную формулу
+          const parts = rawLines.slice(i2, j).map(l => l.trim()).filter(Boolean);
+          out.push("$$" + parts.join(" ") + "$$");
+          i2 = j;
+          continue;
+        }
+      }
+      out.push(rawLines[i2]);
+      i2++;
+    }
+    raw = out.join("\n");
+  })();
+
 
   let text = raw;
-  const PH={};
-  let pid=0;
+  const PH = {};
+  let pid = 0;
   const save = html => { const k="\x02"+(pid++)+"\x03"; PH[k]=html; return k; };
 
-  // 1. Формулы (ДО escHtml!)
+  // ═══ ШАГ 1: ФОРМУЛЫ (ДО escapeHTML!) ═══
+
+  // Блочные $$...$$
   text = text.replace(/\$\$([\s\S]*?)\$\$/g, (_,m) =>
-    save('<div class="math-block">$$'+m.trim()+'$$</div>')
+    save('<div class="math-block">$$' + m.trim() + '$$</div>')
   );
+  // Блочные \[...\]
   text = text.replace(/\\\[([\s\S]*?)\\\]/g, (_,m) =>
-    save('<div class="math-block">\\['+m.trim()+'\\]</div>')
+    save('<div class="math-block">\\[' + m.trim() + '\\]</div>')
   );
-  text = text.replace(/\\\((.+?)\\\)/gs, (_,m) => save('\\('+m+'\\)'));
+  // Инлайн \(...\)
+  text = text.replace(/\\\((.+?)\\\)/gs, (_,m) =>
+    save('\\(' + m + '\\)')
+  );
+  // Инлайн $...$
   text = text.replace(/(?<!\$)\$(?!\$)([^$\n]{1,200}?)(?<!\$)\$(?!\$)/g, (match,m) => {
-    if(/^\s*[\d,.]+\s*$/.test(m)||m.trim().length<1) return match;
-    return save('$'+m+'$');
+    if (/^\s*[\d,.]+\s*$/.test(m)) return match;
+    if (m.trim().length < 1) return match;
+    return save('$' + m + '$');
   });
 
-  // 2. Блоки кода
+  // ═══ ШАГ 2: КОД ═══
   text = text.replace(/```(\w*)\r?\n?([\s\S]*?)```/g, (_,lang,code) => {
-    const cl=code.trim(), ln=(lang.trim()||"text").toUpperCase();
+    const cl=code.trim(), ln=lang.trim()||"text";
     return save(
-      '<div class="code-wrapper">'+
-      '<div class="code-header"><span class="code-lang">'+escHtml(ln)+'</span>'+
-      '<button class="copy-btn" onclick="copyCode(this)">Копировать</button></div>'+
-      '<pre><code class="language-'+escHtml(lang.trim()||"text")+'" data-raw="'+escHtml(cl)+'">'+escHtml(cl)+'</code></pre>'+
+      '<div class="code-wrapper">' +
+      '<div class="code-header"><span>' + escHtml(ln) + '</span>' +
+      '<button class="copy-btn" onclick="copyCode(this)">Копировать</button></div>' +
+      '<pre><code class="language-'+escHtml(ln)+'" data-raw="'+escHtml(cl)+'">'+escHtml(cl)+'</code></pre>' +
       '</div>'
     );
   });
   text = text.replace(/`([^`\n]{1,200})`/g, (_,c) => save('<code>'+escHtml(c)+'</code>'));
 
-  // 3. Таблицы — с оберткой .table-wrap для прокрутки на мобиле
+  // ═══ ШАГ 3: ТАБЛИЦЫ (без escHtml на ячейках!) ═══
   text = text.replace(/(\|[^\n]+\|[ \t]*\n\|[\s\-|:]+\|[ \t]*\n(?:\|[^\n]+\|[ \t]*\n?)+)/gm, match => {
     const lines = match.trim().split(/\r?\n/).filter(l => l.trim() && !/^\|[\s\-|:]+\|$/.test(l.trim()));
-    if(lines.length < 2) return match;
+    if (lines.length < 2) return match;
     const cells = l => l.replace(/^\||\|$/g,'').split('|').map(c=>c.trim());
     const [head,...body] = lines;
-    let h = '<div class="table-wrap"><table><thead><tr>';
+    let h = '<table><thead><tr>';
     cells(head).forEach(c => h += '<th>'+c+'</th>');
     h += '</tr></thead><tbody>';
     body.forEach(row => {
@@ -383,18 +450,18 @@ function formatText(raw){
       cells(row).forEach(c => h += '<td>'+c+'</td>');
       h += '</tr>';
     });
-    h += '</tbody></table></div>';
+    h += '</tbody></table>';
     return save(h);
   });
 
-  // 4. Markdown
+  // ═══ ШАГ 4: MARKDOWN ═══
   text = text.replace(/^#### (.+)$/gm, '<h4>$1</h4>');
   text = text.replace(/^### (.+)$/gm,  '<h3>$1</h3>');
   text = text.replace(/^## (.+)$/gm,   '<h2>$1</h2>');
   text = text.replace(/^# (.+)$/gm,    '<h1>$1</h1>');
-  text = text.replace(/^> (.+)$/gm,    '<blockquote>$1</blockquote>');
+  text = text.replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>');
   text = text.replace(/\*\*\*(.+?)\*\*\*/gs, '<strong><em>$1</em></strong>');
-  text = text.replace(/\*\*(.+?)\*\*/gs,     '<strong>$1</strong>');
+  text = text.replace(/\*\*(.+?)\*\*/gs,       '<strong>$1</strong>');
   text = text.replace(/(?<!\*)\*([^*\n]+?)\*(?!\*)/g, '<em>$1</em>');
   text = text.replace(/^(\d+)\.\s+(.+)$/gm, (_,n,t) =>
     '<li style="list-style:none;position:relative;padding-left:26px;margin-bottom:5px">'+
@@ -409,29 +476,34 @@ function formatText(raw){
   );
   text = text.replace(/^---+$/gm, '<hr>');
 
-  // 5. Переносы
+  // ═══ ШАГ 5: ПЕРЕНОСЫ ═══
   text = text.replace(/\r?\n/g, '<br>');
 
-  // 6. Восстановление
-  for(const [k,v] of Object.entries(PH)) text = text.split(k).join(v);
+  // ═══ ШАГ 6: ВОССТАНОВЛЕНИЕ ═══
+  for (const [k,v] of Object.entries(PH)) text = text.split(k).join(v);
 
   return text;
 }
-
-/* ── КОПИРОВАНИЕ КОДА ── */
-function copyCode(btn){
+function copyCode(btn) {
   const codeEl = btn.closest(".code-wrapper").querySelector("code");
-  const raw = codeEl ? (codeEl.getAttribute("data-raw")||codeEl.innerText) : "";
+  const raw = codeEl ? (codeEl.getAttribute("data-raw") || codeEl.innerText) : "";
   const decoded = raw.replace(/&amp;/g,"&").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&quot;/g,'"');
-  navigator.clipboard.writeText(decoded).then(()=>{
-    btn.textContent="✓ Скопировано";btn.classList.add("copied");
-    setTimeout(()=>{btn.textContent="Копировать";btn.classList.remove("copied")},1800);
+  navigator.clipboard.writeText(decoded).then(() => {
+    btn.textContent = "✓ Скопировано"; btn.classList.add("copied");
+    setTimeout(() => { btn.textContent = "Копировать"; btn.classList.remove("copied"); }, 1800);
   });
 }
 
 let rawAnswerText = "";
+function copyAll() {
+  navigator.clipboard.writeText(rawAnswerText).then(() => {
+    const btn = document.getElementById("copyBtn");
+    btn.textContent = "✅ Скопировано"; btn.classList.add("copied");
+    setTimeout(() => { btn.textContent = "📋 Копировать"; btn.classList.remove("copied"); }, 2000);
+  });
+}
 
-/* ── ИКОНКИ МОДЕЛЕЙ ── */
+// ── MODEL ICONS ──────────────────────────────────────────
 const MODEL_ICONS = {
   claude_sonnet:`<svg viewBox="0 0 24 24" fill="none" width="14" height="14"><circle cx="12" cy="12" r="10" fill="#CC785C"/><path d="M8 12.5c1-2 3-3.5 4-3.5s3 1.5 4 3.5" stroke="white" stroke-width="1.5" stroke-linecap="round"/><circle cx="9" cy="9.5" r="1" fill="white"/><circle cx="15" cy="9.5" r="1" fill="white"/></svg>`,
   claude_haiku: `<svg viewBox="0 0 24 24" fill="none" width="14" height="14"><circle cx="12" cy="12" r="10" fill="#CC785C"/><path d="M9 12.5c.8-1.5 1.8-2.5 3-2.5s2.2 1 3 2.5" stroke="white" stroke-width="1.5" stroke-linecap="round"/><circle cx="9.5" cy="10" r="0.8" fill="white"/><circle cx="14.5" cy="10" r="0.8" fill="white"/></svg>`,
@@ -439,156 +511,191 @@ const MODEL_ICONS = {
   gpt52:        `<svg viewBox="0 0 24 24" fill="none" width="14" height="14"><circle cx="12" cy="12" r="10" fill="#10a37f"/><path d="M12 6.5A5.5 5.5 0 0112 17.5M8.5 8.5a5.5 5.5 0 017 7M7 12h10" stroke="white" stroke-width="1.4" stroke-linecap="round"/></svg>`,
 };
 const AV_COLORS = {
-  claude:"linear-gradient(135deg,#667eea,#764ba2)",
-  gpt:   "linear-gradient(135deg,#11998e,#38ef7d)",
-  deep:  "linear-gradient(135deg,#2193b0,#6dd5ed)",
-  qwen:  "linear-gradient(135deg,#f7971e,#ffd200)",
-  llama: "linear-gradient(135deg,#834d9b,#d04ed6)",
+  claude: "linear-gradient(135deg,#667eea,#764ba2)",
+  gpt:    "linear-gradient(135deg,#11998e,#38ef7d)",
+  deep:   "linear-gradient(135deg,#2193b0,#6dd5ed)",
+  qwen:   "linear-gradient(135deg,#f7971e,#ffd200)",
+  llama:  "linear-gradient(135deg,#834d9b,#d04ed6)",
 };
-function getModelStyle(modelKey){
-  const k=(modelKey||"").toLowerCase();
-  let bg="linear-gradient(135deg,#5b6ef5,#9b59b6)";
-  let icon=MODEL_ICONS[k]||'🤖';
-  for(const [prefix,grad] of Object.entries(AV_COLORS)){
-    if(k.includes(prefix)){bg=grad;break}
+function getModelStyle(modelKey) {
+  const k = (modelKey || "").toLowerCase();
+  let bg = "linear-gradient(135deg,#5b6ef5,#9b59b6)";
+  let icon = MODEL_ICONS[k] || '🤖';
+  for (const [prefix, grad] of Object.entries(AV_COLORS)) {
+    if (k.includes(prefix)) { bg = grad; break; }
   }
-  return {bg,icon};
+  return { bg, icon };
 }
 
-/* ── ДЕКОДИРОВАНИЕ URL ── */
-function getDataFromUrl(){
-  const hash=location.hash, search=location.search;
-  let encoded="", mode="";
-  if(hash.startsWith("#z="))       { encoded=hash.slice(3);  mode="lz"  }
-  else if(hash.startsWith("#data=")){ encoded=hash.slice(6);  mode="b64" }
-  else if(search){
-    const p=new URLSearchParams(search);
-    if(p.get("z"))       { encoded=p.get("z"); mode="lz"  }
-    else if(p.get("d"))  { encoded=p.get("d"); mode="b64" }
+// ══════════════════════════════════════════════════════════
+// DECODE — поддержка ОБОИХ форматов:
+//   #z=...   — LZ-сжатый (КОРОТКИЙ)
+//   #data=.. — base64 (совместимость)
+// ══════════════════════════════════════════════════════════
+function getDataFromUrl() {
+  const hash   = location.hash;
+  const search = location.search;
+  let encoded = "", mode = "";
+
+  if (hash.startsWith("#z=")) {
+    encoded = hash.slice(3); mode = "lz";
+  } else if (hash.startsWith("#data=")) {
+    encoded = hash.slice(6); mode = "b64";
+  } else if (search) {
+    const p = new URLSearchParams(search);
+    if (p.get("z"))      { encoded = p.get("z"); mode = "lz"; }
+    else if (p.get("d")) { encoded = p.get("d"); mode = "b64"; }
   }
-  return {encoded,mode};
+  return { encoded, mode };
 }
 
-function decodeData(encoded,mode){
-  try{
-    if(mode==="lz"){
-      const json=LZString.decompressFromEncodedURIComponent(encoded);
-      if(!json) throw new Error("LZ decompress failed");
+function decodeData(encoded, mode) {
+  try {
+    if (mode === "lz") {
+      const json = LZString.decompressFromEncodedURIComponent(encoded);
+      if (!json) throw new Error("LZ decompress failed");
       return JSON.parse(json);
     } else {
-      const b64=encoded.replace(/-/g,"+").replace(/_/g,"/");
-      const json=decodeURIComponent(escape(atob(b64)));
+      const b64  = encoded.replace(/-/g, "+").replace(/_/g, "/");
+      const json = decodeURIComponent(escape(atob(b64)));
       return JSON.parse(json);
     }
-  } catch(e){ console.error("Decode error:",e); return null; }
-}
-
-/* ── ПОКАЗАТЬ ОШИБКУ ── */
-function showError(){
-  document.getElementById("loadingState").style.display="none";
-  document.getElementById("errorState").style.display="flex";
-}
-
-/* ── ПОДЕЛИТЬСЯ ── */
-function shareAnswer(data){
-  const viewUrl=window.location.href;
-  const modelName=data.model||"ИИ";
-  const preview=(data.text||"").replace(/[*_`#\[\]$]/g,"").substring(0,120).trim();
-  const previewText=preview.length>=120?preview+"...":preview;
-  const tgUrl=`https://t.me/share/url?url=${encodeURIComponent(viewUrl)}&text=${encodeURIComponent("🤖 Хуза ИИ — Ответ от "+modelName+"\n\n"+previewText)}`;
-  if(window.Telegram&&window.Telegram.WebApp){
-    try{window.Telegram.WebApp.openTelegramLink(tgUrl);return}catch(e){}
+  } catch(e) { 
+    console.error("Decode error:", e);
+    return null; 
   }
-  window.open(tgUrl,"_blank");
-  navigator.clipboard.writeText(viewUrl).catch(()=>{});
-  const btn=document.getElementById("copyBtn");
-  const orig=btn.textContent;
-  btn.textContent="✅ Скопировано!";btn.classList.add("copied");
-  setTimeout(()=>{btn.textContent=orig;btn.classList.remove("copied")},2500);
 }
 
-/* ── ОТКРЫТЬ БОТА ── */
-function openBot(){
-  const botUrl="https://t.me/iihuzandelpiibot";
-  if(window.Telegram&&window.Telegram.WebApp){
-    try{window.Telegram.WebApp.openTelegramLink(botUrl);return}catch(e){}
+// ── Init ─────────────────────────────────────────────────
+function initPage() {
+  const { encoded, mode } = getDataFromUrl();
+
+  if (!encoded) {
+    document.getElementById("loadingState").style.display = "none";
+    document.getElementById("errorState").style.display = "flex";
+    return;
   }
-  window.open(botUrl,"_blank");
-}
 
-/* ── ИНИЦИАЛИЗАЦИЯ ── */
-function initPage(){
-  const {encoded,mode}=getDataFromUrl();
-  if(!encoded){ showError(); return; }
+  const data = decodeData(encoded, mode);
+  if (!data || !data.text) {
+    document.getElementById("loadingState").style.display = "none";
+    document.getElementById("errorState").style.display = "flex";
+    return;
+  }
 
-  const data=decodeData(encoded,mode);
-  if(!data||!data.text){ showError(); return; }
+  rawAnswerText = data.text;
 
-  rawAnswerText=data.text;
+  // Header
+  document.getElementById("modelName").textContent = data.model || "ИИ";
+  document.getElementById("msgTime").textContent   = data.time  || "";
+  document.getElementById("headerSub").textContent = `${data.model || "ИИ"} · ${data.time || ""}`;
+  document.title = "Хуза ИИ · " + (data.model || "ИИ");
 
-  document.getElementById("modelName").textContent = data.model||"ИИ";
-  document.getElementById("msgTime").textContent   = data.time||"";
-  document.getElementById("headerSub").textContent = (data.model||"ИИ")+" · "+(data.time||"");
-  document.title="Хуза ИИ · "+(data.model||"ИИ");
+  // Model dot
+  const style = getModelStyle(data.modelKey || "");
+  const dot   = document.getElementById("modelDot");
+  dot.style.background = style.bg;
+  dot.innerHTML = style.icon;
 
-  const style=getModelStyle(data.modelKey||"");
-  const dot=document.getElementById("modelDot");
-  dot.style.background=style.bg;
-  dot.innerHTML=style.icon;
+  // Render content
+  const contentEl = document.getElementById("contentInner");
+  contentEl.innerHTML = formatText(data.text);
 
-  const contentEl=document.getElementById("contentInner");
-  contentEl.innerHTML=formatText(data.text);
-
-  // Highlight.js
-  contentEl.querySelectorAll("pre code").forEach(block=>{
-    if(typeof hljs!=="undefined") hljs.highlightElement(block);
+  // Highlight.js — подсветка кода
+  contentEl.querySelectorAll("pre code").forEach(block => {
+    hljs.highlightElement(block);
   });
 
-  // KaTeX — после обновления DOM
-  setTimeout(()=>{
-    if(typeof renderMathInElement==="undefined") return;
-    try{
-      renderMathInElement(contentEl,{
-        delimiters:[
-          {left:"$$", right:"$$", display:true},
-          {left:"$",  right:"$",  display:false},
-          {left:"\\(",right:"\\)",display:false},
-          {left:"\\[",right:"\\]",display:true},
+  // KaTeX — рендер формул ПОСЛЕ всего остального
+  // Увеличиваем таймаут чтобы DOM успел обновиться
+  setTimeout(() => {
+    try {
+      renderMathInElement(contentEl, {
+        delimiters: [
+          { left: "$$",  right: "$$",  display: true  },
+          { left: "$",   right: "$",   display: false },
+          { left: "\\(", right: "\\)", display: false },
+          { left: "\\[", right: "\\]", display: true  },
         ],
-        throwOnError:false,
-        errorColor:"#f87171",
-        strict:false,
-        trust:true,
-        macros:{
-          "\\RR":"\\mathbb{R}","\\NN":"\\mathbb{N}",
-          "\\ZZ":"\\mathbb{Z}","\\QQ":"\\mathbb{Q}",
+        throwOnError: false,
+        errorColor: "#f87171",
+        strict: false,
+        trust: true,
+        fleqn: false,
+        macros: {
+          "\\RR": "\\mathbb{R}",
+          "\\NN": "\\mathbb{N}",
+          "\\ZZ": "\\mathbb{Z}",
+          "\\QQ": "\\mathbb{Q}",
         }
       });
-    } catch(e){ console.error("KaTeX:",e); }
-  },150);
+      console.log("KaTeX rendered successfully");
+    } catch(e) { 
+      console.error("KaTeX error:", e); 
+    }
+  }, 200);
 
-  document.getElementById("loadingState").style.display="none";
-  document.getElementById("mainContent").style.display="block";
+  // Show content
+  document.getElementById("loadingState").style.display = "none";
+  document.getElementById("mainContent").style.display  = "block";
 
-  document.getElementById("copyBtn").onclick=()=>shareAnswer(data);
-  document.getElementById("botBtn").onclick=openBot;
+  // Share button
+  document.getElementById("copyBtn").onclick = () => shareAnswer(data);
+});
+
+function shareAnswer(data) {
+  const viewUrl   = window.location.href;
+  const modelName = data.model || "ИИ";
+  const preview   = (data.text || "").replace(/[*_`#\[\]$]/g,"").substring(0,120).trim();
+  const previewText = preview.length >= 120 ? preview + "..." : preview;
+  const tgShareUrl  = `https://t.me/share/url?url=${encodeURIComponent(viewUrl)}&text=${encodeURIComponent(`🤖 Хуза ИИ — Ответ от ${modelName}\n\n${previewText}`)}`;
+
+  if (window.Telegram && window.Telegram.WebApp) {
+    try { window.Telegram.WebApp.openTelegramLink(tgShareUrl); return; } catch(e) {}
+  }
+  window.open(tgShareUrl, "_blank");
+  navigator.clipboard.writeText(viewUrl).catch(() => {});
+
+  const btn = document.getElementById("copyBtn");
+  const orig = btn.textContent;
+  btn.textContent = "✅ Скопировано!"; btn.classList.add("copied");
+  setTimeout(() => { btn.textContent = orig; btn.classList.remove("copied"); }, 2500);
 }
 
-/* ── ЗАПУСК — ждём LZString + failsafe 8 сек ── */
-window.addEventListener("DOMContentLoaded",()=>{
-  const safetyTimer=setTimeout(()=>{
-    const loading=document.getElementById("loadingState");
-    if(loading&&loading.style.display!=="none") showError();
-  },8000);
+function openBot() {
+  const botUrl = "https://t.me/iihuzandelpiibot"; // ЗАМЕНИ на username твоего бота
+  if (window.Telegram && window.Telegram.WebApp) {
+    try { 
+      window.Telegram.WebApp.openTelegramLink(botUrl); 
+      return; 
+    } catch(e) {}
+  }
+  window.open(botUrl, "_blank");
+}
 
-  function tryInit(){
-    if(typeof LZString!=="undefined"){
+// ── Wait for LZString, then init ─────────────────────────
+window.addEventListener("DOMContentLoaded", () => {
+  const botBtn = document.getElementById("botBtn");
+  if (botBtn) botBtn.onclick = openBot;
+
+  // Failsafe: если через 8 сек всё ещё лоадер — показать ошибку
+  const safetyTimer = setTimeout(() => {
+    const loading = document.getElementById("loadingState");
+    if (loading && loading.style.display !== "none") {
+      loading.style.display = "none";
+      document.getElementById("errorState").style.display = "flex";
+    }
+  }, 8000);
+
+  function tryInit() {
+    if (typeof LZString !== "undefined") {
       clearTimeout(safetyTimer);
       initPage();
     } else {
-      setTimeout(tryInit,80);
+      setTimeout(tryInit, 100);
     }
   }
+
   tryInit();
 });
 </script>
