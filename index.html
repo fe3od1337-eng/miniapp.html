@@ -1328,7 +1328,7 @@ body.light .code-wrapper pre { background: #1e1e2e !important; }
   <div class="doc-preview" id="docPreview" style="display:none"></div>
   <div class="limit-bar" id="limitBar" style="display:none">
     <span>📊 Запросы:</span>
-    <span class="limit-item"><span class="limit-dot" style="background:#34d399"></span><span id="fastLeft">—</span> быстрых</span>
+    
     <span class="limit-item"><span class="limit-dot" style="background:#5b6ef5"></span><span id="proLeft">—</span> проф.</span>
   </div>
   <div class="input-row">
@@ -1894,7 +1894,7 @@ async function sendMessage() {
       (data.channels || []).forEach(ch => { chText += `• ${ch.title}\n`; });
       addAiMsg("🔐 Для доступа нужно подписаться на канал!" + chText);
     } else if (data.error === "limit_exceeded") {
-      addAiMsg(`🚫 Лимит запросов исчерпан!\n⏰ Сброс через: ${data.reset_in || "?"}\n\nОсталось: ⚡${data.fast_left} быстрых | 🧠${data.pro_left} проф.`);
+      addAiMsg(`🚫 Лимит запросов исчерпан!\n⏰ Сброс через: ${data.reset_in || "?"}\n\nОсталось: 🧠${data.pro_left} проф. запросов`);
     } else {
       addAiMsg(`❌ Ошибка: ${data.error || "Неизвестная ошибка"}`);
     }
@@ -2500,7 +2500,7 @@ function renderProfileSheet() {
     '<div class="stat-cell"><div class="stat-cell-val">' + chatCount + '</div><div class="stat-cell-lbl">В чате</div></div>' +
     '</div>' + joinedStr + '</div>' +
     '<div class="p-card"><div class="p-card-title">💳 Баланс лимитов</div>' +
-    '<div class="limit-row"><span>⚡ Быстрые запросы</span><span class="limit-val" style="color:var(--green)">' + (userStats.fast_left||0) + '</span></div>' +
+    
     '<div class="limit-row"><span>🧠 Проф. запросы</span><span class="limit-val" style="color:var(--accent2)">' + (userStats.pro_left||0) + '</span></div>' +
     '<div class="limit-row"><span>🎨 Генерации</span><span class="limit-val" style="color:var(--yellow)">' + (userStats.img_left||0) + '</span></div></div>' +
     '<div class="p-card"><div class="p-card-title">🎛 Режим ответа</div>' +
