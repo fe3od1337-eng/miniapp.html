@@ -406,6 +406,53 @@ function formatText(raw) {
   if (!raw) return "";
   let text = raw;
 
+  // ═══ ШАГ 0А: Склейка $...$ с переносами внутри ═══
+  text = text.replace(/\$\$([\s\S]*?)\$\$/g, (_,m) => "$$" + m.replace(/\n+/g," ").trim() + "$$");
+  text = text.replace(/(?<!\$)\$(?!\$)([\s\S]{1,400}?)(?<!\$)\$(?!\$)/g, (match, inner) => {
+    if (!inner.includes("\n")) return match;
+    return "$" + inner.replace(/\n+/g," ").trim() + "$";
+  });
+
+  // ═══ ШАГ 0Б: Детект разбитых формул — каждый токен на новой строке ═══
+  // Условие: 3+ подряд строк из мат.токенов + хотя бы один оператор
+  (function() {
+    const isMathTok = s => {
+      s = s.trim();
+      if (!s || s.length > 25) return false;
+      if (/^(sin|cos|tan|tg|ctg|log|ln|lim|max|min|sqrt|frac|alpha|beta|gamma|omega|pi|phi|theta|mu|lambda|delta|sigma|sum|int|inf|perp|vec|cdot|pm|le|ge|ne|approx|over|cdot)$/i.test(s)) return true;
+      if (/^[α-ωΑ-Ω∑∫√π∞±≈≠≤≥×÷·⊥∠→⟹]+$/.test(s)) return true;
+      if (/^[a-zA-Z][₀-₉0-9]{0,2}$/.test(s)) return true;    // x, x1, v0
+      if (/^[\d]+([.,][\d]+)?$/.test(s)) return true;          // 2, 3.14
+      if (/^[+\-=<>×÷*/\\^_()\[\]{}|≤≥±≈≠–]$/.test(s)) return true;
+      if (/^[a-zA-Z]{1,4}[\d]{1,2}$/.test(s)) return true;    // x2, v12
+      return false;
+    };
+    const isOp = s => /^[+\-=<>×÷*/^±≤≥≈≠–]$/.test(s.trim()) || ['=','<','>','≤','≥','≠','≈','±','–','-','+'].includes(s.trim());
+    const lines = text.split("\n");
+    const out = [];
+    let i = 0;
+    while (i < lines.length) {
+      const t = lines[i].trim();
+      if (isMathTok(t)) {
+        let j = i, hasOp = false;
+        while (j < lines.length && isMathTok(lines[j].trim())) {
+          if (isOp(lines[j].trim())) hasOp = true;
+          j++;
+        }
+        const count = j - i;
+        if (count >= 3 && hasOp) {
+          const parts = lines.slice(i, j).map(l => l.trim()).filter(Boolean);
+          out.push("$$" + parts.join(" ") + "$$");
+          i = j;
+          continue;
+        }
+      }
+      out.push(lines[i]);
+      i++;
+    }
+    text = out.join("\n");
+  })();
+
   // ШАГ 1: Код — вырезаем плейсхолдерами ПЕРВЫМ (до всего остального)
   let codeIdx = 0;
   const codePH = {};
