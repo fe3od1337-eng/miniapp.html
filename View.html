@@ -453,6 +453,36 @@ function formatText(raw) {
     text = out.join("\n");
   })();
 
+  // ═══ ШАГ 0В: Убираем оставшиеся одиночные мат.токены на отдельных строках ═══
+  // Если строка — ТОЛЬКО один мат.символ/токен и окружена пустыми/мат. строками — удаляем
+  (function() {
+    const isSingleTok = s => {
+      s = s.trim();
+      if (!s) return false;
+      // Одиночный знак оператора
+      if (/^[+\-×÷*/\\^=<>≤≥±≈≠–∞·⊥∠→;,]$/.test(s)) return true;
+      // Одиночная буква (x, y, k, а не слово)
+      if (/^[a-zA-Zα-ωΑ-Ω]$/.test(s)) return true;
+      // Одиночная скобка
+      if (/^[\(\)\[\]\{\}]$/.test(s)) return true;
+      return false;
+    };
+    const lines2 = text.split("\n");
+    // Убираем только если строка — одиночный токен
+    // и следующая/предыдущая строка тоже пустая или одиночный токен
+    const out2 = [];
+    for (let i = 0; i < lines2.length; i++) {
+      const prev = i > 0 ? lines2[i-1].trim() : "";
+      const next = i < lines2.length-1 ? lines2[i+1].trim() : "";
+      if (isSingleTok(lines2[i]) && (isSingleTok(prev) || prev === "") && (isSingleTok(next) || next === "")) {
+        // пропускаем
+        continue;
+      }
+      out2.push(lines2[i]);
+    }
+    text = out2.join("\n");
+  })();
+
   // ШАГ 1: Код — вырезаем плейсхолдерами ПЕРВЫМ (до всего остального)
   let codeIdx = 0;
   const codePH = {};
@@ -647,9 +677,29 @@ function renderData(data) {
 }
 
 function initPage() {
-  const { encoded, mode } = getDataFromUrl();
+  // Режим 1: Данные инжектированы сервером прямо в страницу (короткая ссылка /view?id=XXX)
+  if (window.__VIEW_DATA__ && window.__VIEW_DATA__.text) {
+    renderData(window.__VIEW_DATA__);
+    return;
+  }
 
-  // Режим API: загрузка с Railway по короткому ID
+  // Режим 2: ?id=XXX без данных — загружаем с Railway API
+  const searchParams = new URLSearchParams(location.search);
+  const shortId = searchParams.get("id");
+  if (shortId) {
+    const apiBase = window.__API_BASE__ || "https://huzabot123-production.up.railway.app";
+    fetch(apiBase + "/api/answer/" + shortId)
+      .then(r => r.json())
+      .then(data => {
+        if (data.ok && data.text) { renderData(data); }
+        else { showError(); }
+      })
+      .catch(showError);
+    return;
+  }
+
+  // Режим 3: Старый формат — base64 в хэше (#data=...)
+  const { encoded, mode } = getDataFromUrl();
   if (mode === "api") {
     const p   = new URLSearchParams(location.search);
     const id  = p.get("id");
@@ -663,7 +713,6 @@ function initPage() {
       .catch(showError);
     return;
   }
-
   if (!encoded) { showError(); return; }
   const data = decodeData(encoded, mode);
   if (!data || !data.text) { showError(); return; }
