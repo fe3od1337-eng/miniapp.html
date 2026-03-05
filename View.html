@@ -286,6 +286,60 @@ body::before {
   padding: 12px 0;
 }
 .katex-html { color: var(--text) !important; }
+
+/* ── ЛИНГВИСТИЧЕСКАЯ РАЗМЕТКА ── */
+/* Подлежащее — одинарное подчёркивание */
+.grammar-subject {
+  text-decoration: underline;
+  text-decoration-style: solid;
+  text-decoration-color: #5b6ef5;
+  text-underline-offset: 3px;
+}
+/* Сказуемое — двойное подчёркивание */
+.grammar-predicate {
+  text-decoration: underline;
+  text-decoration-style: double;
+  text-decoration-color: #f87171;
+  text-underline-offset: 3px;
+}
+/* Дополнение — пунктирное подчёркивание */
+.grammar-object {
+  text-decoration: underline;
+  text-decoration-style: dashed;
+  text-decoration-color: #34d399;
+  text-underline-offset: 3px;
+}
+/* Определение — волнистое подчёркивание */
+.grammar-attr {
+  text-decoration: underline;
+  text-decoration-style: wavy;
+  text-decoration-color: #fbbf24;
+  text-underline-offset: 3px;
+}
+/* Обстоятельство — точечное подчёркивание */
+.grammar-adv {
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-decoration-color: #a78bfa;
+  text-underline-offset: 3px;
+}
+/* Легенда лингвистических обозначений */
+.grammar-legend {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  margin: 10px 0; padding: 10px 14px;
+  background: rgba(91,110,245,0.06);
+  border: 1px solid rgba(91,110,245,0.15);
+  border-radius: 10px; font-size: 11px; color: var(--text2);
+}
+.grammar-legend span { display: inline-flex; align-items: center; gap: 4px; }
+/* Ruby — морфологические пометки над словами */
+ruby { display: inline-flex; flex-direction: column-reverse; align-items: center; vertical-align: bottom; }
+rt {
+  font-size: 0.6em; color: var(--accent2); font-weight: 600;
+  line-height: 1.2; white-space: nowrap; text-align: center;
+  background: rgba(91,110,245,0.12); border-radius: 3px;
+  padding: 0 3px; margin-bottom: 1px;
+}
 </style>
 </head>
 <body>
@@ -436,23 +490,52 @@ function formatText(raw) {
   });
   text = text.replace(/`([^`\n]{1,200})`/g, (_,c) => save('<code>'+escHtml(c)+'</code>'));
 
-  // ═══ ШАГ 3: ТАБЛИЦЫ (без escHtml на ячейках!) ═══
+  // ═══ ШАГ 3: ТАБЛИЦЫ с поддержкой выравнивания ═══
   text = text.replace(/(\|[^\n]+\|[ \t]*\n\|[\s\-|:]+\|[ \t]*\n(?:\|[^\n]+\|[ \t]*\n?)+)/gm, match => {
-    const lines = match.trim().split(/\r?\n/).filter(l => l.trim() && !/^\|[\s\-|:]+\|$/.test(l.trim()));
+    const lines = match.trim().split(/\r?\n/).filter(l => l.trim());
     if (lines.length < 2) return match;
     const cells = l => l.replace(/^\||\|$/g,'').split('|').map(c=>c.trim());
-    const [head,...body] = lines;
+    // Определяем выравнивание из строки-разделителя
+    const sepLine = lines.find(l => /^\|[\s\-|:]+\|$/.test(l.trim()));
+    const aligns = sepLine ? cells(sepLine).map(c => {
+      if (/^:-+:$/.test(c)) return 'center';
+      if (/^-+:$/.test(c))  return 'right';
+      return 'left';
+    }) : [];
+    const dataLines = lines.filter(l => !/^\|[\s\-|:]+\|$/.test(l.trim()));
+    if (dataLines.length < 1) return match;
+    const [head,...body] = dataLines;
     let h = '<table><thead><tr>';
-    cells(head).forEach(c => h += '<th>'+c+'</th>');
+    cells(head).forEach((c,i) => {
+      const align = aligns[i] ? ` style="text-align:${aligns[i]}"` : '';
+      h += `<th${align}>${c}</th>`;
+    });
     h += '</tr></thead><tbody>';
     body.forEach(row => {
       h += '<tr>';
-      cells(row).forEach(c => h += '<td>'+c+'</td>');
+      cells(row).forEach((c,i) => {
+        const align = aligns[i] ? ` style="text-align:${aligns[i]}"` : '';
+        h += `<td${align}>${c}</td>`;
+      });
       h += '</tr>';
     });
     h += '</tbody></table>';
     return save(h);
   });
+
+  // ═══ ШАГ 3.5: ЛИНГВИСТИКА ═══
+  // Морфологический разбор: слово[пометка] → <ruby>слово<rt>пометка</rt></ruby>
+  text = text.replace(/([А-Яа-яЁёa-zA-Z]+)\[([^\]]{1,120})\]/g, (_,word,note) =>
+    save(`<ruby>${escHtml(word)}<rt>${escHtml(note)}</rt></ruby>`)
+  );
+  // Подлежащее ==...== → синее одинарное подчёркивание
+  text = text.replace(/==(.+?)==/g, (_,t) => save(`<span class="grammar-subject">${t}</span>`));
+  // Сказуемое ~~...~~ → красное двойное подчёркивание
+  text = text.replace(/~~(.+?)~~/g, (_,t) => save(`<span class="grammar-predicate">${t}</span>`));
+  // Дополнение ___...___ → зелёное пунктирное
+  text = text.replace(/___(.+?)___/g, (_,t) => save(`<span class="grammar-object">${t}</span>`));
+  // Обстоятельство #...# → фиолетовое точечное
+  text = text.replace(/#([^#\n]+)#/g, (_,t) => save(`<span class="grammar-adv">${t}</span>`));
 
   // ═══ ШАГ 4: MARKDOWN ═══
   text = text.replace(/^#### (.+)$/gm, '<h4>$1</h4>');
