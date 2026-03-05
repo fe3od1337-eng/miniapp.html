@@ -284,23 +284,26 @@ body::before {
   margin: 20px 0;
 }
 
-/* ── MATH (KaTeX) ── */
-.math-block{display:block;margin:16px 0;padding:14px 16px;background:rgba(91,110,245,.06);border:1px solid rgba(91,110,245,.18);border-radius:12px;text-align:center;overflow-x:auto}
-.math-inline, .math-display {
-  display: inline-block;
-}
-.math-display {
+/* ── MATH (KaTeX) — идентично миниапу ── */
+.math-block {
   display: block;
-  margin: 16px 0;
+  margin: 18px 0;
+  padding: 18px 20px;
+  background: rgba(91,110,245,0.07);
+  border: 1px solid rgba(91,110,245,0.2);
+  border-radius: 14px;
   text-align: center;
+  overflow-x: auto;
 }
-.katex { font-size: 1.15em !important; color: var(--text) !important; }
-.katex-display { 
-  margin: 18px 0 !important; 
-  overflow-x: auto; 
+.katex { font-size: 1.35em !important; color: var(--text) !important; }
+.katex-display {
+  margin: 20px 0 !important;
+  overflow-x: auto;
   overflow-y: hidden;
-  padding: 12px 0;
+  padding: 16px 0;
+  text-align: center !important;
 }
+.katex-display > .katex { font-size: 1.5em !important; }
 .katex-html { color: var(--text) !important; }
 
 /* ── ЛИНГВИСТИЧЕСКАЯ РАЗМЕТКА ── */
@@ -411,60 +414,13 @@ function escHtml(str) {
 function formatText(raw) {
   if (!raw) return "";
 
-  // ═══ ШАГ 0: СКЛЕЙКА РАЗБИТЫХ ФОРМУЛ ═══
-  // Бот присылает "sin\nα\nsin\nβ\n=\nv1\nv2" вместо "$\frac{\sin\alpha}{\sin\beta}=\frac{v_1}{v_2}$"
-
-  // 0а. Склеиваем уже обёрнутые $$..$$ и $..$ если внутри есть переносы строк
+  // ═══ ШАГ 0: Склейка многострочных $...$ формул ═══
+  // Если формула уже в $...$, но внутри есть перенос — убираем перенос
   raw = raw.replace(/\$\$([\s\S]*?)\$\$/g, (_,m) => "$$" + m.replace(/\n+/g," ").trim() + "$$");
   raw = raw.replace(/(?<!\$)\$(?!\$)([\s\S]{1,300}?)(?<!\$)\$(?!\$)/g, (match, inner) => {
     if (!inner.includes("\n")) return match;
     return "$" + inner.replace(/\n+/g," ").trim() + "$";
   });
-
-  // 0б. Детектируем блоки «разбитых формул» — 3+ подряд строки из матем.токенов
-  // Матем.токен: короткое слово (sin/cos/v1/n2...), цифра, знак, греческая буква
-  (function(){
-    const isMathToken = s => {
-      if (!s || s.length > 14) return false;
-      // Математические слова/функции
-      if (/^(sin|cos|tan|tg|ctg|log|ln|lim|max|min|sqrt|vec|frac|alpha|beta|gamma|omega|pi|phi|theta|mu|lambda|delta|sigma|inf|perp)$/i.test(s)) return true;
-      // Греческие буквы Unicode
-      if (/^[α-ωΑ-Ω]+$/.test(s)) return true;
-      // Цифры, возможно с буквой (v1, n2, x0)
-      if (/^[a-zA-Z]?[\d.,]+[a-zA-Z]?$/.test(s)) return true;
-      // Буква с цифровым индексом
-      if (/^[a-zA-Zα-ωΑ-Ω][₀-₉0-9]?$/.test(s)) return true;
-      // Математические знаки и операторы
-      if (/^[+\-=×÷*\/\\^_()\[\]{}|<>≈≠≤≥∞·±⊥∠→⟹]$/.test(s)) return true;
-      return false;
-    };
-
-    const rawLines = raw.split("\n");
-    const out = [];
-    let i2 = 0;
-    while (i2 < rawLines.length) {
-      const trimmed = rawLines[i2].trim();
-      if (isMathToken(trimmed)) {
-        // Считаем сколько подряд матем.строк
-        let j = i2;
-        let mathCount = 0;
-        while (j < rawLines.length && isMathToken(rawLines[j].trim())) {
-          mathCount++;
-          j++;
-        }
-        if (mathCount >= 3) {
-          // Это разбитая формула — склеиваем в блочную формулу
-          const parts = rawLines.slice(i2, j).map(l => l.trim()).filter(Boolean);
-          out.push("$$" + parts.join(" ") + "$$");
-          i2 = j;
-          continue;
-        }
-      }
-      out.push(rawLines[i2]);
-      i2++;
-    }
-    raw = out.join("\n");
-  })();
 
 
   let text = raw;
