@@ -2014,6 +2014,7 @@ function addAiMsg(text, modelLabel) {
   const displayName = modelLabel || m.name;
   const div = document.createElement("div");
   div.className = "msg ai";
+  div.dataset.raw = text;  // сохраняем raw markdown для шаринга
   div.innerHTML = `
     <div class="ai-label">
       <div class="ai-dot ${m.av}">${getModelIcon(m.key)}</div>
@@ -3187,8 +3188,8 @@ function getMskTime() {
 
 async function openShare(btn) {
   const msgDiv = btn.closest(".msg.ai");
-  const bubble = msgDiv ? msgDiv.querySelector(".bubble") : null;
-  shareRawText = bubble ? bubble.innerText : "";
+  // Берём raw markdown из data-raw (не innerText — там уже HTML без разметки!)
+  shareRawText = msgDiv ? (msgDiv.dataset.raw || msgDiv.querySelector(".bubble")?.innerText || "") : "";
   const m = getModel(curModel);
 
   document.getElementById("sharePreview").textContent = shareRawText.slice(0, 400) + (shareRawText.length > 400 ? "..." : "");
