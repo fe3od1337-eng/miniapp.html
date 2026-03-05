@@ -287,23 +287,19 @@ body::before {
 /* ── MATH (KaTeX) — идентично миниапу ── */
 .math-block {
   display: block;
-  margin: 18px 0;
-  padding: 18px 20px;
+  margin: 20px 0;
+  padding: 20px;
   background: rgba(91,110,245,0.07);
   border: 1px solid rgba(91,110,245,0.2);
   border-radius: 14px;
   text-align: center;
   overflow-x: auto;
 }
-.katex { font-size: 1.35em !important; color: var(--text) !important; }
-.katex-display {
-  margin: 20px 0 !important;
-  overflow-x: auto;
-  overflow-y: hidden;
-  padding: 16px 0;
-  text-align: center !important;
+.math-inline {
+  display: inline;
 }
-.katex-display > .katex { font-size: 1.5em !important; }
+.katex { font-size: 1.2em !important; color: var(--text) !important; }
+.math-block .katex { font-size: 1.5em !important; }
 .katex-html { color: var(--text) !important; }
 
 /* ── ЛИНГВИСТИЧЕСКАЯ РАЗМЕТКА ── */
@@ -411,42 +407,94 @@ function escHtml(str) {
   return (str || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 }
 
+// Рендер формулы через KaTeX (возвращает HTML-строку)
+function renderKatex(formula, displayMode) {
+  try {
+    return katex.renderToString(formula, {
+      throwOnError: false,
+      displayMode: displayMode,
+      strict: false,
+      trust: true,
+      macros: { "\\RR":"\\mathbb{R}", "\\NN":"\\mathbb{N}", "\\ZZ":"\\mathbb{Z}" }
+    });
+  } catch(e) {
+    return escHtml(formula);
+  }
+}
+
 function formatText(raw) {
   if (!raw) return "";
 
-  // ═══ ШАГ 0: Склейка многострочных $...$ формул ═══
-  // Если формула уже в $...$, но внутри есть перенос — убираем перенос
+  // ═══ ШАГ 0А: Склейка многострочных $...$ ═══
   raw = raw.replace(/\$\$([\s\S]*?)\$\$/g, (_,m) => "$$" + m.replace(/\n+/g," ").trim() + "$$");
-  raw = raw.replace(/(?<!\$)\$(?!\$)([\s\S]{1,300}?)(?<!\$)\$(?!\$)/g, (match, inner) => {
+  raw = raw.replace(/(?<!\$)\$(?!\$)([\s\S]{1,400}?)(?<!\$)\$(?!\$)/g, (match, inner) => {
     if (!inner.includes("\n")) return match;
     return "$" + inner.replace(/\n+/g," ").trim() + "$";
   });
 
+  // ═══ ШАГ 0Б: Умная склейка разбитых формул ═══
+  // Если 4+ подряд строк выглядят как части мат. выражения — склеиваем в $$...$$
+  // Требование: в группе должен быть хотя бы один оператор (+,-,=,<,>,×,÷,±,≤,≥)
+  (function() {
+    const isMathTok = s => {
+      s = s.trim();
+      if (!s || s.length > 20) return false;
+      if (/^(sin|cos|tan|tg|ctg|log|ln|lim|max|min|sqrt|frac|alpha|beta|gamma|omega|pi|phi|theta|mu|lambda|delta|sigma|sum|int|inf|perp|vec|cdot|pm|le|ge|ne|approx)$/i.test(s)) return true;
+      if (/^[α-ωΑ-Ω∑∫√π∞±≈≠≤≥×÷·⊥∠→]+$/.test(s)) return true;
+      if (/^[a-zA-Zа-яА-Я][₀-₉0-9]?$/.test(s)) return true;
+      if (/^[\d.,]+$/.test(s)) return true;
+      if (/^[+\-=<>×÷*/\\^_()\[\]{}|≤≥±≈≠]$/.test(s)) return true;
+      if (/^[a-zA-Z][\d]$/.test(s)) return true;
+      return false;
+    };
+    const isOperator = s => /^[+\-=<>×÷*/\\^±≤≥≈≠–—]$/.test(s.trim()) || /^[α-ωΑ-Ω∑∫√π∞]+$/.test(s.trim());
+    const lines = raw.split("\n");
+    const out = [];
+    let i = 0;
+    while (i < lines.length) {
+      const t = lines[i].trim();
+      if (isMathTok(t)) {
+        let j = i, hasOp = false;
+        while (j < lines.length && isMathTok(lines[j].trim())) {
+          if (isOperator(lines[j].trim())) hasOp = true;
+          j++;
+        }
+        const count = j - i;
+        if (count >= 4 && hasOp) {
+          const parts = lines.slice(i, j).map(l => l.trim()).filter(Boolean);
+          out.push("$$" + parts.join(" ") + "$$");
+          i = j; continue;
+        }
+      }
+      out.push(lines[i]);
+      i++;
+    }
+    raw = out.join("\n");
+  })();
 
   let text = raw;
   const PH = {};
   let pid = 0;
   const save = html => { const k="\x02"+(pid++)+"\x03"; PH[k]=html; return k; };
 
-  // ═══ ШАГ 1: ФОРМУЛЫ (ДО escapeHTML!) ═══
-
+  // ═══ ШАГ 1: РЕНДЕР ФОРМУЛ через katex.renderToString ═══
   // Блочные $$...$$
   text = text.replace(/\$\$([\s\S]*?)\$\$/g, (_,m) =>
-    save('<div class="math-block">$$' + m.trim() + '$$</div>')
+    save('<div class="math-block">' + renderKatex(m.trim(), true) + '</div>')
   );
   // Блочные \[...\]
   text = text.replace(/\\\[([\s\S]*?)\\\]/g, (_,m) =>
-    save('<div class="math-block">\\[' + m.trim() + '\\]</div>')
+    save('<div class="math-block">' + renderKatex(m.trim(), true) + '</div>')
   );
   // Инлайн \(...\)
   text = text.replace(/\\\((.+?)\\\)/gs, (_,m) =>
-    save('\\(' + m + '\\)')
+    save('<span class="math-inline">' + renderKatex(m, false) + '</span>')
   );
-  // Инлайн $...$
-  text = text.replace(/(?<!\$)\$(?!\$)([^$\n]{1,200}?)(?<!\$)\$(?!\$)/g, (match,m) => {
+  // Инлайн $...$ (исключаем цены типа $5 и пустые)
+  text = text.replace(/(?<!\$)\$(?!\$)([^$\n]{1,300}?)(?<!\$)\$(?!\$)/g, (match, m) => {
     if (/^\s*[\d,.]+\s*$/.test(m)) return match;
     if (m.trim().length < 1) return match;
-    return save('$' + m + '$');
+    return save('<span class="math-inline">' + renderKatex(m, false) + '</span>');
   });
 
   // ═══ ШАГ 2: КОД ═══
@@ -456,7 +504,7 @@ function formatText(raw) {
       '<div class="code-wrapper">' +
       '<div class="code-header"><span>' + escHtml(ln) + '</span>' +
       '<button class="copy-btn" onclick="copyCode(this)">Копировать</button></div>' +
-      '<pre><code class="language-'+escHtml(ln)+'" data-raw="'+escHtml(cl)+'">'+escHtml(cl)+'</code></pre>' +
+      '<pre><code class="language-'+escHtml(ln)+'" data-raw="'+escHtml(cl).replace(/"/g,'&quot;')+'">'+escHtml(cl)+'</code></pre>' +
       '</div>'
     );
   });
@@ -468,7 +516,6 @@ function formatText(raw) {
     if (lines.length < 1) return match;
     const isSep = l => /^\|[\s\-|:]+\|$/.test(l.trim());
     const cells = l => l.replace(/^\||\|$/g,'').split('|').map(c=>c.trim());
-    // Определяем выравнивание из строки-разделителя
     const sepLine = lines.find(l => isSep(l));
     const aligns = sepLine ? cells(sepLine).map(c => {
       if (/^:-+:$/.test(c)) return 'center';
@@ -481,14 +528,14 @@ function formatText(raw) {
     let h = '<div class="table-wrap"><table><thead><tr>';
     cells(head).forEach((c,i) => {
       const align = aligns[i] ? ` style="text-align:${aligns[i]}"` : '';
-      h += `<th${align}>${c}</th>`;
+      h += `<th${align}>${escHtml(c)}</th>`;
     });
     h += '</tr></thead><tbody>';
     body.forEach(row => {
       h += '<tr>';
       cells(row).forEach((c,i) => {
         const align = aligns[i] ? ` style="text-align:${aligns[i]}"` : '';
-        h += `<td${align}>${c}</td>`;
+        h += `<td${align}>${escHtml(c)}</td>`;
       });
       h += '</tr>';
     });
@@ -497,17 +544,12 @@ function formatText(raw) {
   });
 
   // ═══ ШАГ 3.5: ЛИНГВИСТИКА ═══
-  // Морфологический разбор: слово[пометка] → <ruby>слово<rt>пометка</rt></ruby>
   text = text.replace(/([А-Яа-яЁёa-zA-Z]+)\[([^\]]{1,120})\]/g, (_,word,note) =>
     save(`<ruby>${escHtml(word)}<rt>${escHtml(note)}</rt></ruby>`)
   );
-  // Подлежащее ==...== → синее одинарное подчёркивание
   text = text.replace(/==(.+?)==/g, (_,t) => save(`<span class="grammar-subject">${t}</span>`));
-  // Сказуемое ~~...~~ → красное двойное подчёркивание
   text = text.replace(/~~(.+?)~~/g, (_,t) => save(`<span class="grammar-predicate">${t}</span>`));
-  // Дополнение ___...___ → зелёное пунктирное
   text = text.replace(/___(.+?)___/g, (_,t) => save(`<span class="grammar-object">${t}</span>`));
-  // Обстоятельство #...# → фиолетовое точечное
   text = text.replace(/#([^#\n]+)#/g, (_,t) => save(`<span class="grammar-adv">${t}</span>`));
 
   // ═══ ШАГ 4: MARKDOWN ═══
@@ -517,7 +559,7 @@ function formatText(raw) {
   text = text.replace(/^# (.+)$/gm,    '<h1>$1</h1>');
   text = text.replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>');
   text = text.replace(/\*\*\*(.+?)\*\*\*/gs, '<strong><em>$1</em></strong>');
-  text = text.replace(/\*\*(.+?)\*\*/gs,       '<strong>$1</strong>');
+  text = text.replace(/\*\*(.+?)\*\*/gs, '<strong>$1</strong>');
   text = text.replace(/(?<!\*)\*([^*\n]+?)\*(?!\*)/g, '<em>$1</em>');
   text = text.replace(/^(\d+)\.\s+(.+)$/gm, (_,n,t) =>
     '<li style="list-style:none;position:relative;padding-left:26px;margin-bottom:5px">'+
@@ -635,20 +677,6 @@ function renderData(data) {
   const contentEl = document.getElementById("contentInner");
   contentEl.innerHTML = formatText(data.text);
   contentEl.querySelectorAll("pre code").forEach(b => hljs.highlightElement(b));
-  setTimeout(() => {
-    try {
-      renderMathInElement(contentEl, {
-        delimiters: [
-          { left: "$$", right: "$$", display: true  },
-          { left: "$",  right: "$",  display: false },
-          { left: "\\(", right: "\\)", display: false },
-          { left: "\\[", right: "\\]", display: true  },
-        ],
-        throwOnError: false, errorColor: "#f87171", strict: false, trust: true,
-        macros: { "\\RR": "\\mathbb{R}", "\\NN": "\\mathbb{N}", "\\ZZ": "\\mathbb{Z}" }
-      });
-    } catch(e) { console.error("KaTeX error:", e); }
-  }, 200);
   document.getElementById("loadingState").style.display = "none";
   document.getElementById("mainContent").style.display  = "block";
   document.getElementById("copyBtn").onclick = () => shareAnswer(data);
