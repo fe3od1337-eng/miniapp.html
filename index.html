@@ -3168,39 +3168,56 @@ document.getElementById("igGenBtn").addEventListener("click", async function igG
 // 📤 ПОДЕЛИТЬСЯ ОТВЕТОМ — через view.html вьювер
 // ══════════════════════════════════════════════════════════
 
-// ✅ View.html теперь раздаётся с Railway сервера — GitHub Pages не нужен!
-const VIEW_BASE_URL = "https://fe3od1337-eng.github.io/miniapp.html/View.html";
+// ✅ View.html раздаётся с Railway сервера
+// VIEW_BASE_URL берётся из API_BASE (уже известен на момент вызова)
 
 let shareText = "";
 let shareRawText = "";
 
-function buildViewerUrl(text, modelName, modelKey) {
-  const data = {
-    text:     text,
-    model:    modelName,
-    modelKey: modelKey,
-    time:     new Date().toLocaleString("ru", { day:"2-digit", month:"2-digit", hour:"2-digit", minute:"2-digit" })
-  };
-  const json       = JSON.stringify(data);
-  // LZ-сжатие — ссылка в 3-4 раза короче чем base64!
-  const compressed = LZString.compressToEncodedURIComponent(json);
-  return VIEW_BASE_URL + "#z=" + compressed;
+// Время МСК (UTC+3)
+function getMskTime() {
+  const now = new Date();
+  const msk = new Date(now.getTime() + (3 * 60 - now.getTimezoneOffset()) * 60000);
+  const d  = String(msk.getDate()).padStart(2, "0");
+  const mo = String(msk.getMonth() + 1).padStart(2, "0");
+  const h  = String(msk.getHours()).padStart(2, "0");
+  const mi = String(msk.getMinutes()).padStart(2, "0");
+  return `${d}.${mo} · ${h}:${mi}`;
 }
 
-function openShare(btn) {
+async function openShare(btn) {
   const msgDiv = btn.closest(".msg.ai");
   const bubble = msgDiv ? msgDiv.querySelector(".bubble") : null;
   shareRawText = bubble ? bubble.innerText : "";
   const m = getModel(curModel);
 
-  // Генерируем ссылку на вьювер
-  const viewerUrl = buildViewerUrl(shareRawText, m.name, m.key);
-
   document.getElementById("sharePreview").textContent = shareRawText.slice(0, 400) + (shareRawText.length > 400 ? "..." : "");
-  document.getElementById("shareViewerUrl").value = viewerUrl;
+  document.getElementById("shareViewerUrl").value = "⏳ Создаю ссылку...";
   document.getElementById("shareOverlay").classList.add("open");
   document.getElementById("shareSheet").classList.add("open");
   if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred("light");
+
+  // Сохраняем ответ на Railway и получаем короткий ID (как в боте)
+  try {
+    const resp = await fetch(API_BASE + "/api/store_answer", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        text:     shareRawText,
+        model:    m.name,
+        modelKey: m.key,
+        time:     getMskTime()
+      })
+    });
+    const data = await resp.json();
+    if (data.ok && data.id) {
+      document.getElementById("shareViewerUrl").value = API_BASE + "/view?id=" + data.id;
+    } else {
+      document.getElementById("shareViewerUrl").value = "❌ Ошибка создания ссылки";
+    }
+  } catch (e) {
+    document.getElementById("shareViewerUrl").value = "❌ Нет соединения с сервером";
+  }
 }
 
 function closeShare() {
