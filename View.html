@@ -232,25 +232,41 @@ body::before {
 }
 
 /* ── TABLES ── */
+.content-inner .table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  margin: 14px 0;
+  border-radius: 12px;
+  border: 1px solid rgba(91,110,245,0.25);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+}
 .content-inner table {
-  width: 100%; border-collapse: collapse;
-  margin: 14px 0; font-size: 13px;
-  border-radius: 10px; overflow: hidden;
-  border: 1px solid var(--border2);
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 340px;
+  font-size: 13.5px;
 }
 .content-inner th {
-  background: linear-gradient(135deg, rgba(91,110,245,0.15), rgba(155,89,182,0.1));
-  color: var(--accent2); font-weight: 700;
-  padding: 10px 12px; text-align: left;
-  border-bottom: 2px solid var(--border2);
+  background: linear-gradient(135deg, #3d4fd4, #5b6ef5);
+  color: #fff;
+  padding: 11px 16px;
+  text-align: left;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
 }
 .content-inner td {
-  padding: 9px 12px;
-  border-bottom: 1px solid var(--border);
-  background: var(--surface2);
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  color: var(--text);
+  line-height: 1.6;
+  vertical-align: top;
+  font-size: 13px;
 }
+.content-inner tr:nth-child(even) td { background: rgba(91,110,245,0.07); }
 .content-inner tr:last-child td { border-bottom: none; }
-.content-inner tr:hover td { background: var(--surface3); }
+.content-inner tr:hover td { background: rgba(255,255,255,0.05); transition: background 0.15s; }
 
 /* ── BLOCKQUOTE ── */
 .content-inner blockquote {
@@ -490,22 +506,23 @@ function formatText(raw) {
   });
   text = text.replace(/`([^`\n]{1,200})`/g, (_,c) => save('<code>'+escHtml(c)+'</code>'));
 
-  // ═══ ШАГ 3: ТАБЛИЦЫ с поддержкой выравнивания ═══
-  text = text.replace(/(\|[^\n]+\|[ \t]*\n\|[\s\-|:]+\|[ \t]*\n(?:\|[^\n]+\|[ \t]*\n?)+)/gm, match => {
+  // ═══ ШАГ 3: ТАБЛИЦЫ — работают со строкой-сепаратором и без ═══
+  text = text.replace(/(\|[^\n]+\|[ \t]*\n(?:\|[\s\-|:]+\|[ \t]*\n)?(?:\|[^\n]+\|[ \t]*\n?)+)/gm, match => {
     const lines = match.trim().split(/\r?\n/).filter(l => l.trim());
-    if (lines.length < 2) return match;
+    if (lines.length < 1) return match;
+    const isSep = l => /^\|[\s\-|:]+\|$/.test(l.trim());
     const cells = l => l.replace(/^\||\|$/g,'').split('|').map(c=>c.trim());
     // Определяем выравнивание из строки-разделителя
-    const sepLine = lines.find(l => /^\|[\s\-|:]+\|$/.test(l.trim()));
+    const sepLine = lines.find(l => isSep(l));
     const aligns = sepLine ? cells(sepLine).map(c => {
       if (/^:-+:$/.test(c)) return 'center';
       if (/^-+:$/.test(c))  return 'right';
       return 'left';
     }) : [];
-    const dataLines = lines.filter(l => !/^\|[\s\-|:]+\|$/.test(l.trim()));
+    const dataLines = lines.filter(l => !isSep(l));
     if (dataLines.length < 1) return match;
     const [head,...body] = dataLines;
-    let h = '<table><thead><tr>';
+    let h = '<div class="table-wrap"><table><thead><tr>';
     cells(head).forEach((c,i) => {
       const align = aligns[i] ? ` style="text-align:${aligns[i]}"` : '';
       h += `<th${align}>${c}</th>`;
@@ -519,7 +536,7 @@ function formatText(raw) {
       });
       h += '</tr>';
     });
-    h += '</tbody></table>';
+    h += '</tbody></table></div>';
     return save(h);
   });
 
