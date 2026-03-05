@@ -1209,6 +1209,35 @@ body.light .code-wrapper pre { background: #1e1e2e !important; }
 .ig-ratio-label { font-size:11px; font-weight:700; color:var(--text2); }
 .ig-ratio-btn.on .ig-ratio-label { color:var(--accent); }
 .ig-ratio-desc  { font-size:9px; color:var(--text3); }
+
+/* ── ЛИНГВИСТИЧЕСКАЯ РАЗМЕТКА ── */
+.grammar-subject {
+  text-decoration: underline; text-decoration-style: solid;
+  text-decoration-color: #5b6ef5; text-underline-offset: 3px;
+}
+.grammar-predicate {
+  text-decoration: underline; text-decoration-style: double;
+  text-decoration-color: #f87171; text-underline-offset: 3px;
+}
+.grammar-object {
+  text-decoration: underline; text-decoration-style: dashed;
+  text-decoration-color: #34d399; text-underline-offset: 3px;
+}
+.grammar-attr {
+  text-decoration: underline; text-decoration-style: wavy;
+  text-decoration-color: #fbbf24; text-underline-offset: 3px;
+}
+.grammar-adv {
+  text-decoration: underline; text-decoration-style: dotted;
+  text-decoration-color: #a78bfa; text-underline-offset: 3px;
+}
+ruby { display: inline-flex; flex-direction: column-reverse; align-items: center; vertical-align: bottom; }
+rt {
+  font-size: 0.6em; color: var(--accent2); font-weight: 600;
+  line-height: 1.2; white-space: nowrap; text-align: center;
+  background: rgba(91,110,245,0.12); border-radius: 3px;
+  padding: 0 3px; margin-bottom: 1px;
+}
 </style>
 </head>
 <body>
@@ -2093,9 +2122,8 @@ function formatText(rawText) {
   text = text.replace(/```(\w*)\n?([\s\S]*?)```/g, (_, lang, code) => {
     const id = "\x00CODE_" + (codeIdx++) + "\x00";
     const rawCode = code.trim();
-    const escapedCode = escHtml(rawCode); // БЕЗ замены \n — нужны реальные переносы строк!
+    const escapedCode = escHtml(rawCode);
     const langLabel = lang ? lang.toUpperCase() : "CODE";
-    // Код сохраняем в data-атрибуте для копирования
     codePlaceholders[id] = `<div class="code-wrapper">
       <div class="code-header">
         <span>${langLabel}</span>
@@ -2106,26 +2134,53 @@ function formatText(rawText) {
     return id;
   });
 
-  // 2. Tables
+  // 2. Tables с поддержкой выравнивания (:---, :---:, ---:)
   text = text.replace(/\n?((?:\|.+\|\n?)+)/g, (match) => {
     const lines = match.trim().split("\n").filter(l => l.trim());
     if (lines.length < 2) return match;
     const isSep = l => /^[\|\s\-:]+$/.test(l);
+    const sepLine = lines.find(l => isSep(l));
+    const aligns = sepLine ? sepLine.split("|").filter((_,i,a)=>i>0&&i<a.length-1).map(c => {
+      const cc = c.trim();
+      if (/^:-+:$/.test(cc)) return 'center';
+      if (/^-+:$/.test(cc))  return 'right';
+      return 'left';
+    }) : [];
     let html = '<div class="table-wrap"><table>';
     let firstRow = true;
     for (const line of lines) {
       if (isSep(line)) continue;
-      const cells = line.split("|").filter((_, i, a) => i > 0 && i < a.length - 1);
+      const cells = line.split("|").filter((_,i,a)=>i>0&&i<a.length-1);
       if (firstRow) {
-        html += '<tr>' + cells.map(c => `<th>${c.trim()}</th>`).join('') + '</tr>';
+        html += '<tr>' + cells.map((c,i) => {
+          const align = aligns[i] ? ` style="text-align:${aligns[i]}"` : '';
+          return `<th${align}>${c.trim()}</th>`;
+        }).join('') + '</tr>';
         firstRow = false;
       } else {
-        html += '<tr>' + cells.map(c => `<td>${c.trim()}</td>`).join('') + '</tr>';
+        html += '<tr>' + cells.map((c,i) => {
+          const align = aligns[i] ? ` style="text-align:${aligns[i]}"` : '';
+          return `<td${align}>${c.trim()}</td>`;
+        }).join('') + '</tr>';
       }
     }
     html += '</table></div>';
     return html;
   });
+
+  // 2.5. Лингвистическая разметка
+  // Морфологический разбор: слово[пометка] → <ruby>слово<rt>пометка</rt></ruby>
+  text = text.replace(/([А-Яа-яЁёa-zA-Z]+)\[([^\]]{1,120})\]/g,
+    (_, word, note) => `<ruby>${escHtml(word)}<rt>${escHtml(note)}</rt></ruby>`
+  );
+  // Подлежащее ==...== → синее подчёркивание
+  text = text.replace(/==(.+?)==/g, '<span class="grammar-subject">$1</span>');
+  // Сказуемое ~~...~~ → красное двойное подчёркивание
+  text = text.replace(/~~(.+?)~~/g, '<span class="grammar-predicate">$1</span>');
+  // Дополнение ___...___ → зелёное пунктирное
+  text = text.replace(/___(.+?)___/g, '<span class="grammar-object">$1</span>');
+  // Обстоятельство #...# → фиолетовое точечное
+  text = text.replace(/#([^#\n]+)#/g, '<span class="grammar-adv">$1</span>');
 
   // 3. Bold, italic
   text = text.replace(/\*\*\*(.+?)\*\*\*/g, "<strong><em>$1</em></strong>");
@@ -2144,8 +2199,7 @@ function formatText(rawText) {
   // 6. Inline code
   text = text.replace(/`([^`\n]+)`/g, (_, c) => `<code>${escHtml(c)}</code>`);
 
-  // 7. Newlines → <br> (только для обычного текста, не кода)
-  // Сохраняем блочные LaTeX формулы ($$...$$) от замены \n → <br>
+  // 7. Newlines → <br>
   const latexPlaceholders = {};
   let latexIdx = 0;
   text = text.replace(/\$\$([\s\S]+?)\$\$/g, (match) => {
@@ -2154,19 +2208,24 @@ function formatText(rawText) {
     return pid;
   });
   text = text.replace(/\n/g, "<br>");
-  // Восстанавливаем LaTeX блоки
   for (const [pid, orig] of Object.entries(latexPlaceholders)) {
     text = text.split(pid).join(orig);
   }
 
-  // 8. Восстанавливаем code-блоки (после замены \n)
+  // 8. Восстанавливаем code-блоки
   for (const [id, html] of Object.entries(codePlaceholders)) {
     text = text.split(id).join(html);
   }
 
+  // 9. Подсветка динамических code-блоков через hljs
+  setTimeout(() => {
+    document.querySelectorAll('.bubble pre code:not([data-highlighted])').forEach(el => {
+      try { hljs.highlightElement(el); el.setAttribute('data-highlighted','yes'); } catch(e) {}
+    });
+  }, 50);
+
   return text;
 }
-
 function copyAnswer(btn) {
   // Находим bubble — следующий элемент перед кнопкой
   const msgDiv = btn.closest(".msg.ai");
