@@ -1359,6 +1359,7 @@ rt {
     <span>📊 Запросы:</span>
     
     <span class="limit-item"><span class="limit-dot" style="background:#5b6ef5"></span><span id="proLeft">—</span> проф.</span>
+    <span id="subBadge" style="display:none;margin-left:8px;background:linear-gradient(135deg,#f5a623,#f76b1c);color:#fff;font-size:0.72rem;font-weight:700;padding:2px 7px;border-radius:8px;">💎 PRO</span>
   </div>
   <div class="input-row">
     <button class="attach-btn" id="attachBtn" title="Прикрепить фото или файл">📎</button>
@@ -1943,12 +1944,13 @@ async function sendMessage() {
         userStats.requests  = (userStats.requests || 0) + 1;
       }
     } else if (data.error === "subscription_required") {
-      // Show subscription required
       let chText = "\n\nПодпишись на каналы:\n";
       (data.channels || []).forEach(ch => { chText += `• ${ch.title}\n`; });
       addAiMsg("🔐 Для доступа нужно подписаться на канал!" + chText);
     } else if (data.error === "terms_required") {
-      addAiMsg("🔒 Необходимо принять соглашение.\n\nОткройте бота и нажмите \"✅ Принимаю\" — затем вернитесь сюда.");
+      addAiMsg("🔒 Сначала примите соглашение в боте.");
+    } else if (data.error === "premium_required") {
+      addAiMsg("🔒 Эта модель доступна только по подписке.\n\nОформите подписку в боте — от 39 ₽/нед.");
     } else if (data.error === "limit_exceeded") {
       addAiMsg(`🚫 Лимит запросов исчерпан!\n⏰ Сброс через: ${data.reset_in || "?"}\n\nОсталось: 🧠${data.pro_left} проф. запросов`);
     } else {
@@ -2284,6 +2286,11 @@ if (USER_ID) {
         userStats.requests    = d.requests   ?? 0;
         userStats.generations = d.img_used   ?? 0;
         userStats.joined      = d.joined     || "";
+        userStats.sub_active  = d.sub_active ?? false;
+        userStats.sub_expires = d.sub_expires || null;
+        // Показываем PRO бейдж
+        const badge = document.getElementById("subBadge");
+        if (badge) badge.style.display = d.sub_active ? "inline" : "none";
       }
     })
     .catch(() => {});
@@ -2743,6 +2750,8 @@ document.getElementById("igGenBtn").addEventListener("click", async () => {
       showToast("🔐 Подпишись на канал в боте");
     } else if (data.error === "terms_required") {
       showToast("🔒 Примите соглашение в боте");
+    } else if (data.error === "premium_required") {
+      showToast("🔒 Нужна подписка — оформите в боте");
     } else {
       showToast("❌ " + (data.error || "Ошибка"));
     }
@@ -3158,8 +3167,6 @@ document.getElementById("igGenBtn").addEventListener("click", async function igG
         showToast("🚫 Лимит исчерпан");
       } else if (data.error === "subscription_required") {
         showToast("🔐 Подпишись на канал в боте");
-      } else if (data.error === "terms_required") {
-        showToast("🔒 Примите соглашение в боте");
       } else {
         showToast("❌ " + (data.error || "Ошибка"));
       }
