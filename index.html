@@ -1242,7 +1242,33 @@ rt {
 </head>
 <body>
 
-<!-- TAB BAR -->
+<!-- TERMS OVERLAY -->
+<div id="termsOverlay" style="display:none;position:fixed;inset:0;z-index:9999;background:var(--bg,#0f1117);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;box-sizing:border-box;">
+  <div style="max-width:420px;width:100%;background:var(--surface,#1a1d27);border-radius:18px;padding:28px 22px;box-shadow:0 8px 32px rgba(0,0,0,.5);text-align:center;">
+    <div style="font-size:2.2rem;margin-bottom:12px;">🔒</div>
+    <div style="font-size:1.15rem;font-weight:700;margin-bottom:14px;color:var(--text,#e8eaf6);">Прежде чем продолжить</div>
+    <div style="font-size:0.92rem;color:var(--text-muted,#888);line-height:1.55;margin-bottom:22px;">
+      Ознакомьтесь с документами:<br><br>
+      📋 <a href="https://telegra.ph/Polzovatelskoe-soglashenie-08-15-10" target="_blank" style="color:#7c8cff;text-decoration:none;">Пользовательское соглашение</a><br>
+      🔒 <a href="https://telegra.ph/Politika-konfidencialnosti-08-15-17" target="_blank" style="color:#7c8cff;text-decoration:none;">Политика конфиденциальности</a><br><br>
+      Нажимая кнопку «Принимаю», вы соглашаетесь с условиями.
+    </div>
+    <div style="display:flex;gap:10px;flex-direction:column;">
+      <a href="https://telegra.ph/Politika-konfidencialnosti-08-15-17" target="_blank"
+         style="display:block;padding:11px 16px;border-radius:10px;background:rgba(124,140,255,.12);color:#7c8cff;font-size:0.88rem;text-decoration:none;border:1px solid rgba(124,140,255,.25);">
+        🔒 Политика конфиденциальности
+      </a>
+      <a href="https://telegra.ph/Polzovatelskoe-soglashenie-08-15-10" target="_blank"
+         style="display:block;padding:11px 16px;border-radius:10px;background:rgba(124,140,255,.12);color:#7c8cff;font-size:0.88rem;text-decoration:none;border:1px solid rgba(124,140,255,.25);">
+        📋 Пользовательское соглашение
+      </a>
+      <button id="acceptTermsBtn" onclick="acceptTermsMiniApp()"
+         style="display:block;padding:13px 16px;border-radius:10px;background:linear-gradient(135deg,#4f63ff,#7c8cff);color:#fff;font-size:0.95rem;font-weight:700;border:none;cursor:pointer;margin-top:4px;">
+        ✅ Принимаю
+      </button>
+    </div>
+  </div>
+</div>
 <div class="tab-bar">
   <div class="tab-item on" id="tabChat" onclick="switchTab('chat')"><span class="tab-item-ico">💬</span>Чат</div>
   <div class="tab-item" id="tabImggen" onclick="switchTab('imggen')"><span class="tab-item-ico">🎨</span>Картинки</div>
@@ -1947,6 +1973,8 @@ async function sendMessage() {
       let chText = "\n\nПодпишись на каналы:\n";
       (data.channels || []).forEach(ch => { chText += `• ${ch.title}\n`; });
       addAiMsg("🔐 Для доступа нужно подписаться на канал!" + chText);
+    } else if (data.error === "terms_required") {
+      showTermsOverlay();
     } else if (data.error === "limit_exceeded") {
       addAiMsg(`🚫 Лимит запросов исчерпан!\n⏰ Сброс через: ${data.reset_in || "?"}\n\nОсталось: 🧠${data.pro_left} проф. запросов`);
     } else {
@@ -2287,9 +2315,54 @@ if (USER_ID) {
     .catch(() => {});
 }
 
+// ── Соглашение: проверяем и при необходимости показываем оверлей ─
+const TERMS_ACCEPTED_KEY = "huzaai_terms_accepted";
 
-// ══════════════════════════════════════════════════
-// 📋 ИСТОРИЯ ЧАТОВ (хранится 24 часа в localStorage)
+async function checkTermsMiniApp() {
+  // Быстрая проверка по localStorage (чтобы не ходить в сеть лишний раз)
+  if (localStorage.getItem(TERMS_ACCEPTED_KEY) === "1") return;
+  // Проверяем через backend — был ли uid уже записан в БД
+  if (!USER_ID || !API_BASE) {
+    showTermsOverlay();
+    return;
+  }
+  try {
+    const r = await fetch(`${API_BASE}/api/limits?uid=${USER_ID}`);
+    const d = await r.json();
+    if (d.ok && d.terms_accepted) {
+      localStorage.setItem(TERMS_ACCEPTED_KEY, "1");
+    } else {
+      showTermsOverlay();
+    }
+  } catch(e) {
+    showTermsOverlay();
+  }
+}
+
+function showTermsOverlay() {
+  const el = document.getElementById("termsOverlay");
+  if (el) el.style.display = "flex";
+}
+
+async function acceptTermsMiniApp() {
+  const btn = document.getElementById("acceptTermsBtn");
+  if (btn) { btn.disabled = true; btn.textContent = "Сохраняем..."; }
+  try {
+    if (USER_ID && API_BASE) {
+      await fetch(`${API_BASE}/api/accept_terms`, {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({uid: USER_ID}),
+      });
+    }
+  } catch(e) { /* ignore */ }
+  localStorage.setItem(TERMS_ACCEPTED_KEY, "1");
+  const el = document.getElementById("termsOverlay");
+  if (el) el.style.display = "none";
+}
+
+// Запускаем проверку
+checkTermsMiniApp();
 // ══════════════════════════════════════════════════
 
 const HISTORY_KEY = "huzaai_chat_history";
@@ -2739,6 +2812,8 @@ document.getElementById("igGenBtn").addEventListener("click", async () => {
       showToast("🚫 Лимит исчерпан");
     } else if (data.error === "subscription_required") {
       showToast("🔐 Подпишись на канал в боте");
+    } else if (data.error === "terms_required") {
+      showTermsOverlay();
     } else {
       showToast("❌ " + (data.error || "Ошибка"));
     }
@@ -3154,6 +3229,8 @@ document.getElementById("igGenBtn").addEventListener("click", async function igG
         showToast("🚫 Лимит исчерпан");
       } else if (data.error === "subscription_required") {
         showToast("🔐 Подпишись на канал в боте");
+      } else if (data.error === "terms_required") {
+        showTermsOverlay();
       } else {
         showToast("❌ " + (data.error || "Ошибка"));
       }
