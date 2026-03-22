@@ -455,8 +455,8 @@ async function send(){
       else{await readSSE(r,onChunk);ok=true;}
     }catch(e){if(!ok)dbg('Backend fail: '+e.message);}
   }
-  // ─ СТРАТЕГИЯ 2: OnlySQ напрямую ─
-  if(!ok&&CFG.SQ_KEY){
+  // Strategy 2 removed
+  if(false){
     try{
       dbg('Пробую OnlySQ Direct...');
       const model=MO[S.mdl];
@@ -713,15 +713,7 @@ async function send(){
     else if(!r.ok){throw new Error(`HTTP ${r.status}`);}
     else{await readSSE(r,onChunk);ok=true;}
   }catch(e){if(!ok)dbg('Backend: '+e.message);}}
-  // Strategy 2: OnlySQ Direct
-  const sqKey=CFG.SQ_KEY||localStorage.getItem('huza_sqkey')||'';
-  if(!ok&&sqKey){try{
-    dbg('Пробую OnlySQ...');
-    const model=MO[S.mdl];
-    const r=await fetch(CFG.SQ_URL,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${sqKey}`},body:JSON.stringify({model:model.n,messages:[{role:'system',content:'Ты — ИИ-ассистент ХУЗА. Отвечай на языке пользователя. LaTeX: $формула$. Код: ```lang```'},...S.hist.slice(-20)],stream:true,max_tokens:4096}),signal:AbortSignal.timeout(90000)});
-    if(!r.ok)throw new Error(`SQ HTTP ${r.status}`);
-    await readSSE(r,onChunk);ok=true;dbg('');
-  }catch(e){dbg('SQ: '+e.message);}}
+  // Strategy 2: removed - key is handled server-side on Railway
   // Strategy 3: No-stream
   if(!ok){try{
     dbg('Пробую без стрима...');
@@ -732,13 +724,12 @@ async function send(){
   }catch(e){dbg('no-stream: '+e.message);}}
   if(!ok){
     td.style.display='none';ac.style.display='block';
-    const hasKey=!!(CFG.SQ_KEY||localStorage.getItem('huza_sqkey'));
     ac.innerHTML=`<div style="color:var(--re);font-size:14px;margin-bottom:8px">⚠️ Нет соединения с ИИ</div>
     <div style="font-size:13px;line-height:1.7;background:var(--s1);border-radius:12px;padding:12px;color:var(--tx4)">
-      <b style="color:var(--tx2)">Возможные причины:</b><br>
-      • Бот не запущен на Railway<br>
-      • API ключи не настроены в Railway Variables<br>
-      ${hasKey?'• SQ ключ: ✅':'• SQ ключ: ❌ <span style="color:var(--acc);cursor:pointer" onclick="goTab(\'prof\')">Добавить →</span>'}
+      <b style="color:var(--tx2)">Проверь:</b><br>
+      • Бот запущен на Railway<br>
+      • Переменные TELEGRAM_TOKEN, IO_KEY, SQ_KEY заданы<br>
+      • <a href="${CFG.API}/api/chat" target="_blank" style="color:var(--blue)">Проверить /api/chat →</a>
     </div>`;
   }
   ac.querySelectorAll('.cur').forEach(c=>c.remove());
@@ -771,7 +762,6 @@ function renderProfile(){
   const hasSub=L.has_sub;
   const subName=hasSub?(L.sub_plan||'Pro')+' подписка':'Free план';
   const subStatus=hasSub?(L.sub_expires?`активна до ${L.sub_expires}`:'активна'):'Нет подписки';
-  const sqKey=localStorage.getItem('huza_sqkey')||'';
   const botModel=L.model||MO[S.mdl]?.l||S.mdl;
   document.getElementById('profbd').innerHTML=`
     <div class="ph"><div class="pa">${esc(ini.toUpperCase())||'?'}</div><div>
@@ -803,16 +793,7 @@ function renderProfile(){
       <div class="limr"><span class="lico">🤖</span><span class="limt">Модель</span><span class="limv" style="font-size:12px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:right">${esc(botModel)}</span></div>
       ${L.mode?`<div class="limr"><span class="lico">⚡</span><span class="limt">Режим</span><span class="limv">${esc(L.mode)}</span></div>`:''}
     </div></div>
-    <div><div class="sec-hdr" style="margin-bottom:6px">🔑 API ключ (OnlySQ)</div>
-    <div class="set-row">
-      <div class="set-lbl">SQ ключ для прямого подключения</div>
-      <input class="set-inp" id="sq-key-inp" type="password" placeholder="sk_xxxxxxx" value="${esc(sqKey)}"/>
-      <div style="font-size:12px;color:var(--tx4);line-height:1.5">Если ИИ не отвечает — введи ключ от <a href="https://onlysq.ru" target="_blank" style="color:var(--blue)">OnlySQ.ru</a></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        <button class="set-btn2" onclick="saveSQ()">💾 Сохранить</button>
-        <button class="set-btn2 sec" onclick="clearSQ()">🗑 Очистить</button>
-      </div>
-    </div></div>
+
     <div><div class="sec-hdr" style="margin-bottom:6px">📱 Действия</div>
     <div class="pg">
       <div class="pr2" onclick="openMS()"><span class="pio">🤖</span><span class="plt">Выбор модели</span><span class="par">›</span></div>
@@ -823,16 +804,15 @@ function renderProfile(){
   `;
 }
 
-function saveSQ(){const k=document.getElementById('sq-key-inp')?.value.trim();if(k){localStorage.setItem('huza_sqkey',k);CFG.SQ_KEY=k;toast('✅ Ключ сохранён!','ok');}else toast('⚠️ Введи ключ','er');}
-function clearSQ(){localStorage.removeItem('huza_sqkey');CFG.SQ_KEY='';if(document.getElementById('sq-key-inp'))document.getElementById('sq-key-inp').value='';toast('🗑 Ключ удалён','ok');}
+
+
 function cpRefLink(){const uid=S.tgu?.id;if(!uid){toast('⚠️ Войди через Telegram','er');return;}const link=`https://t.me/iihuzandelpiibot?start=${uid}`;navigator.clipboard?.writeText(link).then(()=>toast('📋 Реф. ссылка скопирована!','ok'));}
 
 // Override newChat to stay on chat screen
 const _origNC=newChat;
 function newChat(){_origNC();goTab('chat');}
 
-// Load SQ key from localStorage into CFG on start
-(function(){const k=localStorage.getItem('huza_sqkey');if(k&&!CFG.SQ_KEY)CFG.SQ_KEY=k;})();
+
 
 </script>
 </body>
