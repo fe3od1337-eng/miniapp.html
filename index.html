@@ -21,45 +21,31 @@
   --tx:#fff;--tx2:rgba(235,235,245,.6);--tx3:rgba(235,235,245,.3);--tx4:#636366;
   --gr:#30d158;--re:#ff453a;--yl:#ffd60a;
   --f:'Onest',-apple-system,sans-serif;--mo:'JetBrains Mono',monospace;
-  --sb:env(safe-area-inset-bottom,16px);--st:env(safe-area-inset-top,0px);
-  --th:52px;
+  --sb:env(safe-area-inset-bottom,16px);--st:env(safe-area-inset-top,0px);--th:52px;
 }
 html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-family:var(--f);font-size:16px;-webkit-font-smoothing:antialiased}
 #app{height:100vh;height:100dvh;display:flex;flex-direction:column;overflow:hidden}
-
-/* ═══ TOPBAR ═══ */
 #tb{flex-shrink:0;height:var(--th);padding:0 10px;padding-top:var(--st);display:flex;align-items:center;background:var(--bg);border-bottom:.5px solid var(--bo);z-index:30}
-.tbl,.tbr{width:72px;display:flex;align-items:center}
-.tbr{justify-content:flex-end}
-.tbc{flex:1;display:flex;justify-content:center}
-.ib{width:38px;height:38px;border-radius:50%;background:none;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--tx2);transition:background .15s}
+.tbl,.tbr{width:72px;display:flex;align-items:center}.tbr{justify-content:flex-end}.tbc{flex:1;display:flex;justify-content:center}
+.ib{width:38px;height:38px;border-radius:50%;background:none;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--tx2)}
 .ib:active{background:var(--s1)}
-.ib svg{width:20px;height:14px}
-.mb2{display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;background:none;border:none;cursor:pointer;color:var(--tx);transition:background .15s}
+.mb2{display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;background:none;border:none;cursor:pointer;color:var(--tx)}
 .mb2:active{background:var(--s1)}
-.mbn{font-size:16px;font-weight:600;letter-spacing:-.01em}
+.mbn{font-size:16px;font-weight:600;letter-spacing:-.01em;max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .mbc{font-size:11px;color:var(--tx3)}
-/* Requests badge — like "24 ★" in screenshot but shows запросы */
-.rqb{display:flex;align-items:center;gap:4px;padding:5px 10px;border-radius:18px;background:var(--s1);border:none;cursor:pointer;font-size:14px;font-weight:600;color:var(--tx);white-space:nowrap}
-.rqb-star{color:var(--blue);font-size:13px}
-
-/* ═══ CHAT ═══ */
+.rqb{display:flex;align-items:center;gap:4px;padding:5px 10px;border-radius:18px;background:var(--s1);border:none;cursor:pointer;font-size:14px;font-weight:600;color:var(--tx)}
+.rqb-st{color:var(--blue);font-size:13px}
 #chat{flex:1;display:flex;flex-direction:column;overflow:hidden}
 #msgs{flex:1;overflow-y:auto;overflow-x:hidden;padding:10px 14px 6px;display:flex;flex-direction:column;gap:3px;scroll-behavior:smooth}
 #msgs::-webkit-scrollbar{width:0}
-
-/* Welcome */
-#wlc{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:20px;text-align:center;pointer-events:all}
+#wlc{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:20px;text-align:center}
 #wlc.g{display:none}
 .wi{font-size:54px;margin-bottom:6px;animation:flt 3s ease-in-out infinite}
 @keyframes flt{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
-.wt{font-size:22px;font-weight:700;letter-spacing:-.02em}
-.ws{font-size:14px;color:var(--tx2);margin-top:4px;line-height:1.5;max-width:260px}
+.wt{font-size:22px;font-weight:700}.ws{font-size:14px;color:var(--tx2);margin-top:4px;line-height:1.5;max-width:260px}
 .wch{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-top:10px}
-.wc{padding:9px 15px;border-radius:20px;background:var(--s1);border:.5px solid var(--bo2);font-size:13px;color:var(--tx2);cursor:pointer;transition:all .15s}
+.wc{padding:9px 15px;border-radius:20px;background:var(--s1);border:.5px solid var(--bo2);font-size:13px;color:var(--tx2);cursor:pointer}
 .wc:active{background:var(--s2);color:var(--tx)}
-
-/* Messages */
 .mr{display:flex;gap:8px;max-width:100%;padding:2px 0;animation:mi .2s cubic-bezier(.34,1.3,.64,1) both}
 @keyframes mi{from{opacity:0;transform:translateY(6px) scale(.97)}to{opacity:1;transform:none}}
 .mr.u{flex-direction:row-reverse}
@@ -68,50 +54,38 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
 .mr.a .av{background:linear-gradient(135deg,var(--acc),var(--acc2));font-size:14px}
 .mc{max-width:calc(100% - 44px)}
 .bu{display:inline-block;padding:10px 14px;border-radius:18px;font-size:15px;line-height:1.55;word-break:break-word}
-.mr.u .bu{background:var(--s2);border-bottom-right-radius:5px;color:var(--tx)}
-.mr.a .bu{background:transparent;padding:4px 0;color:var(--tx)}
-
-/* AI content */
+.mr.u .bu{background:var(--s2);border-bottom-right-radius:5px}
+.mr.a .bu{background:transparent;padding:4px 0}
 .ac p{margin:0 0 6px;line-height:1.6}.ac p:last-child{margin:0}
-.ac h1{font-size:19px;font-weight:700;margin:12px 0 5px}
-.ac h2{font-size:17px;font-weight:600;margin:10px 0 4px}
-.ac h3{font-size:15px;font-weight:600;margin:8px 0 3px;color:var(--tx2)}
+.ac h1{font-size:19px;font-weight:700;margin:12px 0 5px}.ac h2{font-size:17px;font-weight:600;margin:10px 0 4px}.ac h3{font-size:15px;font-weight:600;margin:8px 0 3px;color:var(--tx2)}
 .ac ul,.ac ol{padding-left:20px;margin:5px 0}.ac li{margin:2px 0}
-.ac strong{font-weight:600}.ac em{font-style:italic;color:var(--tx2)}
-.ac a{color:var(--blue);text-decoration:none}
+.ac strong{font-weight:600}.ac em{font-style:italic;color:var(--tx2)}.ac a{color:var(--blue);text-decoration:none}
 .ac blockquote{border-left:3px solid var(--acc);padding-left:12px;margin:7px 0;color:var(--tx2);font-style:italic}
 .cb{border-radius:12px;overflow:hidden;margin:7px 0;border:.5px solid var(--bo2);background:#161b22}
 .ct{display:flex;align-items:center;justify-content:space-between;padding:7px 12px;background:#0d1117;border-bottom:.5px solid #30363d}
 .cl{font-size:11px;color:#8b949e;font-family:var(--mo)}
-.cc{display:flex;align-items:center;gap:4px;background:none;border:none;cursor:pointer;color:#8b949e;font-size:11px;font-family:var(--f);padding:3px 8px;border-radius:6px;transition:all .15s}
-.cc:active{background:#21262d}.cc.ok{color:var(--gr)}
+.cc{display:flex;align-items:center;gap:4px;background:none;border:none;cursor:pointer;color:#8b949e;font-size:11px;font-family:var(--f);padding:3px 8px;border-radius:6px}
+.cc.ok{color:var(--gr)}
 .cb pre{margin:0!important;background:transparent!important;border:none!important}
 .cb pre code{font-size:13px;font-family:var(--mo)!important;padding:12px!important;display:block;overflow-x:auto}
 .tw{overflow-x:auto;margin:7px 0;border-radius:10px;border:.5px solid var(--bo2)}
 .ac table{width:100%;border-collapse:collapse;font-size:13px}
 .ac th{background:var(--s1);padding:8px 12px;text-align:left;font-weight:600;font-size:12px;color:var(--tx2);border-bottom:.5px solid var(--bo2)}
 .ac td{padding:8px 12px;border-bottom:.5px solid rgba(60,60,67,.3)}.ac tr:last-child td{border-bottom:none}
-/* Typing dots */
 .td{display:flex;align-items:center;gap:5px;padding:4px 0;height:28px}
 .td span{width:7px;height:7px;border-radius:50%;background:var(--tx3);animation:tda 1.4s ease-in-out infinite}
 .td span:nth-child(2){animation-delay:.2s}.td span:nth-child(3){animation-delay:.4s}
 @keyframes tda{0%,60%,100%{transform:scale(.8);opacity:.4}30%{transform:scale(1.1);opacity:1}}
-/* Cursor */
 .cur{display:inline-block;width:2px;height:15px;background:var(--tx2);border-radius:1px;margin-left:1px;vertical-align:text-bottom;animation:cu .6s step-end infinite}
 @keyframes cu{0%,100%{opacity:1}50%{opacity:0}}
-
-/* ═══ INPUT ═══ */
 #ib{flex-shrink:0;padding:8px 14px;padding-bottom:calc(8px + var(--sb));background:var(--bg);border-top:.5px solid var(--bo)}
 .ir{display:flex;align-items:flex-end;gap:8px}
-#inp{flex:1;background:var(--s1);border:.5px solid var(--bo2);border-radius:22px;padding:10px 16px;color:var(--tx);font-family:var(--f);font-size:15px;resize:none;max-height:130px;min-height:40px;outline:none;line-height:1.5;scrollbar-width:none;transition:border-color .2s}
+#inp{flex:1;background:var(--s1);border:.5px solid var(--bo2);border-radius:22px;padding:10px 16px;color:var(--tx);font-family:var(--f);font-size:15px;resize:none;max-height:130px;min-height:40px;outline:none;line-height:1.5;scrollbar-width:none}
 #inp::-webkit-scrollbar{display:none}
 #inp::placeholder{color:var(--tx4)}
-#inp:focus{border-color:var(--s3)}
-.sb{width:38px;height:38px;border-radius:50%;background:var(--tx);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+.sb{width:38px;height:38px;border-radius:50%;background:var(--tx);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .sb:active{transform:scale(.92)}.sb:disabled{opacity:.22;cursor:default}
 .sb svg{width:18px;height:18px;color:#000}
-
-/* ═══ SIDEBAR ═══ */
 #sbo{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,0);pointer-events:none;transition:background .3s}
 #sbo.o{background:rgba(0,0,0,.65);pointer-events:all}
 #sb{position:fixed;top:0;left:0;bottom:0;width:min(300px,85vw);background:var(--bg1);z-index:50;transform:translateX(-100%);transition:transform .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;padding-top:var(--st)}
@@ -122,17 +96,12 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
 .sbico{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--acc),var(--acc2));display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
 .sban{font-size:15px;font-weight:600}.sbap{font-size:12px;color:var(--tx4)}
 .sbsep{height:.5px;background:var(--bo);margin:2px 0}
-.sbi{display:flex;align-items:center;gap:14px;padding:13px 18px;cursor:pointer;transition:background .15s;color:var(--tx);font-size:16px}
-.sbi:active{background:var(--s1)}
-.sii{width:22px;text-align:center;font-size:17px;color:var(--tx2)}
-.sit{flex:1}
+.sbi{display:flex;align-items:center;gap:14px;padding:13px 18px;cursor:pointer;color:var(--tx);font-size:16px}
+.sbi:active{background:var(--s1)}.sii{width:22px;text-align:center;font-size:17px;color:var(--tx2)}.sit{flex:1}
 .sdl{width:28px;height:28px;border-radius:8px;background:none;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--tx4);font-size:13px}
-.sdl:active{color:var(--re)}
 .sbsl{font-size:13px;color:var(--tx4);padding:14px 18px 5px}
 .sbft{margin-top:auto;padding:10px 18px;padding-bottom:calc(10px + var(--sb))}
 .sbcl{width:100%;padding:14px;border-radius:14px;background:var(--s1);border:none;cursor:pointer;color:var(--tx);font-size:16px;font-weight:500;font-family:var(--f)}
-
-/* ═══ SHEETS ═══ */
 #sho{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,0);pointer-events:none;transition:background .25s}
 #sho.o{background:rgba(0,0,0,.75);pointer-events:all}
 .sheet{position:fixed;bottom:0;left:0;right:0;z-index:70;background:var(--bg2);border-radius:20px 20px 0 0;border-top:.5px solid var(--bo2);transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);padding-bottom:var(--sb)}
@@ -148,51 +117,40 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
 .msl::-webkit-scrollbar{width:0}
 #ms{display:flex;flex-direction:column;max-height:65vh}
 .ch{font-size:12px;font-weight:600;color:var(--tx4);padding:10px 8px 5px;letter-spacing:.04em;text-transform:uppercase}
-.mr2{display:flex;align-items:center;gap:12px;padding:11px 10px;border-radius:14px;cursor:pointer;transition:background .15s;margin-bottom:1px}
+.mr2{display:flex;align-items:center;gap:12px;padding:11px 10px;border-radius:14px;cursor:pointer;margin-bottom:1px}
 .mr2:active{background:var(--s1)}.mr2.sl{background:rgba(255,107,53,.08)}
-.mico{font-size:20px;width:28px;text-align:center}
-.min{flex:1;min-width:0}.mn{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mico{font-size:20px;width:28px;text-align:center}.min{flex:1;min-width:0}
+.mn{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mtg{display:flex;gap:5px;margin-top:2px}
-.mb{font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;text-transform:uppercase;letter-spacing:.03em}
+.mb{font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;text-transform:uppercase}
 .mb.v{background:rgba(48,209,88,.12);color:var(--gr)}.mb.p{background:rgba(255,214,10,.1);color:var(--yl)}
 .mck{color:var(--acc);font-size:18px;flex-shrink:0}
-
-/* Tools */
-#tp{}
 .tg{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:14px}
-.tc{display:flex;flex-direction:column;align-items:center;gap:6px;padding:13px 8px;border-radius:16px;background:var(--s1);cursor:pointer;transition:all .15s}
-.tc:active{background:var(--s2)}
-.tci{font-size:24px}.tcl{font-size:10px;font-weight:500;color:var(--tx2);text-align:center}
-
-/* ═══ FULLSCREEN PAGES ═══ */
+.tc{display:flex;flex-direction:column;align-items:center;gap:6px;padding:13px 8px;border-radius:16px;background:var(--s1);cursor:pointer}
+.tc:active{background:var(--s2)}.tci{font-size:24px}.tcl{font-size:10px;font-weight:500;color:var(--tx2);text-align:center}
 .fp{position:fixed;inset:0;z-index:80;background:var(--bg);transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;padding-top:var(--st)}
 .fp.o{transform:translateX(0)}
 .fptb{height:52px;display:flex;align-items:center;gap:8px;padding:0 10px;border-bottom:.5px solid var(--bo);flex-shrink:0}
 .fpbk{display:flex;align-items:center;gap:3px;background:none;border:none;cursor:pointer;color:var(--blue);font-size:16px;font-family:var(--f);padding:4px 6px}
-.fpbk svg{width:9px;height:15px}
-.fptit{font-size:17px;font-weight:600;flex:1;text-align:center}
+.fpbk svg{width:9px;height:15px}.fptit{font-size:17px;font-weight:600;flex:1;text-align:center}
 .fpbd{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px}
 .fpbd::-webkit-scrollbar{display:none}
-
-/* Gen cards */
-.gc{background:var(--s1);border-radius:16px}
-.gci{padding:14px;display:flex;flex-direction:column;gap:11px}
+.gc{background:var(--s1);border-radius:16px}.gci{padding:14px;display:flex;flex-direction:column;gap:11px}
 .fl{font-size:12px;font-weight:600;color:var(--tx4);text-transform:uppercase;letter-spacing:.05em;margin-bottom:7px}
 .gta{width:100%;background:var(--bg1);border:.5px solid var(--bo2);border-radius:12px;padding:11px 13px;color:var(--tx);font-family:var(--f);font-size:15px;resize:none;min-height:82px;outline:none;line-height:1.5}
-.gta::placeholder{color:var(--tx4)}.gta:focus{border-color:var(--s3)}
+.gta::placeholder{color:var(--tx4)}
 .gi{width:100%;background:var(--bg1);border:.5px solid var(--bo2);border-radius:12px;padding:11px 13px;color:var(--tx);font-family:var(--f);font-size:15px;outline:none}
-.gi::placeholder{color:var(--tx4)}.gi:focus{border-color:var(--s3)}
+.gi::placeholder{color:var(--tx4)}
 .gs{width:100%;background:var(--bg1);border:.5px solid var(--bo2);border-radius:12px;padding:10px 34px 10px 13px;color:var(--tx);font-family:var(--f);font-size:15px;outline:none;appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23636366' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
 .chs{display:flex;gap:7px;overflow-x:auto;padding-bottom:1px;scrollbar-width:none}
 .chs::-webkit-scrollbar{display:none}
-.ch2{flex-shrink:0;padding:7px 14px;border-radius:20px;background:var(--bg1);border:.5px solid var(--bo2);font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;color:var(--tx2);transition:all .15s}
+.ch2{flex-shrink:0;padding:7px 14px;border-radius:20px;background:var(--bg1);border:.5px solid var(--bo2);font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;color:var(--tx2)}
 .ch2.on{background:rgba(255,107,53,.12);border-color:var(--acc);color:var(--acc)}
 .exr{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none}
 .exr::-webkit-scrollbar{display:none}
 .exch{flex-shrink:0;padding:7px 13px;border-radius:20px;background:var(--bg1);border:.5px solid rgba(255,107,53,.2);font-size:12px;color:var(--tx2);cursor:pointer;white-space:nowrap;max-width:200px;overflow:hidden;text-overflow:ellipsis}
-.exch:active{background:rgba(255,107,53,.1);color:var(--tx)}
-.sg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.gb{display:flex;align-items:center;justify-content:center;gap:7px;padding:14px;border-radius:14px;width:100%;background:var(--tx);border:none;cursor:pointer;color:#000;font-family:var(--f);font-size:16px;font-weight:600;transition:all .15s}
+.sg2x{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.gb{display:flex;align-items:center;justify-content:center;gap:7px;padding:14px;border-radius:14px;width:100%;background:var(--tx);border:none;cursor:pointer;color:#000;font-family:var(--f);font-size:16px;font-weight:600}
 .gb:active{transform:scale(.98)}.gb:disabled{opacity:.3;cursor:default;transform:none}
 .gb.ld .bl{display:none}.gb.ld .bs{display:block}
 .bs{display:none;width:20px;height:20px;border-radius:50%;border:2.5px solid rgba(0,0,0,.2);border-top-color:#000;animation:sp .6s linear infinite}
@@ -200,105 +158,55 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
 .pw{height:3px;background:var(--bg1);border-radius:3px;overflow:hidden;display:none}.pw.s{display:block}
 .pf{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--acc),var(--acc2));width:0;transition:width .4s}
 .rb{border-radius:14px;overflow:hidden;background:var(--s1);border:.5px solid var(--bo2);display:none}.rb.s{display:block}
-.rb img,.rb video{width:100%;display:block}
-.rb audio{width:100%;padding:14px;background:var(--bg1)}
+.rb img,.rb video{width:100%;display:block}.rb audio{width:100%;padding:14px;background:var(--bg1)}
 .ra{display:flex;gap:8px;padding:10px;border-top:.5px solid var(--bo)}
 .ra button{flex:1;padding:10px;border-radius:10px;background:var(--bg1);border:none;cursor:pointer;color:var(--tx);font-family:var(--f);font-size:13px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:5px}
 .ra button.pr{background:var(--tx);color:#000}
 .dlc{background:rgba(48,209,88,.07);border:.5px solid rgba(48,209,88,.25);border-radius:14px;padding:14px;display:none;align-items:center;gap:12px}
-.dlc.s{display:flex}
-.dli{font-size:28px}.dlinf{flex:1}
+.dlc.s{display:flex}.dli{font-size:28px}.dlinf{flex:1}
 .dlfn{font-size:14px;font-weight:600;color:var(--gr)}.dlm{font-size:12px;color:var(--tx4);margin-top:2px}
 .dlb{padding:9px 14px;border-radius:10px;background:var(--gr);border:none;cursor:pointer;color:#000;font-size:14px;font-weight:600;font-family:var(--f)}
-
-/* ═══ PROFILE ═══ */
-/* Hero */
 .ph{background:var(--s1);border-radius:16px;padding:18px;display:flex;align-items:center;gap:14px}
 .pa{width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,var(--acc),var(--acc2));display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#fff;flex-shrink:0}
-.pn{font-size:18px;font-weight:700}
-.pu{font-size:14px;color:var(--tx2);margin-top:2px}
-.pid{font-size:11px;color:var(--tx4);margin-top:3px;font-family:var(--mo)}
-
-/* Stat grid — 2x2 */
+.pn{font-size:18px;font-weight:700}.pu{font-size:14px;color:var(--tx2);margin-top:2px}.pid{font-size:11px;color:var(--tx4);margin-top:3px;font-family:var(--mo)}
 .sg2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.sc{background:var(--s1);border-radius:14px;padding:15px}
-.sci{font-size:21px;margin-bottom:5px}
-.scv{font-size:22px;font-weight:700}
-.scl{font-size:12px;color:var(--tx4);margin-top:3px}
-
-/* Subscription card */
+.sc{background:var(--s1);border-radius:14px;padding:15px}.sci{font-size:21px;margin-bottom:5px}.scv{font-size:22px;font-weight:700}.scl{font-size:12px;color:var(--tx4);margin-top:3px}
 .subc{background:var(--s1);border-radius:16px;padding:15px;display:flex;flex-direction:column;gap:10px}
 .subr{display:flex;align-items:center;gap:12px}
-.subico{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
-.subico.free{background:linear-gradient(135deg,#636366,#48484a)}
+.subico{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;background:linear-gradient(135deg,#636366,#48484a)}
 .subico.pro{background:linear-gradient(135deg,var(--acc),var(--acc2))}
-.subn{font-size:15px;font-weight:600}
-.subs{font-size:12px;color:var(--tx2);margin-top:2px}
+.subn{font-size:15px;font-weight:600}.subs{font-size:12px;color:var(--tx2);margin-top:2px}
 .lrow{display:flex;justify-content:space-between;font-size:12px;color:var(--tx4)}
 .lbar{height:5px;background:var(--bg1);border-radius:3px;overflow:hidden;margin-top:4px}
 .lf{height:100%;background:linear-gradient(90deg,var(--acc),var(--acc2));border-radius:3px;transition:width .5s}
-
-/* Limits detail list */
 .liml{background:var(--s1);border-radius:16px;overflow:hidden}
 .limr{display:flex;align-items:center;gap:12px;padding:12px 15px;border-bottom:.5px solid var(--bo)}
-.limr:last-child{border-bottom:none}
-.lico{font-size:18px;width:26px;text-align:center}
-.limt{flex:1;font-size:14px;font-weight:500}
-.limv{font-size:14px;color:var(--tx2);font-weight:500}
-.limb{font-size:12px;color:var(--tx4);display:block;margin-top:1px}
-
-/* Prefs group */
+.limr:last-child{border-bottom:none}.lico{font-size:18px;width:26px;text-align:center}.limt{flex:1;font-size:14px;font-weight:500}.limv{font-size:14px;color:var(--tx2);font-weight:500}
 .pg{background:var(--s1);border-radius:16px;overflow:hidden}
-.pr2{display:flex;align-items:center;gap:12px;padding:13px 15px;cursor:pointer;transition:background .15s;border-bottom:.5px solid var(--bo)}
+.pr2{display:flex;align-items:center;gap:12px;padding:13px 15px;cursor:pointer;border-bottom:.5px solid var(--bo)}
 .pr2:last-child{border-bottom:none}.pr2:active{background:var(--s2)}
-.pio{font-size:17px;width:24px;text-align:center}
-.plt{flex:1;font-size:15px}
-.par{color:var(--tx4);font-size:13px}
-
-/* Loading state */
-.prof-loading{display:flex;align-items:center;justify-content:center;height:100px;color:var(--tx2);font-size:14px}
-
-/* ═══ TOAST ═══ */
-#toast{position:fixed;top:calc(var(--th) + var(--st) + 10px);left:50%;transform:translateX(-50%) translateY(-6px);background:var(--s2);border:.5px solid var(--bo2);border-radius:12px;padding:9px 16px;font-size:14px;font-weight:500;white-space:nowrap;z-index:200;opacity:0;pointer-events:none;transition:all .22s cubic-bezier(.34,1.3,.64,1)}
+.pio{font-size:17px;width:24px;text-align:center}.plt{flex:1;font-size:15px}.par{color:var(--tx4);font-size:13px}
+.sec-hdr{font-size:13px;color:var(--tx4);padding:0 4px}
+/* Debug banner */
+#dbg{position:fixed;top:calc(var(--th)+var(--st)+4px);left:8px;right:8px;z-index:200;background:rgba(255,69,58,.12);border:.5px solid rgba(255,69,58,.4);border-radius:10px;padding:8px 12px;font-size:12px;color:var(--re);display:none;line-height:1.4}
+#dbg.s{display:block}
+#toast{position:fixed;top:calc(var(--th) + var(--st) + 10px);left:50%;transform:translateX(-50%) translateY(-6px);background:var(--s2);border:.5px solid var(--bo2);border-radius:12px;padding:9px 16px;font-size:14px;font-weight:500;white-space:nowrap;z-index:300;opacity:0;pointer-events:none;transition:all .22s cubic-bezier(.34,1.3,.64,1)}
 #toast.s{opacity:1;transform:translateX(-50%) translateY(0)}
 #toast.ok{border-color:rgba(48,209,88,.4);color:var(--gr)}
 #toast.er{border-color:rgba(255,69,58,.4);color:var(--re)}
-
-/* Section header */
-.sec-hdr{font-size:13px;color:var(--tx4);padding:0 4px;margin-bottom:2px}
 </style>
 </head>
 <body>
 <div id="app">
-
-  <!-- TOPBAR -->
   <div id="tb">
-    <div class="tbl">
-      <button class="ib" onclick="openSB()">
-        <svg viewBox="0 0 20 14" fill="none"><rect width="20" height="2" rx="1" fill="currentColor"/><rect y="6" width="14" height="2" rx="1" fill="currentColor"/><rect y="12" width="20" height="2" rx="1" fill="currentColor"/></svg>
-      </button>
-    </div>
-    <div class="tbc">
-      <button class="mb2" onclick="openMS()">
-        <span class="mbn" id="mname">GPT-5.2 Chat</span>
-        <span class="mbc">▾</span>
-      </button>
-    </div>
-    <div class="tbr">
-      <!-- Shows remaining requests from bot limits -->
-      <button class="rqb" onclick="openProf()" id="rqbtn">
-        <span id="rqnum">—</span>
-        <span class="rqb-star">★</span>
-      </button>
-    </div>
+    <div class="tbl"><button class="ib" onclick="openSB()"><svg viewBox="0 0 20 14" fill="none" width="20" height="14"><rect width="20" height="2" rx="1" fill="currentColor"/><rect y="6" width="14" height="2" rx="1" fill="currentColor"/><rect y="12" width="20" height="2" rx="1" fill="currentColor"/></svg></button></div>
+    <div class="tbc"><button class="mb2" onclick="openMS()"><span class="mbn" id="mname">GPT-5.2 Chat</span><span class="mbc">▾</span></button></div>
+    <div class="tbr"><button class="rqb" onclick="openProf()" id="rqbtn"><span id="rqnum">—</span><span class="rqb-st">★</span></button></div>
   </div>
-
-  <!-- CHAT -->
   <div id="chat">
     <div id="msgs">
       <div id="wlc">
-        <div class="wi">🤖</div>
-        <div class="wt">ХУЗА AI</div>
+        <div class="wi">🤖</div><div class="wt">ХУЗА AI</div>
         <div class="ws">Умный ИИ-помощник. Задай вопрос или выбери пример.</div>
         <div class="wch" id="wch"></div>
       </div>
@@ -307,24 +215,18 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
       <div class="ir">
         <textarea id="inp" placeholder="Введите сообщение..." rows="1" onkeydown="onK(event)" oninput="rsz(this)"></textarea>
         <button class="sb" id="snd" onclick="send()" disabled>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/>
-          </svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
         </button>
       </div>
     </div>
   </div>
 </div>
-
-<!-- SIDEBAR OVERLAY -->
+<div id="dbg"></div>
 <div id="sbo" onclick="closeSB()"></div>
 <div id="sb">
   <div class="sbh">
     <button class="sbbk" onclick="closeSB()">‹</button>
-    <div class="sbai">
-      <div class="sbico">🤖</div>
-      <div><div class="sban" id="sban">ХУЗА AI</div><div class="sbap" id="sbap">Free</div></div>
-    </div>
+    <div class="sbai"><div class="sbico">🤖</div><div><div class="sban" id="sban">ХУЗА AI</div><div class="sbap" id="sbap">Free</div></div></div>
   </div>
   <div class="sbsep"></div>
   <div class="sbi" onclick="closeSB();openProf()"><span class="sii">☆</span><span class="sit">Подписка</span></div>
@@ -333,26 +235,19 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
   <div class="sbi" onclick="closeSB();openGen('music')"><span class="sii">🎵</span><span class="sit">Генерация музыки</span></div>
   <div class="sbi" onclick="closeSB();openGen('video')"><span class="sii">🎥</span><span class="sit">Генерация видео</span></div>
   <div class="sbi" onclick="closeSB();openGen('docs')"><span class="sii">📄</span><span class="sit">Документы / PPTX</span></div>
-  <div class="sbi" onclick="closeSB();openMS()"><span class="sii">⚙</span><span class="sit">Настройки</span></div>
-  <div class="sbi" onclick="closeSB();toast('🎁 Скоро!','')"><span class="sii">🎁</span><span class="sit">Реферальная программа</span></div>
+  <div class="sbi" onclick="closeSB();openMS()"><span class="sii">⚙</span><span class="sit">Настройки модели</span></div>
   <div class="sbsep"></div>
   <div class="sbsl">История чатов</div>
   <div id="hist" style="overflow-y:auto;flex:1"></div>
   <div class="sbft"><button class="sbcl" onclick="closeSB()">Закрыть</button></div>
 </div>
-
-<!-- SHEETS OVERLAY -->
 <div id="sho" onclick="closeSheets()"></div>
-
-<!-- MODEL SHEET -->
 <div class="sheet" id="ms" style="display:flex;flex-direction:column">
   <div class="sph"></div>
   <div class="stb"><span class="stt">Выбор модели</span><button class="stdn" onclick="closeSheets()">Готово</button></div>
-  <div class="ssw"><input class="ss" id="msi" type="text" placeholder="🔍 Поиск модели..." oninput="fmod(this.value)"/></div>
+  <div class="ssw"><input class="ss" id="msi" type="text" placeholder="🔍 Поиск..." oninput="fmod(this.value)"/></div>
   <div class="msl" id="ml"></div>
 </div>
-
-<!-- TOOLS -->
 <div class="sheet" id="tp">
   <div class="sph" style="margin-bottom:8px"></div>
   <div class="tg">
@@ -367,800 +262,194 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
   </div>
   <div style="padding:0 14px 4px"><button class="gb" onclick="closeSheets()" style="background:var(--s1);color:var(--tx)">Отмена</button></div>
 </div>
-
-<!-- GEN PAGE -->
 <div class="fp" id="gp">
   <div class="fptb">
-    <button class="fpbk" onclick="closeGen()">
-      <svg viewBox="0 0 9 15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="8 1 2 7.5 8 14"/></svg>
-      Назад
-    </button>
-    <span class="fptit" id="gptit">Генерация</span>
-    <span style="min-width:60px"></span>
+    <button class="fpbk" onclick="closeGen()"><svg viewBox="0 0 9 15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="8 1 2 7.5 8 14"/></svg>Назад</button>
+    <span class="fptit" id="gptit">Генерация</span><span style="min-width:60px"></span>
   </div>
   <div class="fpbd" id="gpbd"></div>
 </div>
-
-<!-- PROFILE PAGE -->
 <div class="fp" id="prof">
   <div class="fptb">
-    <button class="fpbk" onclick="closeProf()">
-      <svg viewBox="0 0 9 15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="8 1 2 7.5 8 14"/></svg>
-      Назад
-    </button>
-    <span class="fptit">Профиль</span>
-    <span style="min-width:60px"></span>
+    <button class="fpbk" onclick="closeProf()"><svg viewBox="0 0 9 15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="8 1 2 7.5 8 14"/></svg>Назад</button>
+    <span class="fptit">Профиль</span><span style="min-width:60px"></span>
   </div>
   <div class="fpbd" id="profbd"></div>
 </div>
-
 <div id="toast"></div>
 <input type="file" id="phi" accept="image/*" style="display:none" onchange="onPhoto(event)"/>
-
 <script>
-// ════════════════════════════════════════════════
-// CONFIG — только бэкенд, никаких прямых SQ вызовов
-// ════════════════════════════════════════════════
-const API = (() => {
-  const p = new URLSearchParams(window.location.search);
-  return (p.get('api') || 'https://huzaoobo-production.up.railway.app').replace(/\/$/,'');
-})();
-
-// Pollinations — картинки/музыка/видео не имеют CORS проблем
-const PI = 'https://image.pollinations.ai/prompt/';
-const PA = 'https://gen.pollinations.ai/audio/';
-const PV = 'https://videos.pollinations.ai/';
-
-// ════════════════════════════════════════════════
-// MODELS
-// ════════════════════════════════════════════════
-const MO = {
-  gpt52_chat:   {n:'gpt-5.2-chat',       l:'💬 GPT-5.2 Chat',       v:0,pr:0},
-  gpt52:        {n:'gpt-5.2',            l:'⚡ GPT-5.2',             v:1,pr:1},
-  claude_haiku: {n:'claude-haiku-4-5',   l:'💎 Claude Haiku 4.5',   v:1,pr:0},
-  claude_sonnet:{n:'claude-sonnet-4-5',  l:'🔷 Claude Sonnet 4.5',  v:1,pr:1},
-  claude_opus:  {n:'claude-opus-4-5',    l:'🔵 Claude Opus 4.5',    v:1,pr:1},
-  gemini_fl:    {n:'gemini-2.5-flash',   l:'🔥 Gemini 2.5 Flash',   v:1,pr:0},
-  gemini_pr:    {n:'gemini-2.5-pro',     l:'💎 Gemini 2.5 Pro',     v:1,pr:1},
-  gemini_3f:    {n:'gemini-3-flash',     l:'🚀 Gemini 3 Flash',     v:1,pr:0},
-  dsv3:         {n:'deepseek-v3',        l:'🧬 DeepSeek V3',        v:0,pr:0},
-  dsr1:         {n:'deepseek-ai/DeepSeek-R1-0528',l:'🧠 DeepSeek R1',v:0,pr:0},
-  qwen:         {n:'qwen3-max',          l:'🌐 Qwen3-Max',          v:0,pr:0},
-  qwenvl:       {n:'qwen3-vl-plus',      l:'👁 Qwen3-VL',           v:1,pr:0},
-  sonar:        {n:'sonar',              l:'🌐 Sonar (веб-поиск)',   v:0,pr:0},
+// ════════ CONFIG ════════
+const CFG={
+  API:(()=>{const p=new URLSearchParams(window.location.search);return(p.get('api')||'https://huzaoobo-production.up.railway.app').replace(/\/$/,'');})(),
+  SQ_KEY:(()=>{const p=new URLSearchParams(window.location.search);return p.get('sqkey')||p.get('key')||'';})(),
+  SQ_URL:'https://api.onlysq.ru/ai/openai/chat/completions',
+  PI:'https://image.pollinations.ai/prompt/',
+  PA:'https://gen.pollinations.ai/audio/',
+  PV:'https://videos.pollinations.ai/',
 };
-const CATS = [
-  {h:'💬 GPT (OpenAI)',       k:['gpt52_chat','gpt52']},
-  {h:'🔵 Claude (Anthropic)', k:['claude_haiku','claude_sonnet','claude_opus']},
-  {h:'🔮 Google Gemini',      k:['gemini_fl','gemini_pr','gemini_3f']},
-  {h:'🧬 DeepSeek / Другие',  k:['dsv3','dsr1','qwen','qwenvl','sonar']},
-];
-
-const SUGG = ['🔬 Объясни квантовую запутанность','💻 Python парсер сайта','📐 Реши x²+5x+6=0','✍️ Стихотворение о весне','🌍 Переведи на английский'];
-const IEX = ['🏙 Неоновый Токио, киберпанк, 8K','🌲 Лесная хижина осенью, туман','🚀 Космическая станция, реализм','🦁 Лев в короне, фэнтези','🤖 Робот-самурай, аниме'];
-const MEX = ['Вдохновляющий гимн, хор, оркестр','Меланхоличная ночь, пианино, lo-fi','Рэп о мечтах, trap, вдохновляющий'];
-const MSTY = ['Поп','Электронная','Lo-fi','Рок','Хип-хоп','Трэп','Джаз','Классика','Эмбиент','Синематик'];
-
-// ════════════════════════════════════════════════
-// STATE
-// ════════════════════════════════════════════════
-const S = {
-  mdl: 'gpt52_chat',
-  hist: [],
-  sess: [],
-  cur: null,
-  busy: 0,
-  mc: 0, ic: 0,
-  tgu: null,
-  pi: null,
-  mum: 'suno',
-  vum: 'wan',
-  // Данные из бота (limits API)
-  limits: {
-    pro_used: 0, pro_max: 30,
-    img_used: 0, img_max: 0,
-    music_used: 0, music_max: 0,
-    video_used: 0, video_max: 0,
-    has_sub: false, sub_plan: '',
-    sub_expires: '', level: 0,
-    referrals: 0, join_date: '',
-    model: '', mode: '',
-  },
+// ════════ MODELS ════════
+const MO={
+  gpt52_chat:{n:'gpt-5.2-chat',l:'💬 GPT-5.2 Chat',v:0,pr:0},
+  gpt52:{n:'gpt-5.2',l:'⚡ GPT-5.2',v:1,pr:1},
+  claude_haiku:{n:'claude-haiku-4-5',l:'💎 Claude Haiku 4.5',v:1,pr:0},
+  claude_sonnet:{n:'claude-sonnet-4-5',l:'🔷 Claude Sonnet 4.5',v:1,pr:1},
+  claude_opus:{n:'claude-opus-4-5',l:'🔵 Claude Opus 4.5',v:1,pr:1},
+  gemini_fl:{n:'gemini-2.5-flash',l:'🔥 Gemini 2.5 Flash',v:1,pr:0},
+  gemini_pr:{n:'gemini-2.5-pro',l:'💎 Gemini 2.5 Pro',v:1,pr:1},
+  gemini_3f:{n:'gemini-3-flash',l:'🚀 Gemini 3 Flash',v:1,pr:0},
+  dsv3:{n:'deepseek-v3',l:'🧬 DeepSeek V3',v:0,pr:0},
+  dsr1:{n:'deepseek-ai/DeepSeek-R1-0528',l:'🧠 DeepSeek R1',v:0,pr:0},
+  qwen:{n:'qwen3-max',l:'🌐 Qwen3-Max',v:0,pr:0},
+  sonar:{n:'sonar',l:'🌐 Sonar (веб-поиск)',v:0,pr:0},
 };
-
-// ════════════════════════════════════════════════
-// TELEGRAM
-// ════════════════════════════════════════════════
-const tg = window.Telegram?.WebApp;
-if (tg) {
-  tg.ready(); tg.expand();
-  tg.setHeaderColor?.('#000000');
-  tg.setBackgroundColor?.('#000000');
-  tg.enableClosingConfirmation?.();
-  S.tgu = tg.initDataUnsafe?.user || null;
+const CATS=[{h:'💬 GPT',k:['gpt52_chat','gpt52']},{h:'🔵 Claude',k:['claude_haiku','claude_sonnet','claude_opus']},{h:'🔮 Gemini',k:['gemini_fl','gemini_pr','gemini_3f']},{h:'🧬 DeepSeek / Другие',k:['dsv3','dsr1','qwen','sonar']}];
+const SUGG=['🔬 Объясни квантовую запутанность','💻 Напиши Python скрипт','📐 Реши x²+5x+6=0','✍️ Стихотворение о весне'];
+const IEX=['🏙 Неоновый Токио, киберпанк','🌲 Лесная хижина осенью','🚀 Космическая станция','🦁 Лев в короне, фэнтези'];
+const MEX=['Вдохновляющий гимн, оркестр','Меланхоличная ночь, пианино lo-fi','Рэп о мечтах, trap'];
+const MSTY=['Поп','Электронная','Lo-fi','Рок','Хип-хоп','Трэп','Джаз','Классика'];
+// ════════ STATE ════════
+const S={mdl:'gpt52_chat',hist:[],sess:[],cur:null,busy:0,mc:0,ic:0,tgu:null,pi:null,mum:'suno',vum:'wan',lim:{pro_used:0,pro_max:30,img_used:0,img_max:0,music_used:0,music_max:0,video_used:0,video_max:0,has_sub:false,sub_plan:'',sub_expires:'',level:0,level_max:50,referrals:0,join_date:'',model:'',mode:'',total_requests:0,total_gens:0,reset_in:''}};
+// ════════ TG ════════
+const tg=window.Telegram?.WebApp;
+if(tg){tg.ready();tg.expand();tg.setHeaderColor?.('#000');tg.setBackgroundColor?.('#000');tg.enableClosingConfirmation?.();S.tgu=tg.initDataUnsafe?.user||null;}
+const hap=t=>tg?.HapticFeedback?.impactOccurred(t||'light');
+// ════════ MD ════════
+function setupMD(){
+  const r=new marked.Renderer();
+  r.code=(code,lang)=>{const l=lang||'text';let hi=code;try{hi=hljs.getLanguage(l)?hljs.highlight(code,{language:l}).value:hljs.highlightAuto(code).value;}catch(e){}return`<div class="cb"><div class="ct"><span class="cl">${esc(l)}</span><button class="cc" onclick="cpc(this)">📋 Скопировать</button></div><pre><code class="hljs">${hi}</code></pre></div>`;};
+  r.table=(h,b)=>`<div class="tw"><table><thead>${h}</thead><tbody>${b}</tbody></table></div>`;
+  marked.use({renderer:r,breaks:true,gfm:true});
 }
-const hap = t => tg?.HapticFeedback?.impactOccurred(t||'light');
-
-// ════════════════════════════════════════════════
-// MARKED SETUP
-// ════════════════════════════════════════════════
-function setupMD() {
-  const r = new marked.Renderer();
-  r.code = (code, lang) => {
-    const l = lang||'text'; let hi = code;
-    try { hi = hljs.getLanguage(l) ? hljs.highlight(code,{language:l}).value : hljs.highlightAuto(code).value; } catch(e){}
-    return `<div class="cb"><div class="ct"><span class="cl">${esc(l)}</span><button class="cc" onclick="cpc(this)">📋 Скопировать</button></div><pre><code class="hljs">${hi}</code></pre></div>`;
-  };
-  r.table = (h,b) => `<div class="tw"><table><thead>${h}</thead><tbody>${b}</tbody></table></div>`;
-  marked.use({renderer:r, breaks:true, gfm:true});
-}
-const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-const rmd = t => { try{return marked.parse(t)}catch(e){return esc(t).replace(/\n/g,'<br>')} };
-function rk(el) {
-  if (!window.renderMathInElement) return;
-  try { renderMathInElement(el,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false},{left:'\\[',right:'\\]',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false}); } catch(e){}
-}
-function cpc(b) {
-  const t = b.closest('.cb').querySelector('code').innerText;
-  navigator.clipboard?.writeText(t).then(()=>{b.textContent='✅ Скопировано';b.classList.add('ok');setTimeout(()=>{b.textContent='📋 Скопировать';b.classList.remove('ok');},2000);});
-}
-
-// ════════════════════════════════════════════════
-// CHAT
-// ════════════════════════════════════════════════
-function hwlc() { document.getElementById('wlc')?.classList.add('g'); }
-function addU(txt) {
-  hwlc();
-  const m = document.getElementById('msgs');
-  const d = document.createElement('div'); d.className = 'mr u';
-  d.innerHTML = `<div class="mc"><div class="bu">${esc(txt).replace(/\n/g,'<br>')}</div></div><div class="av">👤</div>`;
-  m.appendChild(d); sd();
-}
-function addA() {
-  const m = document.getElementById('msgs');
-  const d = document.createElement('div'); d.className = 'mr a';
-  d.innerHTML = `<div class="av">🤖</div><div class="mc"><div class="bu"><div class="td"><span></span><span></span><span></span></div><div class="ac" style="display:none"></div></div></div>`;
-  m.appendChild(d); sd();
-  return { td: d.querySelector('.td'), ac: d.querySelector('.ac') };
-}
-const sd = () => { const m=document.getElementById('msgs'); requestAnimationFrame(()=>{m.scrollTop=m.scrollHeight;}); };
-
-// ─── SEND — только через бэкенд ───
-async function send() {
-  const inp = document.getElementById('inp');
-  const txt = inp.value.trim();
-  if (!txt || S.busy) return;
-  inp.value = ''; rsz(inp);
-  document.getElementById('snd').disabled = true;
-  S.busy = 1; S.mc++;
-
-  addU(txt);
-  S.hist.push({role:'user', content: txt});
-  const {td, ac} = addA();
-  let full = '';
-
-  try {
-    // Всегда через бэкенд — избегаем 405 от прямых запросов к SQ
-    const body = JSON.stringify({
-      model: S.mdl,
-      messages: S.hist.slice(-20),
-      stream: true,
-      init_data: tg?.initData || '',
-    });
-    const resp = await fetch(`${API}/api/chat`, {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body,
-      signal: AbortSignal.timeout(120000),
-    });
-    if (!resp.ok) {
-      const errText = await resp.text().catch(()=>'');
-      throw new Error(`HTTP ${resp.status}${errText ? ': '+errText.slice(0,100) : ''}`);
-    }
-    await readSSE(resp, (chunk) => {
-      if (td.style.display !== 'none') { td.style.display = 'none'; ac.style.display = 'block'; }
-      full += chunk;
-      ac.innerHTML = rmd(full) + '<span class="cur"></span>';
-      rk(ac); sd();
-    });
-  } catch(e) {
-    td.style.display = 'none'; ac.style.display = 'block';
-    ac.innerHTML = `<span style="color:var(--re)">⚠️ ${esc(String(e.message||e))}</span>`;
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const rmd=t=>{try{return marked.parse(t)}catch(e){return esc(t).replace(/\n/g,'<br>')}};
+function rk(el){if(!window.renderMathInElement)return;try{renderMathInElement(el,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false},{left:'\\[',right:'\\]',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});}catch(e){}}
+function cpc(b){const t=b.closest('.cb').querySelector('code').innerText;navigator.clipboard?.writeText(t).then(()=>{b.textContent='✅ Скопировано';b.classList.add('ok');setTimeout(()=>{b.textContent='📋 Скопировать';b.classList.remove('ok');},2000);});}
+// ════════ CHAT RENDER ════════
+const hwlc=()=>document.getElementById('wlc')?.classList.add('g');
+function addU(txt){hwlc();const m=document.getElementById('msgs');const d=document.createElement('div');d.className='mr u';d.innerHTML=`<div class="mc"><div class="bu">${esc(txt).replace(/\n/g,'<br>')}</div></div><div class="av">👤</div>`;m.appendChild(d);sd();}
+function addA(){const m=document.getElementById('msgs');const d=document.createElement('div');d.className='mr a';d.innerHTML=`<div class="av">🤖</div><div class="mc"><div class="bu"><div class="td"><span></span><span></span><span></span></div><div class="ac" style="display:none"></div></div></div>`;m.appendChild(d);sd();return{td:d.querySelector('.td'),ac:d.querySelector('.ac')};}
+const sd=()=>{const m=document.getElementById('msgs');requestAnimationFrame(()=>{m.scrollTop=m.scrollHeight;});};
+// ════════ SEND — 3 стратегии ════════
+async function send(){
+  const inp=document.getElementById('inp');const txt=inp.value.trim();
+  if(!txt||S.busy)return;
+  inp.value='';rsz(inp);document.getElementById('snd').disabled=true;S.busy=1;S.mc++;
+  addU(txt);S.hist.push({role:'user',content:txt});
+  const{td,ac}=addA();let full='';
+  const onChunk=chunk=>{if(td.style.display!=='none'){td.style.display='none';ac.style.display='block';}full+=chunk;ac.innerHTML=rmd(full)+'<span class="cur"></span>';rk(ac);sd();};
+  let ok=false;
+  // ─ СТРАТЕГИЯ 1: Backend ─
+  if(!ok){
+    try{
+      const r=await fetch(`${CFG.API}/api/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:S.mdl,messages:S.hist.slice(-20),stream:true,init_data:tg?.initData||''}),signal:AbortSignal.timeout(90000)});
+      if(r.status===405||r.status===403||r.status===404){dbg(`Backend ${r.status} → пробую SQ Direct`);}
+      else if(!r.ok){const t=await r.text().catch(()=>'');throw new Error(`Backend HTTP ${r.status}: ${t.slice(0,100)}`);}
+      else{await readSSE(r,onChunk);ok=true;}
+    }catch(e){if(!ok)dbg('Backend fail: '+e.message);}
   }
-
+  // ─ СТРАТЕГИЯ 2: OnlySQ напрямую ─
+  if(!ok&&CFG.SQ_KEY){
+    try{
+      dbg('Пробую OnlySQ Direct...');
+      const model=MO[S.mdl];
+      const r=await fetch(CFG.SQ_URL,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${CFG.SQ_KEY}`},body:JSON.stringify({model:model.n,messages:[{role:'system',content:'Ты — ИИ-ассистент ХУЗА. Отвечай на языке пользователя. Используй LaTeX: $формула$. Код в ```lang блоках.'},...S.hist.slice(-20)],stream:true,max_tokens:4096}),signal:AbortSignal.timeout(90000)});
+      if(!r.ok){const t=await r.text().catch(()=>'');throw new Error(`SQ HTTP ${r.status}: ${t.slice(0,150)}`);}
+      await readSSE(r,onChunk);ok=true;dbg('');
+    }catch(e){dbg('SQ Direct fail: '+e.message);}
+  }
+  // ─ СТРАТЕГИЯ 3: Backend без стрима ─
+  if(!ok){
+    try{
+      dbg('Пробую backend no-stream...');
+      const r=await fetch(`${CFG.API}/api/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:S.mdl,messages:S.hist.slice(-20),stream:false,init_data:tg?.initData||''}),signal:AbortSignal.timeout(90000)});
+      if(!r.ok)throw new Error(`HTTP ${r.status}`);
+      const d=await r.json();const t=d.text||d.content||d.choices?.[0]?.message?.content||'';
+      if(t){onChunk(t);ok=true;dbg('');}
+    }catch(e){dbg('Backend no-stream fail: '+e.message);}
+  }
+  if(!ok){
+    td.style.display='none';ac.style.display='block';
+    ac.innerHTML=`<div style="color:var(--re);font-size:14px">⚠️ Не удалось подключиться к ИИ.</div>
+    <div style="margin-top:10px;font-size:13px;color:var(--tx4);line-height:1.6">
+      <b style="color:var(--tx2)">Способы исправить:</b><br>
+      1. Добавь <code style="background:var(--s2);padding:2px 6px;border-radius:4px">?sqkey=ВАШ_КЛЮЧ</code> к URL мини-аппа<br>
+      2. Проверь что бот запущен на Railway<br>
+      3. Убедись что <code>/api/chat</code> отвечает на POST<br>
+      <a href="${CFG.API}/api/chat" target="_blank" style="color:var(--blue)">Проверить бэкенд →</a>
+    </div>`;
+  }
   ac.querySelectorAll('.cur').forEach(c=>c.remove());
-  if (full) S.hist.push({role:'assistant', content:full});
-  updHist(txt);
-
-  S.busy = 0;
-  document.getElementById('snd').disabled = !document.getElementById('inp').value.trim();
-  sd();
-
-  // Обновляем счётчик запросов после каждого сообщения
+  if(full)S.hist.push({role:'assistant',content:full});
+  updHist(txt);S.busy=0;document.getElementById('snd').disabled=!document.getElementById('inp').value.trim();sd();
   loadLimits();
 }
-
-async function readSSE(resp, cb) {
-  // Если нет стриминга — читаем как JSON
-  const ct = resp.headers.get('content-type')||'';
-  if (!resp.body || (!ct.includes('stream') && !ct.includes('text/event'))) {
-    const data = await resp.json().catch(()=>({}));
-    const t = data.text || data.choices?.[0]?.message?.content || data.content || '';
-    if (t) cb(t);
-    return;
+async function readSSE(resp,cb){
+  if(!resp.body){const d=await resp.json().catch(async()=>({text:await resp.text()}));const t=d.text||d.content||d.choices?.[0]?.message?.content||'';if(t)cb(t);return;}
+  const reader=resp.body.getReader();const dec=new TextDecoder();let buf='';
+  while(true){let v,done;try{({value:v,done}=await reader.read());}catch(e){break;}if(done)break;buf+=dec.decode(v,{stream:true});const lines=buf.split('\n');buf=lines.pop()??'';
+    for(const ln of lines){const raw=ln.replace(/^data:\s*/,'');if(!raw||raw==='[DONE]')continue;try{const j=JSON.parse(raw);const d=j.choices?.[0]?.delta?.content??j.text??j.content??'';if(d)cb(d);}catch(e){if(ln.startsWith('data:')&&raw&&raw!=='[DONE]')cb(raw);}}
   }
-  const reader = resp.body.getReader();
-  const dec = new TextDecoder();
-  let buf = '';
-  while (true) {
-    let v, done;
-    try { ({value:v, done} = await reader.read()); } catch(e) { break; }
-    if (done) break;
-    buf += dec.decode(v, {stream:true});
-    const lines = buf.split('\n');
-    buf = lines.pop() ?? '';
-    for (const ln of lines) {
-      const raw = ln.replace(/^data:\s*/,'');
-      if (!raw || raw === '[DONE]') continue;
-      try {
-        const j = JSON.parse(raw);
-        const d = j.choices?.[0]?.delta?.content ?? j.text ?? j.content ?? '';
-        if (d) cb(d);
-      } catch(e) {
-        // Может быть просто текст без JSON
-        if (ln.startsWith('data:') && raw && raw !== '[DONE]') cb(raw);
-      }
-    }
-  }
-  // Flush
-  if (buf) {
-    const raw = buf.replace(/^data:\s*/,'');
-    if (raw && raw !== '[DONE]') {
-      try { const j=JSON.parse(raw); const d=j.choices?.[0]?.delta?.content??j.text??''; if(d)cb(d); } catch(e){}
-    }
-  }
+  if(buf){const raw=buf.replace(/^data:\s*/,'');if(raw&&raw!=='[DONE]'){try{const j=JSON.parse(raw);const d=j.choices?.[0]?.delta?.content??j.text??'';if(d)cb(d);}catch(e){}}}
 }
-
-function onK(e) { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();} }
-function rsz(el) {
-  el.style.height='auto';
-  el.style.height=Math.min(el.scrollHeight,130)+'px';
-  document.getElementById('snd').disabled=!el.value.trim();
-}
-function updHist(msg) {
-  const t = msg.slice(0,22)+(msg.length>22?'...':'');
-  if (!S.cur) { S.cur={id:Date.now(),t}; S.sess.unshift(S.cur); }
-  renderHist();
-}
-function renderHist() {
-  const h = document.getElementById('hist'); h.innerHTML='';
-  S.sess.slice(0,20).forEach(s=>{
-    const d=document.createElement('div'); d.className='sbi';
-    d.innerHTML=`<span class="sii" style="font-size:13px">💬</span><span class="sit" style="font-size:14px">${esc(s.t)}</span><button class="sdl" onclick="dSess(${s.id},event)">🗑</button>`;
-    h.appendChild(d);
-  });
-}
-function dSess(id,e) { e.stopPropagation(); S.sess=S.sess.filter(s=>s.id!==id); renderHist(); }
-function newChat() {
-  S.hist=[]; S.cur=null;
-  document.getElementById('msgs').innerHTML='<div id="wlc"><div class="wi">🤖</div><div class="wt">ХУЗА AI</div><div class="ws">Умный ИИ-ассистент. Задай вопрос.</div><div class="wch" id="wch"></div></div>';
-  renderSuggest(); closeSB();
-}
-
-// ════════════════════════════════════════════════
-// SIDEBAR
-// ════════════════════════════════════════════════
-const openSB  = () => { hap(); document.getElementById('sb').classList.add('o'); document.getElementById('sbo').classList.add('o'); };
-const closeSB = () => { document.getElementById('sb').classList.remove('o'); document.getElementById('sbo').classList.remove('o'); };
-
-// ════════════════════════════════════════════════
-// MODEL SHEET
-// ════════════════════════════════════════════════
-function renderMods(q='') {
-  const ml = document.getElementById('ml'); ml.innerHTML='';
-  const ql = q.toLowerCase();
-  CATS.forEach(cat=>{
-    const ks = cat.k.filter(k=>{const m=MO[k];return m&&(!ql||m.l.toLowerCase().includes(ql));});
-    if(!ks.length) return;
-    if(!ql){const h=document.createElement('div');h.className='ch';h.textContent=cat.h;ml.appendChild(h);}
-    ks.forEach(k=>{
-      const m=MO[k]; const em=m.l.split(' ')[0]; const nm=m.l.slice(em.length+1);
-      const d=document.createElement('div'); d.className='mr2'+(k===S.mdl?' sl':'');
-      d.innerHTML=`<span class="mico">${em}</span><div class="min"><div class="mn">${esc(nm)}</div><div class="mtg">${m.v?'<span class="mb v">📸 Vision</span>':''}${m.pr?'<span class="mb p">⭐ Pro</span>':''}</div></div>${k===S.mdl?'<span class="mck">✓</span>':''}`;
-      d.onclick=()=>{hap();pickM(k);};
-      ml.appendChild(d);
-    });
-  });
-}
-const fmod = v => renderMods(v);
-function openMS() { hap(); renderMods(); document.getElementById('msi').value=''; document.getElementById('ms').classList.add('o'); document.getElementById('sho').classList.add('o'); }
-function pickM(k) { S.mdl=k; document.getElementById('mname').textContent=MO[k].l; closeSheets(); toast('✅ '+MO[k].l,'ok'); }
-function closeSheets() { ['ms','tp'].forEach(id=>document.getElementById(id).classList.remove('o')); document.getElementById('sho').classList.remove('o'); }
-
-// ════════════════════════════════════════════════
-// LIMITS API — получаем все данные из бота
-// ════════════════════════════════════════════════
-async function loadLimits() {
-  try {
-    const uid = S.tgu?.id;
-    // Отправляем init_data для аутентификации
-    const params = new URLSearchParams();
-    if (uid) params.set('uid', uid);
-    if (tg?.initData) params.set('init_data', tg.initData);
-
-    const resp = await fetch(`${API}/api/limits?${params.toString()}`);
-    if (!resp.ok) return;
-    const d = await resp.json();
-
-    // Сохраняем все данные из бота
-    S.limits = {
-      pro_used:    d.pro_used    || 0,
-      pro_max:     d.pro_max     || 30,
-      img_used:    d.img_used    || 0,
-      img_max:     d.img_max     || 0,
-      music_used:  d.music_used  || 0,
-      music_max:   d.music_max   || 0,
-      video_used:  d.video_used  || 0,
-      video_max:   d.video_max   || 0,
-      has_sub:     d.has_sub     || false,
-      sub_plan:    d.sub_plan    || d.plan || '',
-      sub_expires: d.sub_expires || d.expires || '',
-      level:       d.level       || 0,
-      level_max:   d.level_max   || 50,
-      referrals:   d.referrals   || 0,
-      join_date:   d.join_date   || '',
-      model:       d.model       || '',
-      mode:        d.mode        || '',
-      total_requests: d.total_requests || d.requests || 0,
-      total_gens:     d.total_gens    || d.generations || 0,
-      reset_in:       d.reset_in      || '',
-    };
-
-    // Обновляем бейдж запросов в топбаре
-    const remaining = Math.max(0, S.limits.pro_max - S.limits.pro_used);
-    document.getElementById('rqnum').textContent = remaining;
-
-    // Обновляем plan в сайдбаре
-    document.getElementById('sbap').textContent = S.limits.has_sub
-      ? (S.limits.sub_plan || 'Pro')
-      : 'Free';
-
-  } catch(e) {
-    console.warn('Limits load failed:', e);
-  }
-}
-
-// ════════════════════════════════════════════════
-// PROFILE — берёт все данные из S.limits (бот)
-// ════════════════════════════════════════════════
-function openProf() {
-  renderProfile();
-  document.getElementById('prof').classList.add('o');
-  if (tg) tg.BackButton.show();
-}
-function closeProf() { document.getElementById('prof').classList.remove('o'); if(tg) tg.BackButton.hide(); }
-
-function renderProfile() {
-  const u = S.tgu;
-  const L = S.limits;
-  const ini = u ? ((u.first_name||'')[0]||'')+((u.last_name||'')[0]||'') : '?';
-  const name = u ? [u.first_name,u.last_name].filter(Boolean).join(' ') : 'Гость';
-  const uname = u?.username ? `@${u.username}` : '';
-  const uid = u?.id || '—';
-
-  const proUsed = L.pro_used, proMax = L.pro_max;
-  const proLeft = Math.max(0, proMax - proUsed);
-  const proBarW = proMax > 0 ? Math.min(100, (proUsed/proMax)*100) : 0;
-
-  const hasSub = L.has_sub;
-  const subName = hasSub ? (L.sub_plan || 'Pro') + ' подписка' : 'Free план';
-  const subStatus = hasSub
-    ? (L.sub_expires ? `активна до ${L.sub_expires}` : 'активна')
-    : 'Нет подписки';
-
-  // Текущая модель — из бота или выбранная
-  const botModel = L.model || MO[S.mdl]?.l || S.mdl;
-  // Режим из бота
-  const botMode = L.mode ? `⚡ ${L.mode}` : '';
-
-  document.getElementById('profbd').innerHTML = `
-    <!-- Hero -->
-    <div class="ph">
-      <div class="pa">${esc(ini.toUpperCase())||'👤'}</div>
-      <div>
-        <div class="pn">${esc(name)}</div>
-        ${uname ? `<div class="pu">${esc(uname)}</div>` : ''}
-        <div class="pid">ID: ${uid}</div>
-        ${L.join_date ? `<div class="pid">Дата входа — ${esc(L.join_date)}</div>` : ''}
-      </div>
-    </div>
-
-    <!-- Stat grid: Запросы / Генерации / Рефералы / Уровень -->
-    <div class="sg2">
-      <div class="sc">
-        <div class="sci">💬</div>
-        <div class="scv">${L.total_requests || S.mc}</div>
-        <div class="scl">Запросов</div>
-      </div>
-      <div class="sc">
-        <div class="sci">🎨</div>
-        <div class="scv">${L.total_gens || S.ic}</div>
-        <div class="scl">Генераций</div>
-      </div>
-      <div class="sc">
-        <div class="sci">🎁</div>
-        <div class="scv">${L.referrals}</div>
-        <div class="scl">Рефералов</div>
-      </div>
-      <div class="sc">
-        <div class="sci">⭐</div>
-        <div class="scv" style="font-size:15px">${L.level > 0 ? 'Ур. '+L.level : 'Начинающий'}</div>
-        <div class="scl">${L.level_max > 0 ? `до ${L.level_max} зап.` : 'Уровень'}</div>
-      </div>
-    </div>
-
-    <!-- Subscription -->
-    <div class="subc">
-      <div class="subr">
-        <div class="subico ${hasSub?'pro':'free'}">💎</div>
-        <div>
-          <div class="subn">${esc(subName)}</div>
-          <div class="subs">${esc(subStatus)}</div>
-        </div>
-      </div>
-      <div>
-        <div class="lrow"><span>Запросы</span><span>${proUsed} / ${proMax}${L.reset_in ? ' ↻ '+L.reset_in : ''}</span></div>
-        <div class="lbar"><div class="lf" style="width:${proBarW}%"></div></div>
-      </div>
-    </div>
-
-    <!-- Лимиты по типам (как в боте) -->
-    <div>
-      <div class="sec-hdr">💡 Лимиты</div>
-      <div class="liml">
-        <div class="limr">
-          <span class="lico">💬</span>
-          <span class="limt">Запросы</span>
-          <span class="limv">${proUsed} / ${proMax}</span>
-        </div>
-        ${L.img_max > 0 ? `<div class="limr"><span class="lico">🎨</span><span class="limt">Картинки</span><span class="limv">${L.img_used} / ${L.img_max} <span class="limb">в месяц</span></span></div>` : ''}
-        ${L.music_max > 0 ? `<div class="limr"><span class="lico">🎵</span><span class="limt">Музыка</span><span class="limv">${L.music_used} / ${L.music_max} <span class="limb">в месяц</span></span></div>` : ''}
-        ${L.video_max > 0 ? `<div class="limr"><span class="lico">🎥</span><span class="limt">Видео</span><span class="limv">${L.video_used} / ${L.video_max} <span class="limb">в месяц</span></span></div>` : ''}
-      </div>
-    </div>
-
-    <!-- Настройки из бота -->
-    <div>
-      <div class="sec-hdr">⚙️ Настройки</div>
-      <div class="liml">
-        <div class="limr">
-          <span class="lico">🤖</span>
-          <span class="limt">Модель</span>
-          <span class="limv" style="font-size:13px;max-width:160px;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(botModel)}</span>
-        </div>
-        ${botMode ? `<div class="limr"><span class="lico">⚡</span><span class="limt">Режим</span><span class="limv">${esc(botMode)}</span></div>` : ''}
-      </div>
-    </div>
-
-    <!-- Preferences -->
-    <div class="pg">
-      <div class="pr2" onclick="closeProf();openMS()">
-        <span class="pio">🤖</span><span class="plt">Выбор модели</span><span class="par">›</span>
-      </div>
-      <div class="pr2" onclick="newChat();closeProf()">
-        <span class="pio">✏️</span><span class="plt">Новый чат</span><span class="par">›</span>
-      </div>
-      <div class="pr2" onclick="toast('ℹ️ ХУЗА AI v2.1 — Telegram Mini App','')">
-        <span class="pio">ℹ️</span><span class="plt">О приложении</span><span class="par">›</span>
-      </div>
-    </div>
-  `;
-}
-
-// ════════════════════════════════════════════════
-// GEN PAGES
-// ════════════════════════════════════════════════
-const GTPL = {
-  image: {
-    t: '🎨 Картинки',
-    html: () => `
-      <div class="gc"><div class="gci">
-        <div><div class="fl">Модель</div>
-          <select class="gs" id="gim">
-            <option value="flux">🎨 Flux — универсальный</option>
-            <option value="turbo">🚀 Turbo — быстрый</option>
-            <option value="gptimage">🖼 GPT-Image</option>
-            <option value="flux-realism">📸 Flux Realism</option>
-            <option value="flux-anime">🌸 Flux Anime</option>
-            <option value="imagen-4">🌟 Imagen 4</option>
-            <option value="grok-imagine">🤖 Grok Imagine</option>
-          </select>
-        </div>
-        <div><div class="fl">Примеры</div>
-          <div class="exr">${IEX.map(e=>`<div class="exch" onclick="sv('gip','${e.replace(/'/g,"\\'")}'')">${esc(e)}</div>`).join('')}</div>
-        </div>
-        <div><div class="fl">Описание</div><textarea class="gta" id="gip" placeholder="Опиши картинку..."></textarea></div>
-        <div class="sg">
-          <div><div class="fl">Ширина</div><select class="gs" id="giw"><option value="512">512</option><option value="768">768</option><option value="1024" selected>1024</option><option value="1280">1280</option></select></div>
-          <div><div class="fl">Высота</div><select class="gs" id="gih"><option value="512">512</option><option value="768">768</option><option value="1024" selected>1024</option><option value="1280">1280</option></select></div>
-        </div>
-        <div class="pw" id="gipw"><div class="pf" id="gipf"></div></div>
-        <button class="gb" id="gibtn" onclick="gImg()"><span class="bl">✨ Генерировать</span><div class="bs"></div></button>
-        <div class="rb" id="gires">
-          <img id="giimg" src="" alt=""/>
-          <div class="ra"><button onclick="shrI()">📤 Поделиться</button><button class="pr" onclick="dlI()">⬇️ Скачать</button></div>
-        </div>
-      </div></div>`,
-  },
-  music: {
-    t: '🎵 Музыка',
-    html: () => `
-      <div class="gc"><div class="gci">
-        <div><div class="fl">Провайдер</div>
-          <div class="chs"><div class="ch2 on" id="mcs" onclick="selMu('suno',this)">🎵 Suno v5</div><div class="ch2" id="mce" onclick="selMu('eleven',this)">🎸 ElevenLabs</div></div>
-        </div>
-        <div><div class="fl">Стиль</div>
-          <div class="chs">${MSTY.map((s,i)=>`<div class="ch2${i===0?' on':''}" onclick="tCh(this,'ms')">${esc(s)}</div>`).join('')}</div>
-        </div>
-        <div><div class="fl">Примеры</div>
-          <div class="exr">${MEX.map(e=>`<div class="exch" onclick="sv('mup','${e.replace(/'/g,"\\'")}'')">${esc(e)}</div>`).join('')}</div>
-        </div>
-        <div><div class="fl">Описание трека</div><textarea class="gta" id="mup" placeholder="Настроение, инструменты, темп..."></textarea></div>
-        <div class="pw" id="mupw"><div class="pf" id="mupf"></div></div>
-        <button class="gb" id="mubtn" onclick="gMus()"><span class="bl">🎵 Создать трек</span><div class="bs"></div></button>
-        <div class="rb" id="mures"><audio id="muaud" controls></audio><div class="ra"><button class="pr" onclick="dlM()">⬇️ Скачать MP3</button></div></div>
-      </div></div>`,
-  },
-  video: {
-    t: '🎥 Видео',
-    html: () => `
-      <div class="gc"><div class="gci">
-        <div><div class="fl">Модель</div>
-          <div class="chs"><div class="ch2 on" onclick="tCh(this,'vm')">🎬 WAN</div><div class="ch2" onclick="tCh(this,'vm')">⚡ WAN Pro</div><div class="ch2" onclick="tCh(this,'vm')">🌊 Mochi</div></div>
-        </div>
-        <div><div class="fl">Описание</div><textarea class="gta" id="vip" placeholder="Опиши сцену: закат над морем..."></textarea></div>
-        <div><div class="fl">Длительность</div><select class="gs" id="vid"><option value="3">3 сек</option><option value="5" selected>5 сек</option><option value="8">8 сек</option></select></div>
-        <div class="pw" id="vipw"><div class="pf" id="vipf"></div></div>
-        <button class="gb" id="vibtn" onclick="gVid()"><span class="bl">🎬 Создать видео</span><div class="bs"></div></button>
-        <div class="rb" id="vires"><video id="vivid" controls playsinline style="max-height:280px;background:#000"></video><div class="ra"><button class="pr" onclick="dlV()">⬇️ Скачать MP4</button></div></div>
-      </div></div>`,
-  },
-  docs: {
-    t: '📄 Документы',
-    html: () => `
-      <div style="display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px">
-        <div class="ch2 on" id="dtR" onclick="swDT('R')">📝 Реферат</div>
-        <div class="ch2" id="dtP" onclick="swDT('P')">🎞 PPTX</div>
-        <div class="ch2" id="dtW" onclick="swDT('W')">🌐 HTML</div>
-      </div>
-      <!-- Реферат -->
-      <div id="dtRb" class="gc"><div class="gci">
-        <div><div class="fl">Тема</div><input class="gi" id="rpt" placeholder="Квантовая механика..."/></div>
-        <div><div class="fl">Модель</div><select class="gs" id="rpm"><option value="claude_opus">🔵 Claude Opus</option><option value="claude_sonnet">🔷 Claude Sonnet</option><option value="gpt52">⚡ GPT-5.2</option></select></div>
-        <div><div class="fl">Страниц</div><select class="gs" id="rpp"><option value="5">5</option><option value="10" selected>10</option><option value="15">15</option><option value="20">20</option></select></div>
-        <div><div class="fl">Доп. требования</div><textarea class="gta" id="rpe" placeholder="Особые пожелания..." style="min-height:58px"></textarea></div>
-        <button class="gb" id="rpbtn" onclick="gRpt()"><span class="bl">📝 Создать реферат</span><div class="bs"></div></button>
-        <div class="dlc" id="rpdl"><div class="dli">📄</div><div class="dlinf"><div class="dlfn" id="rpfn">doc.docx</div><div class="dlm" id="rpmeta">Готово</div></div><button class="dlb" id="rpdlb">↓ Скачать</button></div>
-      </div></div>
-      <!-- PPTX -->
-      <div id="dtPb" class="gc" style="display:none"><div class="gci">
-        <div><div class="fl">Тема</div><input class="gi" id="ptt" placeholder="ИИ в 2025..."/></div>
-        <div><div class="fl">Слайды</div><select class="gs" id="pts"><option value="8">8</option><option value="12" selected>12</option><option value="16">16</option></select></div>
-        <div><div class="fl">Модель</div><select class="gs" id="ptm"><option value="claude_opus">🔵 Claude Opus</option><option value="gpt52">⚡ GPT-5.2</option></select></div>
-        <div><div class="fl">Автор</div><input class="gi" id="pta" placeholder="Иван Иванов (опционально)"/></div>
-        <button class="gb" id="ptbtn" onclick="gPptx()"><span class="bl">🎞 Создать PPTX</span><div class="bs"></div></button>
-        <div class="dlc" id="ptdl"><div class="dli">📊</div><div class="dlinf"><div class="dlfn" id="ptfn">pres.pptx</div><div class="dlm" id="ptmeta">Готово</div></div><button class="dlb" id="ptdlb">↓ Скачать</button></div>
-      </div></div>
-      <!-- HTML -->
-      <div id="dtWb" class="gc" style="display:none"><div class="gci">
-        <div><div class="fl">Тема</div><input class="gi" id="wpt" placeholder="Тема..."/></div>
-        <div><div class="fl">Слайды</div><select class="gs" id="wps"><option value="8">8</option><option value="12" selected>12</option></select></div>
-        <div><div class="fl">Модель</div><select class="gs" id="wpm"><option value="claude_opus">🔵 Claude Opus</option><option value="gpt52">⚡ GPT-5.2</option></select></div>
-        <div><div class="fl">Пожелания</div><textarea class="gta" id="wpw" placeholder="Минимализм, диаграммы..." style="min-height:58px"></textarea></div>
-        <button class="gb" id="wpbtn" onclick="gWpptx()"><span class="bl">🌐 Создать HTML-слайды</span><div class="bs"></div></button>
-        <div class="dlc" id="wpdl"><div class="dli">🌐</div><div class="dlinf"><div class="dlfn" id="wpfn">pres.html</div><div class="dlm" id="wpmeta">Готово</div></div><button class="dlb" id="wpdlb">↓ Скачать</button></div>
-      </div></div>`,
-  },
-};
-
-const sv  = (id,v) => { const e=document.getElementById(id); if(e) e.value=v; };
-const selMu = (m,btn) => { S.mum=m; ['mcs','mce'].forEach(id=>document.getElementById(id)?.classList.remove('on')); btn.classList.add('on'); };
-const tCh = (el,g) => {
-  el.closest('.chs').querySelectorAll('.ch2').forEach(c=>c.classList.remove('on')); el.classList.add('on');
-  if(g==='vm') S.vum = el.textContent.toLowerCase().includes('pro')?'wan-pro':el.textContent.toLowerCase().includes('mochi')?'mochi':'wan';
-};
-
-function ld(id,on) { const b=document.getElementById(id); if(!b)return; b.classList.toggle('ld',on); b.disabled=on; }
-function pg(pw,pf) {
-  const w=document.getElementById(pw),f=document.getElementById(pf);
-  if(!w||!f) return {done:()=>{}};
-  w.classList.add('s'); f.style.width='0%'; let v=0;
-  const t=setInterval(()=>{v=Math.min(v+Math.random()*2.5,87);f.style.width=v+'%';},400);
-  return {done:()=>{clearInterval(t);f.style.width='100%';setTimeout(()=>{w.classList.remove('s');f.style.width='0%';},500);}};
-}
-
-function openGen(t) { hap(); const tp=GTPL[t]; if(!tp)return; document.getElementById('gptit').textContent=tp.t; document.getElementById('gpbd').innerHTML=tp.html(); document.getElementById('gp').classList.add('o'); if(tg)tg.BackButton.show(); }
-function closeGen() { document.getElementById('gp').classList.remove('o'); if(tg)tg.BackButton.hide(); }
-function swDT(n) { ['R','P','W'].forEach(x=>{document.getElementById('dt'+x)?.classList.toggle('on',x===n);const b=document.getElementById('dt'+x+'b');if(b)b.style.display=x===n?'':'none';}); }
-
-// ─── IMAGE ───
-async function gImg() {
-  const p=document.getElementById('gip')?.value.trim(); if(!p){toast('⚠️ Введи описание','er');return;}
-  ld('gibtn',1); const pr=pg('gipw','gipf'); document.getElementById('gires')?.classList.remove('s');
-  try {
-    const m=document.getElementById('gim')?.value||'flux';
-    const w=document.getElementById('giw')?.value||'1024';
-    const h=document.getElementById('gih')?.value||'1024';
-    // Пробуем через бэкенд, fallback на Pollinations напрямую
-    let imgSrc;
-    try {
-      const r=await fetch(`${API}/api/imggen`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:p,model:m,width:parseInt(w),height:parseInt(h),init_data:tg?.initData||''}),signal:AbortSignal.timeout(60000)});
-      const d=await r.json(); if(d.ok&&d.url) imgSrc=d.url; else throw 0;
-    } catch(e2) {
-      imgSrc=`${PI}${encodeURIComponent(p)}?model=${m}&width=${w}&height=${h}&nologo=true&seed=${Date.now()}`;
-    }
-    const img=document.getElementById('giimg');
-    await new Promise((ok,fail)=>{img.onload=ok;img.onerror=fail;img.src=imgSrc;});
-    document.getElementById('gires')?.classList.add('s');
-    S.ic++; toast('✅ Картинка готова!','ok');
-  } catch(e){toast('❌ Ошибка генерации','er');}
-  pr.done(); ld('gibtn',0);
-}
-const dlI  = () => { const i=document.getElementById('giimg');if(!i?.src)return;Object.assign(document.createElement('a'),{href:i.src,download:`img_${Date.now()}.jpg`}).click(); };
-const shrI = () => { const i=document.getElementById('giimg');if(!i?.src)return;navigator.share?.({url:i.src})||navigator.clipboard?.writeText(i.src).then(()=>toast('📋 Ссылка скопирована','ok')); };
-
-// ─── MUSIC ───
-async function gMus() {
-  const p=document.getElementById('mup')?.value.trim(); if(!p){toast('⚠️ Введи описание','er');return;}
-  ld('mubtn',1); const pr=pg('mupw','mupf');
-  try {
-    const model=S.mum==='suno'?'suno':'elevenmusic';
-    const r=await fetch(`${PA}${encodeURIComponent(p)}?model=${model}&nologo=true`,{signal:AbortSignal.timeout(180000)});
-    if(!r.ok)throw new Error('HTTP '+r.status);
-    const bl=await r.blob(); const a=document.getElementById('muaud'); a.src=URL.createObjectURL(bl); a.__b=bl;
-    document.getElementById('mures')?.classList.add('s'); toast('🎵 Трек готов!','ok');
-  } catch(e){toast('❌ Ошибка генерации музыки','er');}
-  pr.done(); ld('mubtn',0);
-}
-const dlM = () => { const a=document.getElementById('muaud');if(!a?.__b)return;Object.assign(document.createElement('a'),{href:URL.createObjectURL(a.__b),download:`track_${Date.now()}.mp3`}).click(); };
-
-// ─── VIDEO ───
-async function gVid() {
-  const p=document.getElementById('vip')?.value.trim(); if(!p){toast('⚠️ Введи описание','er');return;}
-  ld('vibtn',1); const pr=pg('vipw','vipf');
-  try {
-    const dur=document.getElementById('vid')?.value||'5';
-    const ctrl=new AbortController(); const to=setTimeout(()=>ctrl.abort(),150000);
-    const r=await fetch(`${PV}${encodeURIComponent(p)}?model=${S.vum}&duration=${dur}&nologo=true`,{signal:ctrl.signal});
-    clearTimeout(to); if(!r.ok)throw new Error('HTTP '+r.status);
-    const bl=await r.blob(); const v=document.getElementById('vivid'); v.src=URL.createObjectURL(bl); v.__b=bl;
-    document.getElementById('vires')?.classList.add('s'); toast('🎬 Видео готово!','ok');
-  } catch(e){toast(e.name==='AbortError'?'⏱ Таймаут — попробуй ещё раз':'❌ Ошибка','er');}
-  pr.done(); ld('vibtn',0);
-}
-const dlV = () => { const v=document.getElementById('vivid');if(!v?.__b)return;Object.assign(document.createElement('a'),{href:URL.createObjectURL(v.__b),download:`video_${Date.now()}.mp4`}).click(); };
-
-// ─── DOCS ───
-async function apiPost(path, body) {
-  const r = await fetch(`${API}${path}`, {
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({...body, init_data: tg?.initData||''}),
-    signal: AbortSignal.timeout(180000),
-  });
-  const d = await r.json();
-  if (!d.ok) throw new Error(d.error||'Ошибка сервера');
-  return d;
-}
-function b64dl(b64, filename, mime) {
-  const bl=new Blob([Uint8Array.from(atob(b64),c=>c.charCodeAt(0))],{type:mime});
-  Object.assign(document.createElement('a'),{href:URL.createObjectURL(bl),download:filename}).click();
-}
-
-async function gRpt() {
-  const topic=document.getElementById('rpt')?.value.trim(); if(!topic){toast('⚠️ Введи тему','er');return;}
-  ld('rpbtn',1);
-  try {
-    const d=await apiPost('/api/report',{topic,model:document.getElementById('rpm')?.value,pages:parseInt(document.getElementById('rpp')?.value)||10,extra:document.getElementById('rpe')?.value||''});
-    document.getElementById('rpfn').textContent=d.filename||'doc.docx';
-    document.getElementById('rpmeta').textContent='Готово!';
-    document.getElementById('rpdl').classList.add('s');
-    document.getElementById('rpdlb').onclick=()=>b64dl(d.docx_b64,d.filename||'doc.docx','application/vnd.openxmlformats-officedocument.wordprocessingml.document');
-    toast('📄 Реферат готов!','ok');
-  } catch(e){toast('❌ '+e.message,'er');}
-  ld('rpbtn',0);
-}
-async function gPptx() {
-  const topic=document.getElementById('ptt')?.value.trim(); if(!topic){toast('⚠️ Введи тему','er');return;}
-  ld('ptbtn',1);
-  try {
-    const d=await apiPost('/api/pptx',{topic,slides:parseInt(document.getElementById('pts')?.value)||12,model:document.getElementById('ptm')?.value,author:document.getElementById('pta')?.value||''});
-    document.getElementById('ptfn').textContent=d.filename||'pres.pptx';
-    document.getElementById('ptmeta').textContent=(d.slides_count||'?')+' слайдов';
-    document.getElementById('ptdl').classList.add('s');
-    document.getElementById('ptdlb').onclick=()=>b64dl(d.pptx_b64,d.filename||'pres.pptx','application/vnd.openxmlformats-officedocument.presentationml.presentation');
-    toast('🎞 PPTX готов!','ok');
-  } catch(e){toast('❌ '+e.message,'er');}
-  ld('ptbtn',0);
-}
-async function gWpptx() {
-  const topic=document.getElementById('wpt')?.value.trim(); if(!topic){toast('⚠️ Введи тему','er');return;}
-  ld('wpbtn',1);
-  try {
-    const d=await apiPost('/api/webpptx',{topic,slides:parseInt(document.getElementById('wps')?.value)||12,model:document.getElementById('wpm')?.value,wishes:document.getElementById('wpw')?.value||''});
-    document.getElementById('wpfn').textContent=d.filename||'pres.html';
-    document.getElementById('wpmeta').textContent=(d.slides_count||'?')+' слайдов';
-    document.getElementById('wpdl').classList.add('s');
-    document.getElementById('wpdlb').onclick=()=>b64dl(d.html_b64,d.filename||'pres.html','text/html;charset=utf-8');
-    toast('🌐 HTML готов!','ok');
-  } catch(e){toast('❌ '+e.message,'er');}
-  ld('wpbtn',0);
-}
-
-// ════════════════════════════════════════════════
-// PHOTO
-// ════════════════════════════════════════════════
-const attPhoto = () => document.getElementById('phi').click();
-function onPhoto(e) {
-  const f=e.target.files[0]; if(!f)return;
-  const r=new FileReader(); r.onload=ev=>{S.pi=ev.target.result.split(',')[1];const i=document.getElementById('inp');if(!i.value)i.value='Что на этом изображении?';rsz(i);toast('📷 Фото прикреплено','ok');};
-  r.readAsDataURL(f); e.target.value='';
-}
-
-// ════════════════════════════════════════════════
-// TOAST
-// ════════════════════════════════════════════════
-let _tt;
-function toast(msg,t='') {
-  const el=document.getElementById('toast');
-  el.textContent=msg; el.className='toast s'+(t?' '+t:'');
-  clearTimeout(_tt); _tt=setTimeout(()=>el.classList.remove('s'),2600);
-}
-
-// ════════════════════════════════════════════════
-// SUGGESTIONS
-// ════════════════════════════════════════════════
-function renderSuggest() {
-  const c=document.getElementById('wch'); if(!c)return; c.innerHTML='';
-  SUGG.forEach(s=>{
-    const d=document.createElement('div'); d.className='wc'; d.textContent=s;
-    d.onclick=()=>{const i=document.getElementById('inp');i.value=s.replace(/^[^\s]+\s/,'');rsz(i);i.focus();hap();};
-    c.appendChild(d);
-  });
-}
-
-// ════════════════════════════════════════════════
-// INIT
-// ════════════════════════════════════════════════
-document.addEventListener('DOMContentLoaded', () => {
-  setupMD();
-  renderSuggest();
-  renderMods();
-  document.getElementById('mname').textContent = MO[S.mdl].l;
-
-  // Sidebar — имя пользователя
-  const u = S.tgu;
-  if (u) {
-    const name = [u.first_name, u.last_name].filter(Boolean).join(' ');
-    document.getElementById('sban').textContent = name || 'ХУЗА AI';
-  }
-
-  // Загружаем лимиты из бота
+// Debug banner
+let _dbt;function dbg(msg){const el=document.getElementById('dbg');if(!msg){el.classList.remove('s');el.textContent='';return;}el.textContent=msg;el.classList.add('s');clearTimeout(_dbt);if(msg)_dbt=setTimeout(()=>{el.classList.remove('s');},5000);}
+function onK(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}}
+function rsz(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,130)+'px';document.getElementById('snd').disabled=!el.value.trim();}
+function updHist(msg){const t=msg.slice(0,22)+(msg.length>22?'...':'');if(!S.cur){S.cur={id:Date.now(),t};S.sess.unshift(S.cur);}renderHist();}
+function renderHist(){const h=document.getElementById('hist');h.innerHTML='';S.sess.slice(0,20).forEach(s=>{const d=document.createElement('div');d.className='sbi';d.innerHTML=`<span class="sii" style="font-size:13px">💬</span><span class="sit" style="font-size:14px">${esc(s.t)}</span><button class="sdl" onclick="dSess(${s.id},event)">🗑</button>`;h.appendChild(d);});}
+function dSess(id,e){e.stopPropagation();S.sess=S.sess.filter(s=>s.id!==id);renderHist();}
+function newChat(){S.hist=[];S.cur=null;document.getElementById('msgs').innerHTML='<div id="wlc"><div class="wi">🤖</div><div class="wt">ХУЗА AI</div><div class="ws">Умный ИИ-ассистент.</div><div class="wch" id="wch"></div></div>';renderSuggest();closeSB();}
+// ════════ SIDEBAR/SHEETS ════════
+const openSB=()=>{hap();document.getElementById('sb').classList.add('o');document.getElementById('sbo').classList.add('o');};
+const closeSB=()=>{document.getElementById('sb').classList.remove('o');document.getElementById('sbo').classList.remove('o');};
+function renderMods(q=''){const ml=document.getElementById('ml');ml.innerHTML='';const ql=q.toLowerCase();CATS.forEach(cat=>{const ks=cat.k.filter(k=>{const m=MO[k];return m&&(!ql||m.l.toLowerCase().includes(ql));});if(!ks.length)return;if(!ql){const h=document.createElement('div');h.className='ch';h.textContent=cat.h;ml.appendChild(h);}ks.forEach(k=>{const m=MO[k];const em=m.l.split(' ')[0];const nm=m.l.slice(em.length+1);const d=document.createElement('div');d.className='mr2'+(k===S.mdl?' sl':'');d.innerHTML=`<span class="mico">${em}</span><div class="min"><div class="mn">${esc(nm)}</div><div class="mtg">${m.v?'<span class="mb v">📸 Vision</span>':''}${m.pr?'<span class="mb p">⭐ Pro</span>':''}</div></div>${k===S.mdl?'<span class="mck">✓</span>':''}`;d.onclick=()=>{hap();pickM(k);};ml.appendChild(d);});});}
+const fmod=v=>renderMods(v);
+function openMS(){hap();renderMods();document.getElementById('msi').value='';document.getElementById('ms').classList.add('o');document.getElementById('sho').classList.add('o');}
+function pickM(k){S.mdl=k;document.getElementById('mname').textContent=MO[k].l;closeSheets();toast('✅ '+MO[k].l,'ok');}
+function closeSheets(){['ms','tp'].forEach(id=>document.getElementById(id).classList.remove('o'));document.getElementById('sho').classList.remove('o');}
+// ════════ LIMITS ════════
+async function loadLimits(){try{const uid=S.tgu?.id;const params=new URLSearchParams();if(uid)params.set('uid',uid);if(tg?.initData)params.set('init_data',tg.initData);const r=await fetch(`${CFG.API}/api/limits?${params}`,{signal:AbortSignal.timeout(10000)});if(!r.ok)return;const d=await r.json();S.lim={pro_used:d.pro_used||0,pro_max:d.pro_max||30,img_used:d.img_used||0,img_max:d.img_max||0,music_used:d.music_used||0,music_max:d.music_max||0,video_used:d.video_used||0,video_max:d.video_max||0,has_sub:!!d.has_sub,sub_plan:d.sub_plan||d.plan||'',sub_expires:d.sub_expires||d.expires||'',level:d.level||0,level_max:d.level_max||50,referrals:d.referrals||0,join_date:d.join_date||'',model:d.model||'',mode:d.mode||'',total_requests:d.total_requests||d.requests||0,total_gens:d.total_gens||d.generations||0,reset_in:d.reset_in||''};const left=Math.max(0,S.lim.pro_max-S.lim.pro_used);document.getElementById('rqnum').textContent=left;document.getElementById('sbap').textContent=S.lim.has_sub?(S.lim.sub_plan||'Pro'):'Free';}catch(e){}}
+// ════════ PROFILE ════════
+function openProf(){renderProfile();document.getElementById('prof').classList.add('o');if(tg)tg.BackButton.show();}
+function closeProf(){document.getElementById('prof').classList.remove('o');if(tg)tg.BackButton.hide();}
+function renderProfile(){const u=S.tgu;const L=S.lim;const ini=u?((u.first_name||'')[0]||'')+((u.last_name||'')[0]||''):'?';const name=u?[u.first_name,u.last_name].filter(Boolean).join(' '):'Гость';const uname=u?.username?`@${u.username}`:'';const uid=u?.id||'—';const proUsed=L.pro_used,proMax=L.pro_max;const barW=proMax>0?Math.min(100,(proUsed/proMax)*100):0;const hasSub=L.has_sub;const subName=hasSub?(L.sub_plan||'Pro')+' подписка':'Free план';const subStatus=hasSub?(L.sub_expires?`активна до ${L.sub_expires}`:'активна'):'Нет подписки';const botModel=L.model||MO[S.mdl]?.l||S.mdl;document.getElementById('profbd').innerHTML=`<div class="ph"><div class="pa">${esc(ini.toUpperCase())||'👤'}</div><div><div class="pn">${esc(name)}</div>${uname?`<div class="pu">${esc(uname)}</div>`:''}<div class="pid">ID: ${uid}</div>${L.join_date?`<div class="pid">Дата входа — ${esc(L.join_date)}</div>`:''}</div></div><div class="sg2"><div class="sc"><div class="sci">💬</div><div class="scv">${L.total_requests||S.mc}</div><div class="scl">Запросов</div></div><div class="sc"><div class="sci">🎨</div><div class="scv">${L.total_gens||S.ic}</div><div class="scl">Генераций</div></div><div class="sc"><div class="sci">🎁</div><div class="scv">${L.referrals}</div><div class="scl">Рефералов</div></div><div class="sc"><div class="sci">⭐</div><div class="scv" style="font-size:${L.level>0?'22':'15'}px">${L.level>0?'Ур. '+L.level:'Начинающий'}</div><div class="scl">${L.level_max>0?`до ${L.level_max} зап.`:'Уровень'}</div></div></div><div class="subc"><div class="subr"><div class="subico ${hasSub?'pro':''}">💎</div><div><div class="subn">${esc(subName)}</div><div class="subs">${esc(subStatus)}</div></div></div><div><div class="lrow"><span>Запросы</span><span>${proUsed} / ${proMax}${L.reset_in?' ↻ '+L.reset_in:''}</span></div><div class="lbar"><div class="lf" style="width:${barW}%"></div></div></div></div><div><div class="sec-hdr" style="margin-bottom:6px">💡 Лимиты</div><div class="liml"><div class="limr"><span class="lico">💬</span><span class="limt">Запросы</span><span class="limv">${proUsed} / ${proMax}</span></div>${L.img_max>0?`<div class="limr"><span class="lico">🎨</span><span class="limt">Картинки</span><span class="limv">${L.img_used} / ${L.img_max} <small style="color:var(--tx4)">в мес.</small></span></div>`:''} ${L.music_max>0?`<div class="limr"><span class="lico">🎵</span><span class="limt">Музыка</span><span class="limv">${L.music_used} / ${L.music_max} <small style="color:var(--tx4)">в мес.</small></span></div>`:''} ${L.video_max>0?`<div class="limr"><span class="lico">🎥</span><span class="limt">Видео</span><span class="limv">${L.video_used} / ${L.video_max} <small style="color:var(--tx4)">в мес.</small></span></div>`:''}</div></div><div><div class="sec-hdr" style="margin-bottom:6px">⚙️ Настройки</div><div class="liml"><div class="limr"><span class="lico">🤖</span><span class="limt">Модель</span><span class="limv" style="font-size:12px;max-width:160px;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(botModel)}</span></div>${L.mode?`<div class="limr"><span class="lico">⚡</span><span class="limt">Режим</span><span class="limv">${esc(L.mode)}</span></div>`:''}</div></div><div class="pg"><div class="pr2" onclick="closeProf();openMS()"><span class="pio">🤖</span><span class="plt">Выбор модели</span><span class="par">›</span></div><div class="pr2" onclick="newChat();closeProf()"><span class="pio">✏️</span><span class="plt">Новый чат</span><span class="par">›</span></div><div class="pr2" onclick="toast('ℹ️ ХУЗА AI v2.1','')"><span class="pio">ℹ️</span><span class="plt">О приложении</span><span class="par">›</span></div></div>`;}
+// ════════ GEN PAGES ════════
+const GTPL={image:{t:'🎨 Картинки',html:()=>`<div class="gc"><div class="gci"><div><div class="fl">Модель</div><select class="gs" id="gim"><option value="flux">🎨 Flux</option><option value="turbo">🚀 Turbo</option><option value="gptimage">🖼 GPT-Image</option><option value="flux-realism">📸 Flux Realism</option><option value="flux-anime">🌸 Flux Anime</option><option value="imagen-4">🌟 Imagen 4</option><option value="grok-imagine">🤖 Grok</option></select></div><div><div class="fl">Примеры</div><div class="exr">${IEX.map(e=>`<div class="exch" onclick="sv('gip',\`${e.replace(/`/g,'')}\`)">${esc(e)}</div>`).join('')}</div></div><div><div class="fl">Описание</div><textarea class="gta" id="gip" placeholder="Опиши картинку..."></textarea></div><div class="sg2x"><div><div class="fl">Ширина</div><select class="gs" id="giw"><option value="512">512</option><option value="768">768</option><option value="1024" selected>1024</option><option value="1280">1280</option></select></div><div><div class="fl">Высота</div><select class="gs" id="gih"><option value="512">512</option><option value="768">768</option><option value="1024" selected>1024</option><option value="1280">1280</option></select></div></div><div class="pw" id="gipw"><div class="pf" id="gipf"></div></div><button class="gb" id="gibtn" onclick="gImg()"><span class="bl">✨ Генерировать</span><div class="bs"></div></button><div class="rb" id="gires"><img id="giimg" src="" alt=""/><div class="ra"><button onclick="shrI()">📤 Поделиться</button><button class="pr" onclick="dlI()">⬇️ Скачать</button></div></div></div></div>`},music:{t:'🎵 Музыка',html:()=>`<div class="gc"><div class="gci"><div><div class="fl">Провайдер</div><div class="chs"><div class="ch2 on" id="mcs" onclick="selMu('suno',this)">🎵 Suno v5</div><div class="ch2" id="mce" onclick="selMu('eleven',this)">🎸 ElevenLabs</div></div></div><div><div class="fl">Стиль</div><div class="chs">${MSTY.map((s,i)=>`<div class="ch2${i===0?' on':''}" onclick="tCh(this,'ms')">${esc(s)}</div>`).join('')}</div></div><div><div class="fl">Примеры</div><div class="exr">${MEX.map(e=>`<div class="exch" onclick="sv('mup',\`${e.replace(/`/g,'')}\`)">${esc(e)}</div>`).join('')}</div></div><div><div class="fl">Описание</div><textarea class="gta" id="mup" placeholder="Настроение, инструменты, темп..."></textarea></div><div class="pw" id="mupw"><div class="pf" id="mupf"></div></div><button class="gb" id="mubtn" onclick="gMus()"><span class="bl">🎵 Создать трек</span><div class="bs"></div></button><div class="rb" id="mures"><audio id="muaud" controls></audio><div class="ra"><button class="pr" onclick="dlM()">⬇️ Скачать MP3</button></div></div></div></div>`},video:{t:'🎥 Видео',html:()=>`<div class="gc"><div class="gci"><div><div class="fl">Модель</div><div class="chs"><div class="ch2 on" onclick="tCh(this,'vm')">🎬 WAN</div><div class="ch2" onclick="tCh(this,'vm')">⚡ WAN Pro</div><div class="ch2" onclick="tCh(this,'vm')">🌊 Mochi</div></div></div><div><div class="fl">Описание</div><textarea class="gta" id="vip" placeholder="Опиши сцену..."></textarea></div><div><div class="fl">Длительность</div><select class="gs" id="vid"><option value="3">3 сек</option><option value="5" selected>5 сек</option><option value="8">8 сек</option></select></div><div class="pw" id="vipw"><div class="pf" id="vipf"></div></div><button class="gb" id="vibtn" onclick="gVid()"><span class="bl">🎬 Создать видео</span><div class="bs"></div></button><div class="rb" id="vires"><video id="vivid" controls playsinline style="max-height:280px;background:#000"></video><div class="ra"><button class="pr" onclick="dlV()">⬇️ Скачать MP4</button></div></div></div></div>`},docs:{t:'📄 Документы',html:()=>`<div style="display:flex;gap:8px;overflow-x:auto;scrollbar-width:none"><div class="ch2 on" id="dtR" onclick="swDT('R')">📝 Реферат</div><div class="ch2" id="dtP" onclick="swDT('P')">🎞 PPTX</div><div class="ch2" id="dtW" onclick="swDT('W')">🌐 HTML</div></div><div id="dtRb" class="gc"><div class="gci"><div><div class="fl">Тема</div><input class="gi" id="rpt" placeholder="Квантовая механика..."/></div><div><div class="fl">Модель</div><select class="gs" id="rpm"><option value="claude_opus">🔵 Claude Opus</option><option value="claude_sonnet">🔷 Sonnet</option><option value="gpt52">⚡ GPT-5.2</option></select></div><div><div class="fl">Страниц</div><select class="gs" id="rpp"><option value="5">5</option><option value="10" selected>10</option><option value="15">15</option></select></div><div><div class="fl">Доп. пожелания</div><textarea class="gta" id="rpe" placeholder="..." style="min-height:58px"></textarea></div><button class="gb" id="rpbtn" onclick="gRpt()"><span class="bl">📝 Создать реферат</span><div class="bs"></div></button><div class="dlc" id="rpdl"><div class="dli">📄</div><div class="dlinf"><div class="dlfn" id="rpfn">doc.docx</div><div class="dlm" id="rpmeta">Готово</div></div><button class="dlb" id="rpdlb">↓ Скачать</button></div></div></div><div id="dtPb" class="gc" style="display:none"><div class="gci"><div><div class="fl">Тема</div><input class="gi" id="ptt" placeholder="ИИ в 2025..."/></div><div><div class="fl">Слайды</div><select class="gs" id="pts"><option value="8">8</option><option value="12" selected>12</option><option value="16">16</option></select></div><div><div class="fl">Модель</div><select class="gs" id="ptm"><option value="claude_opus">🔵 Claude Opus</option><option value="gpt52">⚡ GPT-5.2</option></select></div><div><div class="fl">Автор</div><input class="gi" id="pta" placeholder="Иван Иванов (опционально)"/></div><button class="gb" id="ptbtn" onclick="gPptx()"><span class="bl">🎞 Создать PPTX</span><div class="bs"></div></button><div class="dlc" id="ptdl"><div class="dli">📊</div><div class="dlinf"><div class="dlfn" id="ptfn">pres.pptx</div><div class="dlm" id="ptmeta">Готово</div></div><button class="dlb" id="ptdlb">↓ Скачать</button></div></div></div><div id="dtWb" class="gc" style="display:none"><div class="gci"><div><div class="fl">Тема</div><input class="gi" id="wpt" placeholder="Тема..."/></div><div><div class="fl">Слайды</div><select class="gs" id="wps"><option value="8">8</option><option value="12" selected>12</option></select></div><div><div class="fl">Модель</div><select class="gs" id="wpm"><option value="claude_opus">🔵 Claude Opus</option><option value="gpt52">⚡ GPT-5.2</option></select></div><div><div class="fl">Пожелания</div><textarea class="gta" id="wpw" placeholder="Минимализм..." style="min-height:58px"></textarea></div><button class="gb" id="wpbtn" onclick="gWpptx()"><span class="bl">🌐 HTML-слайды</span><div class="bs"></div></button><div class="dlc" id="wpdl"><div class="dli">🌐</div><div class="dlinf"><div class="dlfn" id="wpfn">pres.html</div><div class="dlm" id="wpmeta">Готово</div></div><button class="dlb" id="wpdlb">↓ Скачать</button></div></div></div>`}};
+const sv=(id,v)=>{const e=document.getElementById(id);if(e)e.value=v;};
+const selMu=(m,btn)=>{S.mum=m;['mcs','mce'].forEach(id=>document.getElementById(id)?.classList.remove('on'));btn.classList.add('on');};
+const tCh=(el,g)=>{el.closest('.chs').querySelectorAll('.ch2').forEach(c=>c.classList.remove('on'));el.classList.add('on');if(g==='vm')S.vum=el.textContent.toLowerCase().includes('pro')?'wan-pro':el.textContent.toLowerCase().includes('mochi')?'mochi':'wan';};
+const ld=(id,on)=>{const b=document.getElementById(id);if(!b)return;b.classList.toggle('ld',on);b.disabled=on;};
+function pg(pw,pf){const w=document.getElementById(pw),f=document.getElementById(pf);if(!w||!f)return{done:()=>{}};w.classList.add('s');f.style.width='0%';let v=0;const t=setInterval(()=>{v=Math.min(v+2.5,87);f.style.width=v+'%';},400);return{done:()=>{clearInterval(t);f.style.width='100%';setTimeout(()=>{w.classList.remove('s');f.style.width='0%';},500);}};}
+function openGen(t){hap();const tp=GTPL[t];if(!tp)return;document.getElementById('gptit').textContent=tp.t;document.getElementById('gpbd').innerHTML=tp.html();document.getElementById('gp').classList.add('o');if(tg)tg.BackButton.show();}
+function closeGen(){document.getElementById('gp').classList.remove('o');if(tg)tg.BackButton.hide();}
+function swDT(n){['R','P','W'].forEach(x=>{document.getElementById('dt'+x)?.classList.toggle('on',x===n);const b=document.getElementById('dt'+x+'b');if(b)b.style.display=x===n?'':'none';});}
+async function gImg(){const p=document.getElementById('gip')?.value.trim();if(!p){toast('⚠️ Введи описание','er');return;}ld('gibtn',1);const pr=pg('gipw','gipf');document.getElementById('gires')?.classList.remove('s');try{const m=document.getElementById('gim')?.value||'flux';const w=document.getElementById('giw')?.value||'1024';const h=document.getElementById('gih')?.value||'1024';let src=`${CFG.PI}${encodeURIComponent(p)}?model=${m}&width=${w}&height=${h}&nologo=true&seed=${Date.now()}`;try{const r=await fetch(`${CFG.API}/api/imggen`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:p,model:m,width:parseInt(w),height:parseInt(h),init_data:tg?.initData||''}),signal:AbortSignal.timeout(30000)});const d=await r.json();if(d.ok&&d.url)src=d.url;}catch(e2){}const img=document.getElementById('giimg');await new Promise((ok,fail)=>{img.onload=ok;img.onerror=fail;img.src=src;});document.getElementById('gires')?.classList.add('s');S.ic++;toast('✅ Картинка готова!','ok');}catch(e){toast('❌ Ошибка генерации','er');}pr.done();ld('gibtn',0);}
+const dlI=()=>{const i=document.getElementById('giimg');if(!i?.src)return;Object.assign(document.createElement('a'),{href:i.src,download:`img_${Date.now()}.jpg`}).click();};
+const shrI=()=>{const i=document.getElementById('giimg');if(!i?.src)return;navigator.share?.({url:i.src})||navigator.clipboard?.writeText(i.src).then(()=>toast('📋 Ссылка скопирована','ok'));};
+async function gMus(){const p=document.getElementById('mup')?.value.trim();if(!p){toast('⚠️ Введи описание','er');return;}ld('mubtn',1);const pr=pg('mupw','mupf');try{const model=S.mum==='suno'?'suno':'elevenmusic';const r=await fetch(`${CFG.PA}${encodeURIComponent(p)}?model=${model}&nologo=true`,{signal:AbortSignal.timeout(180000)});if(!r.ok)throw new Error('HTTP '+r.status);const bl=await r.blob();const a=document.getElementById('muaud');a.src=URL.createObjectURL(bl);a.__b=bl;document.getElementById('mures')?.classList.add('s');toast('🎵 Трек готов!','ok');}catch(e){toast('❌ '+e.message,'er');}pr.done();ld('mubtn',0);}
+const dlM=()=>{const a=document.getElementById('muaud');if(!a?.__b)return;Object.assign(document.createElement('a'),{href:URL.createObjectURL(a.__b),download:`track_${Date.now()}.mp3`}).click();};
+async function gVid(){const p=document.getElementById('vip')?.value.trim();if(!p){toast('⚠️ Введи описание','er');return;}ld('vibtn',1);const pr=pg('vipw','vipf');try{const dur=document.getElementById('vid')?.value||'5';const ctrl=new AbortController();const to=setTimeout(()=>ctrl.abort(),150000);const r=await fetch(`${CFG.PV}${encodeURIComponent(p)}?model=${S.vum}&duration=${dur}&nologo=true`,{signal:ctrl.signal});clearTimeout(to);if(!r.ok)throw new Error('HTTP '+r.status);const bl=await r.blob();const v=document.getElementById('vivid');v.src=URL.createObjectURL(bl);v.__b=bl;document.getElementById('vires')?.classList.add('s');toast('🎬 Видео готово!','ok');}catch(e){toast(e.name==='AbortError'?'⏱ Таймаут':'❌ '+e.message,'er');}pr.done();ld('vibtn',0);}
+const dlV=()=>{const v=document.getElementById('vivid');if(!v?.__b)return;Object.assign(document.createElement('a'),{href:URL.createObjectURL(v.__b),download:`video_${Date.now()}.mp4`}).click();};
+async function apiPost(path,body){const r=await fetch(`${CFG.API}${path}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...body,init_data:tg?.initData||''}),signal:AbortSignal.timeout(180000)});const d=await r.json();if(!d.ok)throw new Error(d.error||'Ошибка');return d;}
+function b64dl(b64,fn,mime){const bl=new Blob([Uint8Array.from(atob(b64),c=>c.charCodeAt(0))],{type:mime});Object.assign(document.createElement('a'),{href:URL.createObjectURL(bl),download:fn}).click();}
+async function gRpt(){const topic=document.getElementById('rpt')?.value.trim();if(!topic){toast('⚠️ Введи тему','er');return;}ld('rpbtn',1);try{const d=await apiPost('/api/report',{topic,model:document.getElementById('rpm')?.value,pages:parseInt(document.getElementById('rpp')?.value)||10,extra:document.getElementById('rpe')?.value||''});document.getElementById('rpfn').textContent=d.filename||'doc.docx';document.getElementById('rpmeta').textContent='Готово!';document.getElementById('rpdl').classList.add('s');document.getElementById('rpdlb').onclick=()=>b64dl(d.docx_b64,d.filename||'doc.docx','application/vnd.openxmlformats-officedocument.wordprocessingml.document');toast('📄 Реферат готов!','ok');}catch(e){toast('❌ '+e.message,'er');}ld('rpbtn',0);}
+async function gPptx(){const topic=document.getElementById('ptt')?.value.trim();if(!topic){toast('⚠️ Введи тему','er');return;}ld('ptbtn',1);try{const d=await apiPost('/api/pptx',{topic,slides:parseInt(document.getElementById('pts')?.value)||12,model:document.getElementById('ptm')?.value,author:document.getElementById('pta')?.value||''});document.getElementById('ptfn').textContent=d.filename||'pres.pptx';document.getElementById('ptmeta').textContent=(d.slides_count||'?')+' слайдов';document.getElementById('ptdl').classList.add('s');document.getElementById('ptdlb').onclick=()=>b64dl(d.pptx_b64,d.filename||'pres.pptx','application/vnd.openxmlformats-officedocument.presentationml.presentation');toast('🎞 PPTX готов!','ok');}catch(e){toast('❌ '+e.message,'er');}ld('ptbtn',0);}
+async function gWpptx(){const topic=document.getElementById('wpt')?.value.trim();if(!topic){toast('⚠️ Введи тему','er');return;}ld('wpbtn',1);try{const d=await apiPost('/api/webpptx',{topic,slides:parseInt(document.getElementById('wps')?.value)||12,model:document.getElementById('wpm')?.value,wishes:document.getElementById('wpw')?.value||''});document.getElementById('wpfn').textContent=d.filename||'pres.html';document.getElementById('wpmeta').textContent=(d.slides_count||'?')+' слайдов';document.getElementById('wpdl').classList.add('s');document.getElementById('wpdlb').onclick=()=>b64dl(d.html_b64,d.filename||'pres.html','text/html;charset=utf-8');toast('🌐 HTML готов!','ok');}catch(e){toast('❌ '+e.message,'er');}ld('wpbtn',0);}
+const attPhoto=()=>document.getElementById('phi').click();
+function onPhoto(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{S.pi=ev.target.result.split(',')[1];const i=document.getElementById('inp');if(!i.value)i.value='Что на этом изображении?';rsz(i);toast('📷 Фото прикреплено','ok');};r.readAsDataURL(f);e.target.value='';}
+let _tt;function toast(msg,t=''){const el=document.getElementById('toast');el.textContent=msg;el.className='toast s'+(t?' '+t:'');clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('s'),2800);}
+function renderSuggest(){const c=document.getElementById('wch');if(!c)return;c.innerHTML='';SUGG.forEach(s=>{const d=document.createElement('div');d.className='wc';d.textContent=s;d.onclick=()=>{const i=document.getElementById('inp');i.value=s.replace(/^[^\s]+\s/,'');rsz(i);i.focus();hap();};c.appendChild(d);});}
+// ════════ INIT ════════
+document.addEventListener('DOMContentLoaded',()=>{
+  setupMD();renderSuggest();renderMods();
+  document.getElementById('mname').textContent=MO[S.mdl].l;
+  const u=S.tgu;if(u){document.getElementById('sban').textContent=[u.first_name,u.last_name].filter(Boolean).join(' ')||'ХУЗА AI';}
   loadLimits();
-
-  // TG back button
-  if (tg) {
-    tg.BackButton.onClick(()=>{
-      if(document.getElementById('prof').classList.contains('o')){closeProf();return;}
-      if(document.getElementById('gp').classList.contains('o')){closeGen();return;}
-      tg.BackButton.hide();
-    });
-  }
-
-  // KaTeX polling
-  const tryK = () => { if(window.renderMathInElement) return; setTimeout(tryK,200); };
-  tryK();
-
+  if(tg){tg.BackButton.onClick(()=>{if(document.getElementById('prof').classList.contains('o')){closeProf();return;}if(document.getElementById('gp').classList.contains('o')){closeGen();return;}tg.BackButton.hide();});}
+  const tryK=()=>{if(window.renderMathInElement)return;setTimeout(tryK,200);};tryK();
   setTimeout(()=>document.getElementById('inp')?.focus(),400);
+  if(!CFG.SQ_KEY)console.info('[ХУЗА] Добавь ?sqkey=ВАШ_КЛЮЧ к URL для прямого SQ');
 });
 </script>
 </body>
