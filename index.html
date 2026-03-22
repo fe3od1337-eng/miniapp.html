@@ -195,59 +195,34 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
 #toast.ok{border-color:rgba(48,209,88,.4);color:var(--gr)}
 #toast.er{border-color:rgba(255,69,58,.4);color:var(--re)}
 
-/* ── BOTTOM NAV ── */
-#nav{flex-shrink:0;height:calc(58px + env(safe-area-inset-bottom,0px));padding-bottom:env(safe-area-inset-bottom,0px);background:var(--bg1);border-top:.5px solid var(--bo);display:flex;align-items:stretch;z-index:30}
-.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;border:none;background:none;color:var(--tx4);font-family:var(--f);font-size:10px;font-weight:500;padding:0;transition:color .15s}
-.nav-item.act{color:var(--acc)}
-.nav-item .ni{font-size:22px;transition:transform .15s}
-.nav-item.act .ni{transform:scale(1.1)}
-/* ── GENERATE SCREEN TABS ── */
-.gen-tabs{display:flex;gap:0;background:var(--bg1);border-bottom:.5px solid var(--bo);flex-shrink:0;overflow-x:auto;scrollbar-width:none}
-.gen-tabs::-webkit-scrollbar{display:none}
-.gtab{flex-shrink:0;padding:12px 16px;font-size:13px;font-weight:500;color:var(--tx4);cursor:pointer;border:none;background:none;font-family:var(--f);border-bottom:2px solid transparent;white-space:nowrap}
-.gtab.act{color:var(--acc);border-bottom-color:var(--acc)}
-.gen-panels{flex:1;overflow:hidden;position:relative}
-.gen-panel{position:absolute;inset:0;overflow-y:auto;padding:12px;gap:12px;display:none;flex-direction:column}
-.gen-panel::-webkit-scrollbar{width:0}
-.gen-panel.act{display:flex}
-/* ── SCREENS ── */
-#screens{flex:1;overflow:hidden;position:relative}
-.scr{position:absolute;inset:0;display:none;flex-direction:column;overflow:hidden}
-.scr.act{display:flex}
-/* ── PROFILE SCREEN ── */
-.prof-scroll{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px}
-.prof-scroll::-webkit-scrollbar{display:none}
-/* ── MSG ACTIONS ── */
-.msg-actions{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
-.mact{display:flex;align-items:center;gap:4px;padding:5px 10px;border-radius:10px;background:var(--s1);border:.5px solid var(--bo2);font-size:12px;color:var(--tx4);cursor:pointer;font-family:var(--f)}
-.mact:active{background:var(--s2);color:var(--tx)}.mact.copied{color:var(--gr)}
-/* ── SHARE MODAL ── */
-#share-modal{position:fixed;inset:0;z-index:200;display:none;flex-direction:column;justify-content:flex-end}
-#share-modal.o{display:flex}
-#share-overlay{position:absolute;inset:0;background:rgba(0,0,0,.7)}
-#share-box{position:relative;z-index:1;background:var(--bg2);border-radius:20px 20px 0 0;border-top:.5px solid var(--bo2);padding:14px 14px calc(14px + env(safe-area-inset-bottom,16px))}
-.share-title{font-size:15px;font-weight:600;text-align:center;margin-bottom:14px;color:var(--tx2)}
-.share-preview{background:var(--s1);border-radius:12px;padding:12px;font-size:13px;line-height:1.5;color:var(--tx);max-height:100px;overflow:hidden;margin-bottom:12px;position:relative}
-.share-preview::after{content:'';position:absolute;bottom:0;left:0;right:0;height:24px;background:linear-gradient(transparent,var(--s1))}
-.share-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
-.share-btn{padding:12px;border-radius:12px;background:var(--s1);border:.5px solid var(--bo2);cursor:pointer;color:var(--tx);font-family:var(--f);font-size:14px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:8px}
-.share-btn:active{background:var(--s2)}.share-btn.tg{background:rgba(10,132,255,.15);border-color:rgba(10,132,255,.3);color:var(--blue)}
-.share-cancel{width:100%;padding:13px;border-radius:12px;background:var(--s2);border:none;cursor:pointer;color:var(--tx);font-family:var(--f);font-size:15px;font-weight:500}
-/* ── PHOTO PREVIEW ── */
-.pprev{display:none;align-items:center;gap:8px;padding:6px 0 2px}
+/* MSG ACTION BUTTONS */
+.msg-actions{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;opacity:0;transition:opacity .2s;pointer-events:none}
+.mr.a:hover .msg-actions,.mr.a.show-act .msg-actions{opacity:1;pointer-events:all}
+.mact{padding:5px 10px;border-radius:10px;background:var(--s1);border:.5px solid var(--bo2);font-size:12px;color:var(--tx4);cursor:pointer;font-family:var(--f)}
+.mact:active{background:var(--s2);color:var(--tx)}.mact.done{color:var(--gr)}
+/* SHARE MODAL */
+#shmod{position:fixed;inset:0;z-index:200;display:none;flex-direction:column;justify-content:flex-end}
+#shmod.o{display:flex}
+#shovl{position:absolute;inset:0;background:rgba(0,0,0,.75)}
+#shbox{position:relative;z-index:1;background:var(--bg2);border-radius:20px 20px 0 0;border-top:.5px solid var(--bo2);padding:16px 14px calc(16px + env(safe-area-inset-bottom,16px))}
+.shtit{font-size:15px;font-weight:600;text-align:center;margin-bottom:12px;color:var(--tx2)}
+.shprev{background:var(--s1);border-radius:12px;padding:12px;font-size:13px;line-height:1.5;color:var(--tx);max-height:100px;overflow:hidden;margin-bottom:12px;position:relative}
+.shprev::after{content:'';position:absolute;bottom:0;left:0;right:0;height:28px;background:linear-gradient(transparent,var(--s1))}
+.shbtns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.shbtn{padding:13px;border-radius:12px;background:var(--s1);border:.5px solid var(--bo2);cursor:pointer;color:var(--tx);font-family:var(--f);font-size:14px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:8px}
+.shbtn:active{background:var(--s2)}.shbtn.tg{background:rgba(10,132,255,.12);border-color:rgba(10,132,255,.3);color:var(--blue)}
+.shcancel{width:100%;padding:13px;border-radius:12px;background:var(--s2);border:none;cursor:pointer;color:var(--tx);font-family:var(--f);font-size:15px;font-weight:500}
+/* PHOTO PREVIEW */
+.pprev{display:none;align-items:center;gap:8px;padding:5px 0 2px}
 .pprev.s{display:flex}
-.pthumb{width:48px;height:48px;border-radius:10px;object-fit:cover;border:.5px solid var(--bo2)}
-.prm{width:20px;height:20px;border-radius:50%;background:var(--s3);border:none;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;color:var(--tx)}
-/* ── PLUS BUTTON ── */
-.plus-btn{width:38px;height:38px;border-radius:50%;background:var(--s1);border:.5px solid var(--bo2);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:20px;color:var(--tx2)}
-.plus-btn:active{background:var(--s2)}
-/* ── SETTINGS ── */
+.pthumb{width:44px;height:44px;border-radius:10px;object-fit:cover;border:.5px solid var(--bo2)}
+.prmbtn{width:20px;height:20px;border-radius:50%;background:var(--s3);border:none;cursor:pointer;font-size:11px;color:var(--tx);display:flex;align-items:center;justify-content:center}
+/* ATTACH BUTTON */
+.att-btn{width:36px;height:36px;border-radius:50%;background:var(--s1);border:.5px solid var(--bo2);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;color:var(--tx2)}
+.att-btn:active{background:var(--s2)}
+/* PROFILE EXTRA */
 .set-row{background:var(--s1);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px}
-.set-lbl{font-size:12px;color:var(--tx4);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
-.set-inp{background:var(--bg1);border:.5px solid var(--bo2);border-radius:10px;padding:10px 13px;color:var(--tx);font-family:var(--mo);font-size:13px;outline:none;width:100%}
-.set-inp::placeholder{color:var(--tx4);font-family:var(--f)}
-.set-btn2{padding:10px;border-radius:10px;background:var(--acc);border:none;cursor:pointer;color:#fff;font-family:var(--f);font-size:14px;font-weight:600;text-align:center}
-.set-btn2.sec{background:var(--s3);color:var(--tx)}
+.set-lbl{font-size:11px;color:var(--tx4);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
 
 </style>
 </head>
@@ -258,65 +233,28 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
     <div class="tbc"><button class="mb2" onclick="openMS()"><span class="mbn" id="mname">GPT-5.2 Chat</span><span class="mbc">▾</span></button></div>
     <div class="tbr"><button class="rqb" onclick="openProf()" id="rqbtn"><span id="rqnum">—</span><span class="rqb-st">★</span></button></div>
   </div>
-  <div id="screens">
-    <!-- CHAT -->
-    <div class="scr act" id="scr-chat">
-      <div id="chat">
-        <div id="msgs">
-          <div id="wlc">
-            <div class="wi">🤖</div><div class="wt">ХУЗА AI</div>
-            <div class="ws">Умный ИИ-помощник. Задай вопрос или выбери пример.</div>
-            <div class="wch" id="wch"></div>
-          </div>
-        </div>
-        <div id="ib">
-          <div class="pprev" id="pprev">
-            <img class="pthumb" id="pthumb" src="" alt=""/>
-            <button class="prm" onclick="rmPhoto()">✕</button>
-            <span style="font-size:13px;color:var(--tx2)">Фото прикреплено</span>
-          </div>
-          <div class="ir">
-            <button class="plus-btn" onclick="openTP()">＋</button>
-            <textarea id="inp" placeholder="Введите сообщение..." rows="1" onkeydown="onK(event)" oninput="rsz(this)"></textarea>
-            <button class="sb" id="snd" onclick="send()" disabled>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
-            </button>
-          </div>
-        </div>
+  <div id="chat">
+    <div id="msgs">
+      <div id="wlc">
+        <div class="wi">🤖</div><div class="wt">ХУЗА AI</div>
+        <div class="ws">Умный ИИ-помощник. Задай вопрос или выбери пример.</div>
+        <div class="wch" id="wch"></div>
       </div>
     </div>
-    <!-- GENERATE -->
-    <div class="scr" id="scr-gen">
-      <div class="gen-tabs" id="gen-tabs">
-        <button class="gtab act" data-tab="image" onclick="switchGTab(this)">🎨 Картинки</button>
-        <button class="gtab" data-tab="music" onclick="switchGTab(this)">🎵 Музыка</button>
-        <button class="gtab" data-tab="video" onclick="switchGTab(this)">🎥 Видео</button>
-        <button class="gtab" data-tab="docs" onclick="switchGTab(this)">📄 Документы</button>
+    <div id="ib">
+      <div class="pprev" id="pprev">
+        <img class="pthumb" id="pthumb" src="" alt=""/>
+        <button class="prmbtn" onclick="rmPhoto()">✕</button>
+        <span style="font-size:12px;color:var(--tx2)">Фото прикреплено</span>
       </div>
-      <div class="gen-panels">
-        <div class="gen-panel act" id="gpanel-image"></div>
-        <div class="gen-panel" id="gpanel-music"></div>
-        <div class="gen-panel" id="gpanel-video"></div>
-        <div class="gen-panel" id="gpanel-docs"></div>
+      <div class="ir">
+        <button class="att-btn" onclick="openTP()">＋</button>
+        <textarea id="inp" placeholder="Введите сообщение..." rows="1" onkeydown="onK(event)" oninput="rsz(this)"></textarea>
+        <button class="sb" id="snd" onclick="send()" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+        </button>
       </div>
     </div>
-    <!-- PROFILE -->
-    <div class="scr" id="scr-prof">
-      <div class="prof-scroll" id="profbd"></div>
-    </div>
-  </div>
-
-  <!-- BOTTOM NAV -->
-  <div id="nav">
-    <button class="nav-item act" id="ni-chat" onclick="goTab('chat')">
-      <span class="ni">💬</span><span>Чат</span>
-    </button>
-    <button class="nav-item" id="ni-gen" onclick="goTab('gen')">
-      <span class="ni">✨</span><span>Создать</span>
-    </button>
-    <button class="nav-item" id="ni-prof" onclick="goTab('prof')">
-      <span class="ni">👤</span><span>Профиль</span>
-    </button>
   </div>
 </div>
 <div id="dbg"></div>
@@ -327,12 +265,12 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
     <div class="sbai"><div class="sbico">🤖</div><div><div class="sban" id="sban">ХУЗА AI</div><div class="sbap" id="sbap">Free</div></div></div>
   </div>
   <div class="sbsep"></div>
-  <div class="sbi" onclick="closeSB();goTab('prof')"><span class="sii">☆</span><span class="sit">Подписка</span></div>
+  <div class="sbi" onclick="closeSB();openProf()"><span class="sii">☆</span><span class="sit">Подписка</span></div>
   <div class="sbi" onclick="closeSB();newChat()"><span class="sii">⊕</span><span class="sit">Новый чат</span></div>
-  <div class="sbi" onclick="closeSB();goTab('gen');setTimeout(()=>switchGTabByName('image'),50)"><span class="sii">🎨</span><span class="sit">Генерация картинок</span></div>
-  <div class="sbi" onclick="closeSB();goTab('gen');setTimeout(()=>switchGTabByName('music'),50)"><span class="sii">🎵</span><span class="sit">Генерация музыки</span></div>
-  <div class="sbi" onclick="closeSB();goTab('gen');setTimeout(()=>switchGTabByName('video'),50)"><span class="sii">🎥</span><span class="sit">Генерация видео</span></div>
-  <div class="sbi" onclick="closeSB();goTab('gen');setTimeout(()=>switchGTabByName('docs'),50)"><span class="sii">📄</span><span class="sit">Документы / PPTX</span></div>
+  <div class="sbi" onclick="closeSB();openGen('image')"><span class="sii">🎨</span><span class="sit">Генерация картинок</span></div>
+  <div class="sbi" onclick="closeSB();openGen('music')"><span class="sii">🎵</span><span class="sit">Генерация музыки</span></div>
+  <div class="sbi" onclick="closeSB();openGen('video')"><span class="sii">🎥</span><span class="sit">Генерация видео</span></div>
+  <div class="sbi" onclick="closeSB();openGen('docs')"><span class="sii">📄</span><span class="sit">Документы / PPTX</span></div>
   <div class="sbi" onclick="closeSB();openMS()"><span class="sii">⚙</span><span class="sit">Настройки модели</span></div>
   <div class="sbsep"></div>
   <div class="sbsl">История чатов</div>
@@ -349,14 +287,14 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
 <div class="sheet" id="tp">
   <div class="sph" style="margin-bottom:8px"></div>
   <div class="tg">
-    <div class="tc" onclick="closeSheets();goTab('gen');setTimeout(()=>switchGTabByName('image'),50)"><div class="tci">🎨</div><div class="tcl">Картинка</div></div>
-    <div class="tc" onclick="closeSheets();goTab('gen');setTimeout(()=>switchGTabByName('music'),50)"><div class="tci">🎵</div><div class="tcl">Музыка</div></div>
-    <div class="tc" onclick="closeSheets();goTab('gen');setTimeout(()=>switchGTabByName('video'),50)"><div class="tci">🎥</div><div class="tcl">Видео</div></div>
-    <div class="tc" onclick="closeSheets();goTab('gen');setTimeout(()=>switchGTabByName('docs'),50)"><div class="tci">📄</div><div class="tcl">Документ</div></div>
+    <div class="tc" onclick="closeSheets();openGen('image')"><div class="tci">🎨</div><div class="tcl">Картинка</div></div>
+    <div class="tc" onclick="closeSheets();openGen('music')"><div class="tci">🎵</div><div class="tcl">Музыка</div></div>
+    <div class="tc" onclick="closeSheets();openGen('video')"><div class="tci">🎥</div><div class="tcl">Видео</div></div>
+    <div class="tc" onclick="closeSheets();openGen('docs')"><div class="tci">📄</div><div class="tcl">Документ</div></div>
     <div class="tc" onclick="closeSheets();openMS()"><div class="tci">🤖</div><div class="tcl">Модель</div></div>
     <div class="tc" onclick="closeSheets();attPhoto()"><div class="tci">📷</div><div class="tcl">Фото</div></div>
     <div class="tc" onclick="closeSheets();newChat()"><div class="tci">✏️</div><div class="tcl">Новый чат</div></div>
-    <div class="tc" onclick="closeSheets();goTab('prof')"><div class="tci">👤</div><div class="tcl">Профиль</div></div>
+    <div class="tc" onclick="closeSheets();openProf()"><div class="tci">👤</div><div class="tcl">Профиль</div></div>
   </div>
   <div style="padding:0 14px 4px"><button class="gb" onclick="closeSheets()" style="background:var(--s1);color:var(--tx)">Отмена</button></div>
 </div>
@@ -367,23 +305,27 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
   </div>
   <div class="fpbd" id="gpbd"></div>
 </div>
-<!-- prof panel moved to screen -->
+<div class="fp" id="prof">
+  <div class="fptb">
+    <button class="fpbk" onclick="closeProf()"><svg viewBox="0 0 9 15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="8 1 2 7.5 8 14"/></svg>Назад</button>
+    <span class="fptit">Профиль</span><span style="min-width:60px"></span>
+  </div>
+  <div class="fpbd" id="profbd"></div>
+</div>
 <div id="toast"></div>
 
-<!-- SHARE MODAL -->
-<div id="share-modal">
-  <div id="share-overlay" onclick="closeShare()"></div>
-  <div id="share-box">
-    <div class="share-title">Поделиться ответом ИИ</div>
-    <div class="share-preview" id="share-preview"></div>
-    <div class="share-btns">
-      <button class="share-btn tg" onclick="shareTg()">📤 Telegram</button>
-      <button class="share-btn" onclick="shareCopy()">📋 Скопировать</button>
+<div id="shmod">
+  <div id="shovl" onclick="closeShare()"></div>
+  <div id="shbox">
+    <div class="shtit">Поделиться ответом ИИ</div>
+    <div class="shprev" id="shprev"></div>
+    <div class="shbtns">
+      <button class="shbtn tg" onclick="shareTg()">📤 В Telegram</button>
+      <button class="shbtn" onclick="shareCopy()">📋 Скопировать</button>
     </div>
-    <button class="share-cancel" onclick="closeShare()">Отмена</button>
+    <button class="shcancel" onclick="closeShare()">Отмена</button>
   </div>
 </div>
-
 <input type="file" id="phi" accept="image/*" style="display:none" onchange="onPhoto(event)"/>
 <script>
 // ════════ CONFIG ════════
@@ -435,28 +377,29 @@ function cpc(b){const t=b.closest('.cb').querySelector('code').innerText;navigat
 // ════════ CHAT RENDER ════════
 const hwlc=()=>document.getElementById('wlc')?.classList.add('g');
 function addU(txt){hwlc();const m=document.getElementById('msgs');const d=document.createElement('div');d.className='mr u';d.innerHTML=`<div class="mc"><div class="bu">${esc(txt).replace(/\n/g,'<br>')}</div></div><div class="av">👤</div>`;m.appendChild(d);sd();}
-function addA(){const m=document.getElementById('msgs');const d=document.createElement('div');d.className='mr a';d.innerHTML=`<div class="av">🤖</div><div class="mc"><div class="bu"><div class="td"><span></span><span></span><span></span></div><div class="ac" style="display:none"></div></div></div>`;m.appendChild(d);sd();return{td:d.querySelector('.td'),ac:d.querySelector('.ac')};}
+function addA(){const m=document.getElementById('msgs');const d=document.createElement('div');d.className='mr a';d.innerHTML=`<div class="av">🤖</div><div class="mc"><div class="bu"><div class="td"><span></span><span></span><span></span></div><div class="ac" style="display:none"></div></div><div class="msg-actions"></div></div>`;m.appendChild(d);sd();return{td:d.querySelector('.td'),ac:d.querySelector('.ac'),el:d};}
 const sd=()=>{const m=document.getElementById('msgs');requestAnimationFrame(()=>{m.scrollTop=m.scrollHeight;});};
 // ════════ SEND — 3 стратегии ════════
 async function send(){
   const inp=document.getElementById('inp');const txt=inp.value.trim();
   if(!txt||S.busy)return;
   inp.value='';rsz(inp);document.getElementById('snd').disabled=true;S.busy=1;S.mc++;
+  const imgData=S.pi;S.pi=null;document.getElementById('pprev').classList.remove('s');
   addU(txt);S.hist.push({role:'user',content:txt});
-  const{td,ac}=addA();let full='';
+  const{td,ac,el}=addA();let full='';
   const onChunk=chunk=>{if(td.style.display!=='none'){td.style.display='none';ac.style.display='block';}full+=chunk;ac.innerHTML=rmd(full)+'<span class="cur"></span>';rk(ac);sd();};
   let ok=false;
   // ─ СТРАТЕГИЯ 1: Backend ─
   if(!ok){
     try{
-      const r=await fetch(`${CFG.API}/api/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:S.mdl,messages:S.hist.slice(-20),stream:true,init_data:tg?.initData||''}),signal:AbortSignal.timeout(90000)});
+      const initD=tg?.initData||'';const r=await fetch(`${CFG.API}/api/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:S.mdl,messages:S.hist.slice(-20),stream:true,init_data:initD}),signal:AbortSignal.timeout(90000)});
       if(r.status===405||r.status===403||r.status===404){dbg(`Backend ${r.status} → пробую SQ Direct`);}
       else if(!r.ok){const t=await r.text().catch(()=>'');throw new Error(`Backend HTTP ${r.status}: ${t.slice(0,100)}`);}
       else{await readSSE(r,onChunk);ok=true;}
     }catch(e){if(!ok)dbg('Backend fail: '+e.message);}
   }
-  // Strategy 2 removed
-  if(false){
+  // ─ СТРАТЕГИЯ 2: OnlySQ напрямую ─
+  if(!ok&&CFG.SQ_KEY){
     try{
       dbg('Пробую OnlySQ Direct...');
       const model=MO[S.mdl];
@@ -477,17 +420,24 @@ async function send(){
   }
   if(!ok){
     td.style.display='none';ac.style.display='block';
-    ac.innerHTML=`<div style="color:var(--re);font-size:14px">⚠️ Не удалось подключиться к ИИ.</div>
-    <div style="margin-top:10px;font-size:13px;color:var(--tx4);line-height:1.6">
-      <b style="color:var(--tx2)">Способы исправить:</b><br>
-      1. Добавь <code style="background:var(--s2);padding:2px 6px;border-radius:4px">?sqkey=ВАШ_КЛЮЧ</code> к URL мини-аппа<br>
-      2. Проверь что бот запущен на Railway<br>
-      3. Убедись что <code>/api/chat</code> отвечает на POST<br>
-      <a href="${CFG.API}/api/chat" target="_blank" style="color:var(--blue)">Проверить бэкенд →</a>
+    const iD=tg?.initData||'';ac.innerHTML=`<div style="color:var(--re);font-size:14px;margin-bottom:8px">⚠️ Нет соединения с ИИ</div>
+    <div style="font-size:12px;color:var(--tx4);line-height:1.8;background:var(--s1);border-radius:12px;padding:12px">
+      <b style="color:var(--tx2)">Диагностика:</b><br>
+      • API: <code style="color:var(--tx3)">${CFG.API.slice(0,40)}</code><br>
+      • initData: <code style="color:${iD?'var(--gr)':'var(--re)'}">${iD?'✅ есть ('+iD.length+' симв.)':'❌ пусто (открой через бота)'}</code><br>
+      • <a href="${CFG.API}/api/chat" target="_blank" style="color:var(--blue)">Проверить /api/chat →</a>
     </div>`;
   }
   ac.querySelectorAll('.cur').forEach(c=>c.remove());
-  if(full)S.hist.push({role:'assistant',content:full});
+  if(full){
+    S.hist.push({role:'assistant',content:full});
+    const act=el?.querySelector('.msg-actions');
+    if(act){
+      const esc2=full.replace(/\\/g,'\\\\').replace(/`/g,'\\`').replace(/\$/g,'\\$');
+      act.innerHTML=`<button class="mact" onclick="cpMsg(this,\`${esc2}\`)">📋 Копировать</button><button class="mact" onclick="openShare(\`${esc2}\`)">📤 Поделиться</button>`;
+      el.classList.add('show-act');
+    }
+  }
   updHist(txt);S.busy=0;document.getElementById('snd').disabled=!document.getElementById('inp').value.trim();sd();
   loadLimits();
 }
@@ -516,11 +466,16 @@ function openMS(){hap();renderMods();document.getElementById('msi').value='';doc
 function pickM(k){S.mdl=k;document.getElementById('mname').textContent=MO[k].l;closeSheets();toast('✅ '+MO[k].l,'ok');}
 function closeSheets(){['ms','tp'].forEach(id=>document.getElementById(id).classList.remove('o'));document.getElementById('sho').classList.remove('o');}
 // ════════ LIMITS ════════
-async function loadLimits(){try{const uid=S.tgu?.id;const params=new URLSearchParams();if(uid)params.set('uid',uid);if(tg?.initData)params.set('init_data',tg.initData);const r=await fetch(`${CFG.API}/api/limits?${params}`,{signal:AbortSignal.timeout(10000)});if(!r.ok)return;const d=await r.json();S.lim={pro_used:d.pro_used||0,pro_max:d.pro_max||30,img_used:d.img_used||0,img_max:d.img_max||0,music_used:d.music_used||0,music_max:d.music_max||0,video_used:d.video_used||0,video_max:d.video_max||0,has_sub:!!d.has_sub,sub_plan:d.sub_plan||d.plan||'',sub_expires:d.sub_expires||d.expires||'',level:d.level||0,level_max:d.level_max||50,referrals:d.referrals||0,join_date:d.join_date||'',model:d.model||'',mode:d.mode||'',total_requests:d.total_requests||d.requests||0,total_gens:d.total_gens||d.generations||0,reset_in:d.reset_in||''};const left=Math.max(0,S.lim.pro_max-S.lim.pro_used);document.getElementById('rqnum').textContent=left;document.getElementById('sbap').textContent=S.lim.has_sub?(S.lim.sub_plan||'Pro'):'Free';}catch(e){}}
+async function loadLimits(){try{const uid=S.tgu?.id;const params=new URLSearchParams();if(uid)params.set('uid',uid);const iData=tg?.initData||'';if(iData)params.set('init_data',iData);const r=await fetch(`${CFG.API}/api/limits?${params}`,{signal:AbortSignal.timeout(10000)});if(!r.ok)return;const d=await r.json();S.lim={pro_used:d.pro_used||0,pro_max:d.pro_max||30,img_used:d.img_used||0,img_max:d.img_max||0,music_used:d.music_used||0,music_max:d.music_max||0,video_used:d.video_used||0,video_max:d.video_max||0,has_sub:!!d.has_sub,sub_plan:d.sub_plan||d.plan||'',sub_expires:d.sub_expires||d.expires||'',level:d.level||0,level_max:d.level_max||50,referrals:d.referrals||0,join_date:d.join_date||'',model:d.model||'',mode:d.mode||'',total_requests:d.total_requests||d.requests||0,total_gens:d.total_gens||d.generations||0,reset_in:d.reset_in||''};const left=Math.max(0,S.lim.pro_max-S.lim.pro_used);document.getElementById('rqnum').textContent=left;document.getElementById('sbap').textContent=S.lim.has_sub?(S.lim.sub_plan||'Pro'):'Free';}catch(e){}}
 // ════════ PROFILE ════════
 function openProf(){renderProfile();document.getElementById('prof').classList.add('o');if(tg)tg.BackButton.show();}
 function closeProf(){document.getElementById('prof').classList.remove('o');if(tg)tg.BackButton.hide();}
-function renderProfile(){const u=S.tgu;const L=S.lim;const ini=u?((u.first_name||'')[0]||'')+((u.last_name||'')[0]||''):'?';const name=u?[u.first_name,u.last_name].filter(Boolean).join(' '):'Гость';const uname=u?.username?`@${u.username}`:'';const uid=u?.id||'—';const proUsed=L.pro_used,proMax=L.pro_max;const barW=proMax>0?Math.min(100,(proUsed/proMax)*100):0;const hasSub=L.has_sub;const subName=hasSub?(L.sub_plan||'Pro')+' подписка':'Free план';const subStatus=hasSub?(L.sub_expires?`активна до ${L.sub_expires}`:'активна'):'Нет подписки';const botModel=L.model||MO[S.mdl]?.l||S.mdl;document.getElementById('profbd').innerHTML=`<div class="ph"><div class="pa">${esc(ini.toUpperCase())||'👤'}</div><div><div class="pn">${esc(name)}</div>${uname?`<div class="pu">${esc(uname)}</div>`:''}<div class="pid">ID: ${uid}</div>${L.join_date?`<div class="pid">Дата входа — ${esc(L.join_date)}</div>`:''}</div></div><div class="sg2"><div class="sc"><div class="sci">💬</div><div class="scv">${L.total_requests||S.mc}</div><div class="scl">Запросов</div></div><div class="sc"><div class="sci">🎨</div><div class="scv">${L.total_gens||S.ic}</div><div class="scl">Генераций</div></div><div class="sc"><div class="sci">🎁</div><div class="scv">${L.referrals}</div><div class="scl">Рефералов</div></div><div class="sc"><div class="sci">⭐</div><div class="scv" style="font-size:${L.level>0?'22':'15'}px">${L.level>0?'Ур. '+L.level:'Начинающий'}</div><div class="scl">${L.level_max>0?`до ${L.level_max} зап.`:'Уровень'}</div></div></div><div class="subc"><div class="subr"><div class="subico ${hasSub?'pro':''}">💎</div><div><div class="subn">${esc(subName)}</div><div class="subs">${esc(subStatus)}</div></div></div><div><div class="lrow"><span>Запросы</span><span>${proUsed} / ${proMax}${L.reset_in?' ↻ '+L.reset_in:''}</span></div><div class="lbar"><div class="lf" style="width:${barW}%"></div></div></div></div><div><div class="sec-hdr" style="margin-bottom:6px">💡 Лимиты</div><div class="liml"><div class="limr"><span class="lico">💬</span><span class="limt">Запросы</span><span class="limv">${proUsed} / ${proMax}</span></div>${L.img_max>0?`<div class="limr"><span class="lico">🎨</span><span class="limt">Картинки</span><span class="limv">${L.img_used} / ${L.img_max} <small style="color:var(--tx4)">в мес.</small></span></div>`:''} ${L.music_max>0?`<div class="limr"><span class="lico">🎵</span><span class="limt">Музыка</span><span class="limv">${L.music_used} / ${L.music_max} <small style="color:var(--tx4)">в мес.</small></span></div>`:''} ${L.video_max>0?`<div class="limr"><span class="lico">🎥</span><span class="limt">Видео</span><span class="limv">${L.video_used} / ${L.video_max} <small style="color:var(--tx4)">в мес.</small></span></div>`:''}</div></div><div><div class="sec-hdr" style="margin-bottom:6px">⚙️ Настройки</div><div class="liml"><div class="limr"><span class="lico">🤖</span><span class="limt">Модель</span><span class="limv" style="font-size:12px;max-width:160px;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(botModel)}</span></div>${L.mode?`<div class="limr"><span class="lico">⚡</span><span class="limt">Режим</span><span class="limv">${esc(L.mode)}</span></div>`:''}</div></div><div class="pg"><div class="pr2" onclick="closeProf();openMS()"><span class="pio">🤖</span><span class="plt">Выбор модели</span><span class="par">›</span></div><div class="pr2" onclick="newChat();closeProf()"><span class="pio">✏️</span><span class="plt">Новый чат</span><span class="par">›</span></div><div class="pr2" onclick="toast('ℹ️ ХУЗА AI v2.1','')"><span class="pio">ℹ️</span><span class="plt">О приложении</span><span class="par">›</span></div></div>`;}
+function renderProfile(){const u=S.tgu;const L=S.lim;const ini=u?((u.first_name||'')[0]||'')+((u.last_name||'')[0]||''):'?';const name=u?[u.first_name,u.last_name].filter(Boolean).join(' '):'Гость';const uname=u?.username?`@${u.username}`:'';const uid=u?.id||'—';const proUsed=L.pro_used,proMax=L.pro_max;const barW=proMax>0?Math.min(100,(proUsed/proMax)*100):0;const hasSub=L.has_sub;const subName=hasSub?(L.sub_plan||'Pro')+' подписка':'Free план';const subStatus=hasSub?(L.sub_expires?`активна до ${L.sub_expires}`:'активна'):'Нет подписки';const botModel=L.model||MO[S.mdl]?.l||S.mdl;document.getElementById('profbd').innerHTML=`<div class="ph"><div class="pa">${esc(ini.toUpperCase())||'👤'}</div><div><div class="pn">${esc(name)}</div>${uname?`<div class="pu">${esc(uname)}</div>`:''}<div class="pid">ID: ${uid}</div>${L.join_date?`<div class="pid">Дата входа — ${esc(L.join_date)}</div>`:''}</div></div><div class="sg2"><div class="sc"><div class="sci">💬</div><div class="scv">${L.total_requests||S.mc}</div><div class="scl">Запросов</div></div><div class="sc"><div class="sci">🎨</div><div class="scv">${L.total_gens||S.ic}</div><div class="scl">Генераций</div></div><div class="sc"><div class="sci">🎁</div><div class="scv">${L.referrals}</div><div class="scl">Рефералов</div></div><div class="sc"><div class="sci">⭐</div><div class="scv" style="font-size:${L.level>0?'22':'15'}px">${L.level>0?'Ур. '+L.level:'Начинающий'}</div><div class="scl">${L.level_max>0?`до ${L.level_max} зап.`:'Уровень'}</div></div></div><div class="subc"><div class="subr"><div class="subico ${hasSub?'pro':''}">💎</div><div><div class="subn">${esc(subName)}</div><div class="subs">${esc(subStatus)}</div></div></div><div><div class="lrow"><span>Запросы</span><span>${proUsed} / ${proMax}${L.reset_in?' ↻ '+L.reset_in:''}</span></div><div class="lbar"><div class="lf" style="width:${barW}%"></div></div></div></div><div><div class="sec-hdr" style="margin-bottom:6px">💡 Лимиты</div><div class="liml"><div class="limr"><span class="lico">💬</span><span class="limt">Запросы</span><span class="limv">${proUsed} / ${proMax}</span></div>${L.img_max>0?`<div class="limr"><span class="lico">🎨</span><span class="limt">Картинки</span><span class="limv">${L.img_used} / ${L.img_max} <small style="color:var(--tx4)">в мес.</small></span></div>`:''} ${L.music_max>0?`<div class="limr"><span class="lico">🎵</span><span class="limt">Музыка</span><span class="limv">${L.music_used} / ${L.music_max} <small style="color:var(--tx4)">в мес.</small></span></div>`:''} ${L.video_max>0?`<div class="limr"><span class="lico">🎥</span><span class="limt">Видео</span><span class="limv">${L.video_used} / ${L.video_max} <small style="color:var(--tx4)">в мес.</small></span></div>`:''}</div></div><div><div class="sec-hdr" style="margin-bottom:6px">⚙️ Настройки</div><div class="liml"><div class="limr"><span class="lico">🤖</span><span class="limt">Модель</span><span class="limv" style="font-size:12px;max-width:160px;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(botModel)}</span></div>${L.mode?`<div class="limr"><span class="lico">⚡</span><span class="limt">Режим</span><span class="limv">${esc(L.mode)}</span></div>`:''}</div></div><div class="pg">
+        <div class="pr2" onclick="closeProf();openMS()"><span class="pio">🤖</span><span class="plt">Выбор модели</span><span class="par">›</span></div>
+        <div class="pr2" onclick="cpRefLink()"><span class="pio">🔗</span><span class="plt">Реферальная ссылка</span><span class="par">›</span></div>
+        <div class="pr2" onclick="newChat();closeProf()"><span class="pio">✏️</span><span class="plt">Новый чат</span><span class="par">›</span></div>
+        <div class="pr2" onclick="toast('ХУЗА AI v3.0 ✨','')"><span class="pio">ℹ️</span><span class="plt">О приложении</span><span class="par">›</span></div>
+      </div>`;}
 // ════════ GEN PAGES ════════
 const GTPL={image:{t:'🎨 Картинки',html:()=>`<div class="gc"><div class="gci"><div><div class="fl">Модель</div><select class="gs" id="gim"><option value="flux">🎨 Flux</option><option value="turbo">🚀 Turbo</option><option value="gptimage">🖼 GPT-Image</option><option value="flux-realism">📸 Flux Realism</option><option value="flux-anime">🌸 Flux Anime</option><option value="imagen-4">🌟 Imagen 4</option><option value="grok-imagine">🤖 Grok</option></select></div><div><div class="fl">Примеры</div><div class="exr">${IEX.map(e=>`<div class="exch" onclick="sv('gip',\`${e.replace(/`/g,'')}\`)">${esc(e)}</div>`).join('')}</div></div><div><div class="fl">Описание</div><textarea class="gta" id="gip" placeholder="Опиши картинку..."></textarea></div><div class="sg2x"><div><div class="fl">Ширина</div><select class="gs" id="giw"><option value="512">512</option><option value="768">768</option><option value="1024" selected>1024</option><option value="1280">1280</option></select></div><div><div class="fl">Высота</div><select class="gs" id="gih"><option value="512">512</option><option value="768">768</option><option value="1024" selected>1024</option><option value="1280">1280</option></select></div></div><div class="pw" id="gipw"><div class="pf" id="gipf"></div></div><button class="gb" id="gibtn" onclick="gImg()"><span class="bl">✨ Генерировать</span><div class="bs"></div></button><div class="rb" id="gires"><img id="giimg" src="" alt=""/><div class="ra"><button onclick="shrI()">📤 Поделиться</button><button class="pr" onclick="dlI()">⬇️ Скачать</button></div></div></div></div>`},music:{t:'🎵 Музыка',html:()=>`<div class="gc"><div class="gci"><div><div class="fl">Провайдер</div><div class="chs"><div class="ch2 on" id="mcs" onclick="selMu('suno',this)">🎵 Suno v5</div><div class="ch2" id="mce" onclick="selMu('eleven',this)">🎸 ElevenLabs</div></div></div><div><div class="fl">Стиль</div><div class="chs">${MSTY.map((s,i)=>`<div class="ch2${i===0?' on':''}" onclick="tCh(this,'ms')">${esc(s)}</div>`).join('')}</div></div><div><div class="fl">Примеры</div><div class="exr">${MEX.map(e=>`<div class="exch" onclick="sv('mup',\`${e.replace(/`/g,'')}\`)">${esc(e)}</div>`).join('')}</div></div><div><div class="fl">Описание</div><textarea class="gta" id="mup" placeholder="Настроение, инструменты, темп..."></textarea></div><div class="pw" id="mupw"><div class="pf" id="mupf"></div></div><button class="gb" id="mubtn" onclick="gMus()"><span class="bl">🎵 Создать трек</span><div class="bs"></div></button><div class="rb" id="mures"><audio id="muaud" controls></audio><div class="ra"><button class="pr" onclick="dlM()">⬇️ Скачать MP3</button></div></div></div></div>`},video:{t:'🎥 Видео',html:()=>`<div class="gc"><div class="gci"><div><div class="fl">Модель</div><div class="chs"><div class="ch2 on" onclick="tCh(this,'vm')">🎬 WAN</div><div class="ch2" onclick="tCh(this,'vm')">⚡ WAN Pro</div><div class="ch2" onclick="tCh(this,'vm')">🌊 Mochi</div></div></div><div><div class="fl">Описание</div><textarea class="gta" id="vip" placeholder="Опиши сцену..."></textarea></div><div><div class="fl">Длительность</div><select class="gs" id="vid"><option value="3">3 сек</option><option value="5" selected>5 сек</option><option value="8">8 сек</option></select></div><div class="pw" id="vipw"><div class="pf" id="vipf"></div></div><button class="gb" id="vibtn" onclick="gVid()"><span class="bl">🎬 Создать видео</span><div class="bs"></div></button><div class="rb" id="vires"><video id="vivid" controls playsinline style="max-height:280px;background:#000"></video><div class="ra"><button class="pr" onclick="dlV()">⬇️ Скачать MP4</button></div></div></div></div>`},docs:{t:'📄 Документы',html:()=>`<div style="display:flex;gap:8px;overflow-x:auto;scrollbar-width:none"><div class="ch2 on" id="dtR" onclick="swDT('R')">📝 Реферат</div><div class="ch2" id="dtP" onclick="swDT('P')">🎞 PPTX</div><div class="ch2" id="dtW" onclick="swDT('W')">🌐 HTML</div></div><div id="dtRb" class="gc"><div class="gci"><div><div class="fl">Тема</div><input class="gi" id="rpt" placeholder="Квантовая механика..."/></div><div><div class="fl">Модель</div><select class="gs" id="rpm"><option value="claude_opus">🔵 Claude Opus</option><option value="claude_sonnet">🔷 Sonnet</option><option value="gpt52">⚡ GPT-5.2</option></select></div><div><div class="fl">Страниц</div><select class="gs" id="rpp"><option value="5">5</option><option value="10" selected>10</option><option value="15">15</option></select></div><div><div class="fl">Доп. пожелания</div><textarea class="gta" id="rpe" placeholder="..." style="min-height:58px"></textarea></div><button class="gb" id="rpbtn" onclick="gRpt()"><span class="bl">📝 Создать реферат</span><div class="bs"></div></button><div class="dlc" id="rpdl"><div class="dli">📄</div><div class="dlinf"><div class="dlfn" id="rpfn">doc.docx</div><div class="dlm" id="rpmeta">Готово</div></div><button class="dlb" id="rpdlb">↓ Скачать</button></div></div></div><div id="dtPb" class="gc" style="display:none"><div class="gci"><div><div class="fl">Тема</div><input class="gi" id="ptt" placeholder="ИИ в 2025..."/></div><div><div class="fl">Слайды</div><select class="gs" id="pts"><option value="8">8</option><option value="12" selected>12</option><option value="16">16</option></select></div><div><div class="fl">Модель</div><select class="gs" id="ptm"><option value="claude_opus">🔵 Claude Opus</option><option value="gpt52">⚡ GPT-5.2</option></select></div><div><div class="fl">Автор</div><input class="gi" id="pta" placeholder="Иван Иванов (опционально)"/></div><button class="gb" id="ptbtn" onclick="gPptx()"><span class="bl">🎞 Создать PPTX</span><div class="bs"></div></button><div class="dlc" id="ptdl"><div class="dli">📊</div><div class="dlinf"><div class="dlfn" id="ptfn">pres.pptx</div><div class="dlm" id="ptmeta">Готово</div></div><button class="dlb" id="ptdlb">↓ Скачать</button></div></div></div><div id="dtWb" class="gc" style="display:none"><div class="gci"><div><div class="fl">Тема</div><input class="gi" id="wpt" placeholder="Тема..."/></div><div><div class="fl">Слайды</div><select class="gs" id="wps"><option value="8">8</option><option value="12" selected>12</option></select></div><div><div class="fl">Модель</div><select class="gs" id="wpm"><option value="claude_opus">🔵 Claude Opus</option><option value="gpt52">⚡ GPT-5.2</option></select></div><div><div class="fl">Пожелания</div><textarea class="gta" id="wpw" placeholder="Минимализм..." style="min-height:58px"></textarea></div><button class="gb" id="wpbtn" onclick="gWpptx()"><span class="bl">🌐 HTML-слайды</span><div class="bs"></div></button><div class="dlc" id="wpdl"><div class="dli">🌐</div><div class="dlinf"><div class="dlfn" id="wpfn">pres.html</div><div class="dlm" id="wpmeta">Готово</div></div><button class="dlb" id="wpdlb">↓ Скачать</button></div></div></div>`}};
 const sv=(id,v)=>{const e=document.getElementById(id);if(e)e.value=v;};
@@ -544,7 +499,8 @@ async function gRpt(){const topic=document.getElementById('rpt')?.value.trim();i
 async function gPptx(){const topic=document.getElementById('ptt')?.value.trim();if(!topic){toast('⚠️ Введи тему','er');return;}ld('ptbtn',1);try{const d=await apiPost('/api/pptx',{topic,slides:parseInt(document.getElementById('pts')?.value)||12,model:document.getElementById('ptm')?.value,author:document.getElementById('pta')?.value||''});document.getElementById('ptfn').textContent=d.filename||'pres.pptx';document.getElementById('ptmeta').textContent=(d.slides_count||'?')+' слайдов';document.getElementById('ptdl').classList.add('s');document.getElementById('ptdlb').onclick=()=>b64dl(d.pptx_b64,d.filename||'pres.pptx','application/vnd.openxmlformats-officedocument.presentationml.presentation');toast('🎞 PPTX готов!','ok');}catch(e){toast('❌ '+e.message,'er');}ld('ptbtn',0);}
 async function gWpptx(){const topic=document.getElementById('wpt')?.value.trim();if(!topic){toast('⚠️ Введи тему','er');return;}ld('wpbtn',1);try{const d=await apiPost('/api/webpptx',{topic,slides:parseInt(document.getElementById('wps')?.value)||12,model:document.getElementById('wpm')?.value,wishes:document.getElementById('wpw')?.value||''});document.getElementById('wpfn').textContent=d.filename||'pres.html';document.getElementById('wpmeta').textContent=(d.slides_count||'?')+' слайдов';document.getElementById('wpdl').classList.add('s');document.getElementById('wpdlb').onclick=()=>b64dl(d.html_b64,d.filename||'pres.html','text/html;charset=utf-8');toast('🌐 HTML готов!','ok');}catch(e){toast('❌ '+e.message,'er');}ld('wpbtn',0);}
 const attPhoto=()=>document.getElementById('phi').click();
-function onPhoto(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{S.pi=ev.target.result.split(',')[1];const i=document.getElementById('inp');if(!i.value)i.value='Что на этом изображении?';rsz(i);toast('📷 Фото прикреплено','ok');};r.readAsDataURL(f);e.target.value='';}
+function onPhoto(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{S.pi=ev.target.result.split(',')[1];document.getElementById('pthumb').src=ev.target.result;document.getElementById('pprev').classList.add('s');const i=document.getElementById('inp');if(!i.value)i.value='Что на этом изображении?';rsz(i);toast('📷 Фото прикреплено','ok');};r.readAsDataURL(f);e.target.value='';}
+function rmPhoto(){S.pi=null;document.getElementById('pprev').classList.remove('s');}
 let _tt;function toast(msg,t=''){const el=document.getElementById('toast');el.textContent=msg;el.className='toast s'+(t?' '+t:'');clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('s'),2800);}
 function renderSuggest(){const c=document.getElementById('wch');if(!c)return;c.innerHTML='';SUGG.forEach(s=>{const d=document.createElement('div');d.className='wc';d.textContent=s;d.onclick=()=>{const i=document.getElementById('inp');i.value=s.replace(/^[^\s]+\s/,'');rsz(i);i.focus();hap();};c.appendChild(d);});}
 // ════════ INIT ════════
@@ -559,260 +515,26 @@ document.addEventListener('DOMContentLoaded',()=>{
   if(!CFG.SQ_KEY)console.info('[ХУЗА] Добавь ?sqkey=ВАШ_КЛЮЧ к URL для прямого SQ');
 });
 
-// ════════ NAVIGATION ════════
-let _curTab='chat';
-let _genInited=false;
-function goTab(tab){
-  hap();_curTab=tab;
-  document.querySelectorAll('.scr').forEach(s=>s.classList.remove('act'));
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('act'));
-  const ms={'chat':'scr-chat','gen':'scr-gen','prof':'scr-prof'};
-  const mn={'chat':'ni-chat','gen':'ni-gen','prof':'ni-prof'};
-  document.getElementById(ms[tab])?.classList.add('act');
-  document.getElementById(mn[tab])?.classList.add('act');
-  if(tab==='gen' && !_genInited){_genInited=true;buildGenPanels();}
-  if(tab==='prof'){renderProfile();}
-  // update title
-  if(tab==='chat') document.getElementById('mname').textContent=MO[S.mdl].l;
-  else if(tab==='gen') document.getElementById('mname').textContent='Создать';
-  else if(tab==='prof') document.getElementById('mname').textContent='Профиль';
-}
-
-function switchGTab(btn){
-  hap();const tab=btn.dataset.tab;
-  document.querySelectorAll('.gtab').forEach(t=>t.classList.remove('act'));
-  btn.classList.add('act');
-  document.querySelectorAll('.gen-panel').forEach(p=>p.classList.remove('act'));
-  document.getElementById('gpanel-'+tab)?.classList.add('act');
-}
-function switchGTabByName(name){
-  const btn=document.querySelector(`.gtab[data-tab="${name}"]`);
-  if(btn) switchGTab(btn);
-}
-
-// ════════ BUILD GEN PANELS ════════
-function buildGenPanels(){
-  document.getElementById('gpanel-image').innerHTML=genImageHTML();
-  document.getElementById('gpanel-music').innerHTML=genMusicHTML();
-  document.getElementById('gpanel-video').innerHTML=genVideoHTML();
-  document.getElementById('gpanel-docs').innerHTML=genDocsHTML();
-}
-function genImageHTML(){return`
-<div class="gc"><div class="gci">
-  <div><div class="fl">Модель</div><select class="gs" id="gim"><option value="flux">🎨 Flux</option><option value="turbo">🚀 Turbo</option><option value="gptimage">🖼 GPT-Image</option><option value="flux-realism">📸 Flux Realism</option><option value="flux-anime">🌸 Flux Anime</option><option value="imagen-4">🌟 Imagen 4</option></select></div>
-  <div><div class="fl">Примеры</div><div class="exr">${IEX.map(e=>`<div class="exch" onclick="document.getElementById('gip').value=this.textContent.replace(/^[^\\s]+\\s/,'')">${esc(e)}</div>`).join('')}</div></div>
-  <div><div class="fl">Описание</div><textarea class="gta" id="gip" placeholder="Опиши картинку..."></textarea></div>
-  <div class="sg2x"><div><div class="fl">Ширина</div><select class="gs" id="giw"><option value="512">512</option><option value="768">768</option><option value="1024" selected>1024</option><option value="1280">1280</option></select></div><div><div class="fl">Высота</div><select class="gs" id="gih"><option value="512">512</option><option value="768">768</option><option value="1024" selected>1024</option><option value="1280">1280</option></select></div></div>
-  <div class="pw" id="gipw"><div class="pf" id="gipf"></div></div>
-  <button class="gb" id="gibtn" onclick="gImg()"><span class="bl">✨ Генерировать</span><div class="bs"></div></button>
-  <div class="rb" id="gires"><img id="giimg" src="" alt=""/><div class="ra"><button onclick="shrI()">📤 Поделиться</button><button class="pr" onclick="dlI()">⬇️ Скачать</button></div></div>
-</div></div>`;}
-function genMusicHTML(){return`
-<div class="gc"><div class="gci">
-  <div><div class="fl">Провайдер</div><div class="chs"><div class="ch2 on" id="mcs" onclick="selMu('suno',this)">🎵 Suno v5</div><div class="ch2" id="mce" onclick="selMu('eleven',this)">🎸 ElevenLabs</div></div></div>
-  <div><div class="fl">Стиль</div><div class="chs">${MSTY.map((s,i)=>`<div class="ch2${i===0?' on':''}" onclick="[...this.closest('.chs').querySelectorAll('.ch2')].forEach(c=>c.classList.remove('on'));this.classList.add('on')">${esc(s)}</div>`).join('')}</div></div>
-  <div><div class="fl">Примеры</div><div class="exr">${MEX.map(e=>`<div class="exch" onclick="document.getElementById('mup').value=this.textContent">${esc(e)}</div>`).join('')}</div></div>
-  <div><div class="fl">Описание</div><textarea class="gta" id="mup" placeholder="Настроение, инструменты, темп..."></textarea></div>
-  <div class="pw" id="mupw"><div class="pf" id="mupf"></div></div>
-  <button class="gb" id="mubtn" onclick="gMus()"><span class="bl">🎵 Создать трек</span><div class="bs"></div></button>
-  <div class="rb" id="mures"><audio id="muaud" controls></audio><div class="ra"><button class="pr" onclick="dlM()">⬇️ Скачать MP3</button></div></div>
-</div></div>`;}
-function genVideoHTML(){return`
-<div class="gc"><div class="gci">
-  <div><div class="fl">Модель</div><div class="chs"><div class="ch2 on" onclick="tCh(this,'vm')">🎬 WAN</div><div class="ch2" onclick="tCh(this,'vm')">⚡ WAN Pro</div><div class="ch2" onclick="tCh(this,'vm')">🌊 Mochi</div></div></div>
-  <div><div class="fl">Описание</div><textarea class="gta" id="vip" placeholder="Опиши сцену..."></textarea></div>
-  <div><div class="fl">Длительность</div><select class="gs" id="vid"><option value="3">3 сек</option><option value="5" selected>5 сек</option><option value="8">8 сек</option></select></div>
-  <div class="pw" id="vipw"><div class="pf" id="vipf"></div></div>
-  <button class="gb" id="vibtn" onclick="gVid()"><span class="bl">🎬 Создать видео</span><div class="bs"></div></button>
-  <div class="rb" id="vires"><video id="vivid" controls playsinline style="max-height:280px;background:#000"></video><div class="ra"><button class="pr" onclick="dlV()">⬇️ Скачать MP4</button></div></div>
-</div></div>`;}
-function genDocsHTML(){return`
-<div class="gc"><div class="gci">
-  <div><div class="fl">Тип</div><div class="chs"><div class="ch2 on" id="dtR" onclick="swDT('R')">📝 Реферат</div><div class="ch2" id="dtP" onclick="swDT('P')">🎞 PPTX</div><div class="ch2" id="dtW" onclick="swDT('W')">🌐 HTML</div></div></div>
-  <div id="dtRb">
-    <div><div class="fl">Тема</div><input class="gi" id="rpt" placeholder="Квантовая механика..."/></div>
-    <div class="sg2x"><div><div class="fl">Модель</div><select class="gs" id="rpm"><option value="claude_opus">🔵 Opus</option><option value="claude_sonnet">🔷 Sonnet</option><option value="gpt52">⚡ GPT</option></select></div><div><div class="fl">Страниц</div><select class="gs" id="rpp"><option value="5">5</option><option value="10" selected>10</option><option value="15">15</option></select></div></div>
-    <div><div class="fl">Пожелания</div><textarea class="gta" id="rpe" placeholder="..." style="min-height:58px"></textarea></div>
-    <button class="gb" id="rpbtn" onclick="gRpt()"><span class="bl">📝 Создать реферат</span><div class="bs"></div></button>
-    <div class="dlc" id="rpdl"><div class="dli">📄</div><div class="dlinf"><div class="dlfn" id="rpfn">doc.docx</div><div class="dlm" id="rpmeta">Готово</div></div><button class="dlb" id="rpdlb">↓ Скачать</button></div>
-  </div>
-  <div id="dtPb" style="display:none">
-    <div><div class="fl">Тема</div><input class="gi" id="ptt" placeholder="ИИ в 2025..."/></div>
-    <div class="sg2x"><div><div class="fl">Слайды</div><select class="gs" id="pts"><option value="8">8</option><option value="12" selected>12</option><option value="16">16</option></select></div><div><div class="fl">Модель</div><select class="gs" id="ptm"><option value="claude_opus">🔵 Opus</option><option value="gpt52">⚡ GPT</option></select></div></div>
-    <div><div class="fl">Автор</div><input class="gi" id="pta" placeholder="(опционально)"/></div>
-    <button class="gb" id="ptbtn" onclick="gPptx()"><span class="bl">🎞 Создать PPTX</span><div class="bs"></div></button>
-    <div class="dlc" id="ptdl"><div class="dli">📊</div><div class="dlinf"><div class="dlfn" id="ptfn">pres.pptx</div><div class="dlm" id="ptmeta">Готово</div></div><button class="dlb" id="ptdlb">↓ Скачать</button></div>
-  </div>
-  <div id="dtWb" style="display:none">
-    <div><div class="fl">Тема</div><input class="gi" id="wpt" placeholder="Тема..."/></div>
-    <div class="sg2x"><div><div class="fl">Слайды</div><select class="gs" id="wps"><option value="8">8</option><option value="12" selected>12</option></select></div><div><div class="fl">Модель</div><select class="gs" id="wpm"><option value="claude_opus">🔵 Opus</option><option value="gpt52">⚡ GPT</option></select></div></div>
-    <div><div class="fl">Пожелания</div><textarea class="gta" id="wpw" placeholder="Минимализм..." style="min-height:58px"></textarea></div>
-    <button class="gb" id="wpbtn" onclick="gWpptx()"><span class="bl">🌐 HTML-слайды</span><div class="bs"></div></button>
-    <div class="dlc" id="wpdl"><div class="dli">🌐</div><div class="dlinf"><div class="dlfn" id="wpfn">pres.html</div><div class="dlm" id="wpmeta">Готово</div></div><button class="dlb" id="wpdlb">↓ Скачать</button></div>
-  </div>
-</div></div>`;}
-
-// ════════ SHARE ════════
-let _shareText='';
-function openShare(text){hap();_shareText=text;document.getElementById('share-preview').textContent=text.slice(0,200)+(text.length>200?'…':'');document.getElementById('share-modal').classList.add('o');}
-function closeShare(){document.getElementById('share-modal').classList.remove('o');}
+// ════ SHARE ════
+let _sTxt='';
+function openShare(t){hap();_sTxt=t;document.getElementById('shprev').textContent=t.slice(0,200)+(t.length>200?'…':'');document.getElementById('shmod').classList.add('o');}
+function closeShare(){document.getElementById('shmod').classList.remove('o');}
 function shareTg(){
-  const t='🤖 ХУЗА AI:\n\n'+_shareText.slice(0,3000);
-  if(tg?.shareMessage){try{tg.shareMessage(t);}catch(e){}}
-  const url='https://t.me/share/url?url='+encodeURIComponent('https://t.me/iihuzandelpiibot')+'&text='+encodeURIComponent(t);
-  window.open(url,'_blank');
+  const text='🤖 ХУЗА AI:\n\n'+_sTxt.slice(0,3500);
+  const url='https://t.me/share/url?url='+encodeURIComponent('https://t.me/iihuzandelpiibot')+'&text='+encodeURIComponent(text);
+  if(tg){try{tg.openLink(url);}catch(e){window.open(url,'_blank');}}else{window.open(url,'_blank');}
   closeShare();toast('📤 Открываю Telegram...','ok');
 }
-function shareCopy(){navigator.clipboard?.writeText(_shareText).then(()=>{toast('📋 Скопировано!','ok');closeShare();});}
-
-// ════════ PHOTO ════════
-function rmPhoto(){S.pi=null;document.getElementById('pprev').classList.remove('s');}
-// Patch onPhoto to show preview
-const _origOnPhoto=onPhoto;
-function onPhoto(e){
-  const f=e.target.files[0];if(!f)return;
-  const r=new FileReader();
-  r.onload=ev=>{
-    S.pi=ev.target.result.split(',')[1];
-    document.getElementById('pthumb').src=ev.target.result;
-    document.getElementById('pprev').classList.add('s');
-    const i=document.getElementById('inp');if(!i.value)i.value='Что на этом изображении?';rsz(i);
-    toast('📷 Фото прикреплено','ok');
-  };
-  r.readAsDataURL(f);e.target.value='';
+function shareCopy(){navigator.clipboard?.writeText(_sTxt).then(()=>{toast('📋 Скопировано!','ok');closeShare();});}
+// ════ COPY MSG ════
+function cpMsg(btn,text){navigator.clipboard?.writeText(text).then(()=>{btn.textContent='✅ Скопировано';btn.classList.add('done');setTimeout(()=>{btn.textContent='📋 Копировать';btn.classList.remove('done');},2000);});}
+// ════ REF LINK ════
+function cpRefLink(){
+  const uid=S.tgu?.id;
+  if(!uid){toast('⚠️ Открой через Telegram бота','er');return;}
+  const link='https://t.me/iihuzandelpiibot?start=ref_'+uid;
+  navigator.clipboard?.writeText(link).then(()=>toast('🔗 Реф. ссылка скопирована!','ok'));
 }
-
-// ════════ ENHANCED addA (with share/copy actions) ════════
-const _origAddA=addA;
-function addA(){
-  const m=document.getElementById('msgs');
-  const d=document.createElement('div');d.className='mr a';
-  d.innerHTML=`<div class="av">🤖</div><div class="mc"><div class="bu"><div class="td"><span></span><span></span><span></span></div><div class="ac" style="display:none"></div></div><div class="msg-actions" style="display:none"></div></div>`;
-  m.appendChild(d);sd();
-  return{td:d.querySelector('.td'),ac:d.querySelector('.ac'),el:d};
-}
-
-// Patch send() to add actions after response
-const _origSend=send;
-async function send(){
-  const inp=document.getElementById('inp');const txt=inp.value.trim();
-  if(!txt||S.busy)return;
-  inp.value='';rsz(inp);document.getElementById('snd').disabled=true;S.busy=1;S.mc++;
-  const imgData=S.pi;S.pi=null;document.getElementById('pprev').classList.remove('s');
-  addU(txt);
-  S.hist.push({role:'user',content:txt});
-  const{td,ac,el}=addA();let full='';
-  const onChunk=chunk=>{if(td.style.display!=='none'){td.style.display='none';ac.style.display='block';}full+=chunk;ac.innerHTML=rmd(full)+'<span class="cur"></span>';rk(ac);sd();};
-  let ok=false;
-  // Strategy 1: Backend
-  if(!ok){try{
-    const body={model:S.mdl,messages:S.hist.slice(-20),stream:true,init_data:tg?.initData||''};
-    if(imgData)body.image=imgData;
-    const r=await fetch(`${CFG.API}/api/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:AbortSignal.timeout(90000)});
-    if(r.status===405||r.status===403||r.status===404){dbg(`Backend ${r.status}`);}
-    else if(!r.ok){throw new Error(`HTTP ${r.status}`);}
-    else{await readSSE(r,onChunk);ok=true;}
-  }catch(e){if(!ok)dbg('Backend: '+e.message);}}
-  // Strategy 2: removed - key is handled server-side on Railway
-  // Strategy 3: No-stream
-  if(!ok){try{
-    dbg('Пробую без стрима...');
-    const r=await fetch(`${CFG.API}/api/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:S.mdl,messages:S.hist.slice(-20),stream:false,init_data:tg?.initData||''}),signal:AbortSignal.timeout(90000)});
-    if(!r.ok)throw new Error(`HTTP ${r.status}`);
-    const d=await r.json();const t=d.text||d.content||d.choices?.[0]?.message?.content||'';
-    if(t){onChunk(t);ok=true;dbg('');}
-  }catch(e){dbg('no-stream: '+e.message);}}
-  if(!ok){
-    td.style.display='none';ac.style.display='block';
-    ac.innerHTML=`<div style="color:var(--re);font-size:14px;margin-bottom:8px">⚠️ Нет соединения с ИИ</div>
-    <div style="font-size:13px;line-height:1.7;background:var(--s1);border-radius:12px;padding:12px;color:var(--tx4)">
-      <b style="color:var(--tx2)">Проверь:</b><br>
-      • Бот запущен на Railway<br>
-      • Переменные TELEGRAM_TOKEN, IO_KEY, SQ_KEY заданы<br>
-      • <a href="${CFG.API}/api/chat" target="_blank" style="color:var(--blue)">Проверить /api/chat →</a>
-    </div>`;
-  }
-  ac.querySelectorAll('.cur').forEach(c=>c.remove());
-  if(full){
-    S.hist.push({role:'assistant',content:full});
-    // Show action buttons
-    const act=el.querySelector('.msg-actions');
-    if(act){
-      const escaped=full.replace(/\\/g,'\\\\').replace(/`/g,'\\`');
-      act.innerHTML=`<button class="mact" onclick="cpMsg(this,\`${escaped}\`)">📋 Копировать</button><button class="mact" onclick="openShare(\`${escaped}\`)">📤 Поделиться</button>`;
-      act.style.display='flex';
-    }
-  }
-  updHist(txt);S.busy=0;document.getElementById('snd').disabled=!document.getElementById('inp').value.trim();sd();loadLimits();
-}
-
-function cpMsg(btn,text){
-  navigator.clipboard?.writeText(text).then(()=>{btn.textContent='✅ Скопировано';btn.classList.add('copied');setTimeout(()=>{btn.textContent='📋 Копировать';btn.classList.remove('copied');},2000);});
-}
-
-// ════════ PROFILE OVERRIDE ════════
-function renderProfile(){
-  const u=S.tgu;const L=S.lim;
-  const ini=u?((u.first_name||'')[0]||'')+((u.last_name||'')[0]||''):'?';
-  const name=u?[u.first_name,u.last_name].filter(Boolean).join(' '):'Гость';
-  const uname=u?.username?`@${u.username}`:'';
-  const uid=u?.id||'—';
-  const proUsed=L.pro_used,proMax=L.pro_max;
-  const barW=proMax>0?Math.min(100,(proUsed/proMax)*100):0;
-  const hasSub=L.has_sub;
-  const subName=hasSub?(L.sub_plan||'Pro')+' подписка':'Free план';
-  const subStatus=hasSub?(L.sub_expires?`активна до ${L.sub_expires}`:'активна'):'Нет подписки';
-  const botModel=L.model||MO[S.mdl]?.l||S.mdl;
-  document.getElementById('profbd').innerHTML=`
-    <div class="ph"><div class="pa">${esc(ini.toUpperCase())||'?'}</div><div>
-      <div class="pn">${esc(name)}</div>${uname?`<div class="pu">${esc(uname)}</div>`:''}
-      <div class="pid">ID: ${uid}</div>${L.join_date?`<div class="pid">📅 ${esc(L.join_date)}</div>`:''}
-    </div></div>
-    <div class="sg2">
-      <div class="sc"><div class="sci">💬</div><div class="scv">${L.total_requests||S.mc}</div><div class="scl">Запросов</div></div>
-      <div class="sc"><div class="sci">🎨</div><div class="scv">${L.total_gens||S.ic}</div><div class="scl">Генераций</div></div>
-      <div class="sc"><div class="sci">🎁</div><div class="scv">${L.referrals}</div><div class="scl">Рефералов</div></div>
-      <div class="sc"><div class="sci">⭐</div><div class="scv" style="font-size:${L.level>0?'22':'14'}px">${L.level>0?'Ур.'+L.level:'Начин.'}</div><div class="scl">${L.level_max>0?'до '+L.level_max+' зап.':'Уровень'}</div></div>
-    </div>
-    <div class="subc"><div class="subr">
-      <div class="subico ${hasSub?'pro':''}">💎</div>
-      <div><div class="subn">${esc(subName)}</div><div class="subs">${esc(subStatus)}</div></div>
-    </div><div>
-      <div class="lrow"><span>Запросы</span><span>${proUsed} / ${proMax}${L.reset_in?' ↻ '+L.reset_in:''}</span></div>
-      <div class="lbar"><div class="lf" style="width:${barW}%"></div></div>
-    </div></div>
-    <div><div class="sec-hdr" style="margin-bottom:6px">💡 Лимиты</div>
-    <div class="liml">
-      <div class="limr"><span class="lico">💬</span><span class="limt">Запросы</span><span class="limv">${proUsed} / ${proMax}</span></div>
-      ${L.img_max>0?`<div class="limr"><span class="lico">🎨</span><span class="limt">Картинки</span><span class="limv">${L.img_used} / ${L.img_max} <small style="color:var(--tx4)">в мес.</small></span></div>`:''}
-      ${L.music_max>0?`<div class="limr"><span class="lico">🎵</span><span class="limt">Музыка</span><span class="limv">${L.music_used} / ${L.music_max} <small style="color:var(--tx4)">в мес.</small></span></div>`:''}
-      ${L.video_max>0?`<div class="limr"><span class="lico">🎥</span><span class="limt">Видео</span><span class="limv">${L.video_used} / ${L.video_max} <small style="color:var(--tx4)">в мес.</small></span></div>`:''}
-    </div></div>
-    <div><div class="sec-hdr" style="margin-bottom:6px">⚙️ Настройки</div>
-    <div class="liml">
-      <div class="limr"><span class="lico">🤖</span><span class="limt">Модель</span><span class="limv" style="font-size:12px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:right">${esc(botModel)}</span></div>
-      ${L.mode?`<div class="limr"><span class="lico">⚡</span><span class="limt">Режим</span><span class="limv">${esc(L.mode)}</span></div>`:''}
-    </div></div>
-
-    <div><div class="sec-hdr" style="margin-bottom:6px">📱 Действия</div>
-    <div class="pg">
-      <div class="pr2" onclick="openMS()"><span class="pio">🤖</span><span class="plt">Выбор модели</span><span class="par">›</span></div>
-      <div class="pr2" onclick="cpRefLink()"><span class="pio">🔗</span><span class="plt">Реферальная ссылка</span><span class="par">›</span></div>
-      <div class="pr2" onclick="newChat();goTab('chat')"><span class="pio">✏️</span><span class="plt">Новый чат</span><span class="par">›</span></div>
-      <div class="pr2" onclick="toast('ХУЗА AI v3.0 ✨','')"><span class="pio">ℹ️</span><span class="plt">О приложении</span><span class="par">›</span></div>
-    </div></div>
-  `;
-}
-
-
-
-function cpRefLink(){const uid=S.tgu?.id;if(!uid){toast('⚠️ Войди через Telegram','er');return;}const link=`https://t.me/iihuzandelpiibot?start=${uid}`;navigator.clipboard?.writeText(link).then(()=>toast('📋 Реф. ссылка скопирована!','ok'));}
-
-// Override newChat to stay on chat screen
-const _origNC=newChat;
-function newChat(){_origNC();goTab('chat');}
-
-
 
 </script>
 </body>
