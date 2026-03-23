@@ -277,9 +277,6 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
   <div class="sbi" onclick="closeSB();openProf()"><span class="sii">☆</span><span class="sit">Подписка</span></div>
   <div class="sbi" onclick="closeSB();newChat()"><span class="sii">⊕</span><span class="sit">Новый чат</span></div>
   <div class="sbi" onclick="closeSB();openGen('image')"><span class="sii">🎨</span><span class="sit">Генерация картинок</span></div>
-  <div class="sbi" onclick="closeSB();openGen('music')"><span class="sii">🎵</span><span class="sit">Генерация музыки</span></div>
-  <div class="sbi" onclick="closeSB();openGen('video')"><span class="sii">🎥</span><span class="sit">Генерация видео</span></div>
-  <div class="sbi" onclick="closeSB();openGen('docs')"><span class="sii">📄</span><span class="sit">Документы / PPTX</span></div>
   <div class="sbi" onclick="closeSB();openMS()"><span class="sii">⚙</span><span class="sit">Настройки модели</span></div>
   <div class="sbsep"></div>
   <div class="sbsl">История чатов</div>
@@ -297,9 +294,6 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
   <div class="sph" style="margin-bottom:8px"></div>
   <div class="tg">
     <div class="tc" onclick="closeSheets();openGen('image')"><div class="tci">🎨</div><div class="tcl">Картинка</div></div>
-    <div class="tc" onclick="closeSheets();openGen('music')"><div class="tci">🎵</div><div class="tcl">Музыка</div></div>
-    <div class="tc" onclick="closeSheets();openGen('video')"><div class="tci">🎥</div><div class="tcl">Видео</div></div>
-    <div class="tc" onclick="closeSheets();openGen('docs')"><div class="tci">📄</div><div class="tcl">Документ</div></div>
     <div class="tc" onclick="closeSheets();openMS()"><div class="tci">🤖</div><div class="tcl">Модель</div></div>
     <div class="tc" onclick="closeSheets();attPhoto()"><div class="tci">📷</div><div class="tcl">Фото</div></div>
     <div class="tc" onclick="closeSheets();newChat()"><div class="tci">✏️</div><div class="tcl">Новый чат</div></div>
@@ -525,7 +519,7 @@ function renderProfile(){const u=S.tgu;const L=S.lim;const ini=u?((u.first_name|
         <div class="pr2" onclick="toast('ХУЗА AI v3.0 ✨','')"><span class="pio">ℹ️</span><span class="plt">О приложении</span><span class="par">›</span></div>
       </div>`;}
 // ════════ GEN PAGES ════════
-const GTPL={image:{t:'🎨 Картинки',html:()=>`<div class="gc"><div class="gci"><div><div class="fl">Модель</div><select class="gs" id="gim"><option value="flux">🎨 Flux</option><option value="turbo">🚀 Turbo</option><option value="gptimage">🖼 GPT-Image</option><option value="flux-realism">📸 Flux Realism</option><option value="flux-anime">🌸 Flux Anime</option><option value="imagen-4">🌟 Imagen 4</option><option value="grok-imagine">🤖 Grok</option></select></div><div><div class="fl">Примеры</div><div class="exr">${IEX.map(e=>`<div class="exch" onclick="sv('gip',\`${e.replace(/`/g,'')}\`)">${esc(e)}</div>`).join('')}</div></div><div><div class="fl">Описание</div><textarea class="gta" id="gip" placeholder="Опиши картинку..."></textarea></div><div class="sg2x"><div><div class="fl">Ширина</div><select class="gs" id="giw"><option value="512">512</option><option value="768">768</option><option value="1024" selected>1024</option><option value="1280">1280</option></select></div><div><div class="fl">Высота</div><select class="gs" id="gih"><option value="512">512</option><option value="768">768</option><option value="1024" selected>1024</option><option value="1280">1280</option></select></div></div><div class="pw" id="gipw"><div class="pf" id="gipf"></div></div><button class="gb" id="gibtn" onclick="gImg()"><span class="bl">✨ Генерировать</span><div class="bs"></div></button><div class="rb" id="gires"><img id="giimg" src="" alt=""/><div class="ra"><button onclick="shrI()">📤 Поделиться</button><button class="pr" onclick="dlI()">⬇️ Скачать</button></div></div></div></div>`},music:{t:'🎵 Музыка',html:()=>`<div class="gc"><div class="gci"><div><div class="fl">Провайдер</div><div class="chs"><div class="ch2 on" id="mcs" onclick="selMu('suno',this)">🎵 Suno v5</div><div class="ch2" id="mce" onclick="selMu('eleven',this)">🎸 ElevenLabs</div></div></div><div><div class="fl">Стиль</div><div class="chs">${MSTY.map((s,i)=>`<div class="ch2${i===0?' on':''}" onclick="tCh(this,'ms')">${esc(s)}</div>`).join('')}</div></div><div><div class="fl">Примеры</div><div class="exr">${MEX.map(e=>`<div class="exch" onclick="sv('mup',\`${e.replace(/`/g,'')}\`)">${esc(e)}</div>`).join('')}</div></div><div><div class="fl">Описание</div><textarea class="gta" id="mup" placeholder="Настроение, инструменты, темп..."></textarea></div><div class="pw" id="mupw"><div class="pf" id="mupf"></div></div><button class="gb" id="mubtn" onclick="gMus()"><span class="bl">🎵 Создать трек</span><div class="bs"></div></button><div class="rb" id="mures"><audio id="muaud" controls></audio><div class="ra"><button class="pr" onclick="dlM()">⬇️ Скачать MP3</button></div></div></div></div>`},video:{t:'🎥 Видео',html:()=>`<div class="gc"><div class="gci"><div><div class="fl">Модель</div><div class="chs"><div class="ch2 on" onclick="tCh(this,'vm')">🎬 WAN</div><div class="ch2" onclick="tCh(this,'vm')">⚡ WAN Pro</div><div class="ch2" onclick="tCh(this,'vm')">🌊 Mochi</div></div></div><div><div class="fl">Описание</div><textarea class="gta" id="vip" placeholder="Опиши сцену..."></textarea></div><div><div class="fl">Длительность</div><select class="gs" id="vid"><option value="3">3 сек</option><option value="5" selected>5 сек</option><option value="8">8 сек</option></select></div><div class="pw" id="vipw"><div class="pf" id="vipf"></div></div><button class="gb" id="vibtn" onclick="gVid()"><span class="bl">🎬 Создать видео</span><div class="bs"></div></button><div class="rb" id="vires"><video id="vivid" controls playsinline style="max-height:280px;background:#000"></video><div class="ra"><button class="pr" onclick="dlV()">⬇️ Скачать MP4</button></div></div></div></div>`},docs:{t:'📄 Документы',html:()=>`<div style="display:flex;gap:8px;overflow-x:auto;scrollbar-width:none"><div class="ch2 on" id="dtR" onclick="swDT('R')">📝 Реферат</div><div class="ch2" id="dtP" onclick="swDT('P')">🎞 PPTX</div><div class="ch2" id="dtW" onclick="swDT('W')">🌐 HTML</div></div><div id="dtRb" class="gc"><div class="gci"><div><div class="fl">Тема</div><input class="gi" id="rpt" placeholder="Квантовая механика..."/></div><div><div class="fl">Модель</div><select class="gs" id="rpm"><option value="claude_opus">🔵 Claude Opus</option><option value="claude_sonnet">🔷 Sonnet</option><option value="gpt52">⚡ GPT-5.2</option></select></div><div><div class="fl">Страниц</div><select class="gs" id="rpp"><option value="5">5</option><option value="10" selected>10</option><option value="15">15</option></select></div><div><div class="fl">Доп. пожелания</div><textarea class="gta" id="rpe" placeholder="..." style="min-height:58px"></textarea></div><button class="gb" id="rpbtn" onclick="gRpt()"><span class="bl">📝 Создать реферат</span><div class="bs"></div></button><div class="dlc" id="rpdl"><div class="dli">📄</div><div class="dlinf"><div class="dlfn" id="rpfn">doc.docx</div><div class="dlm" id="rpmeta">Готово</div></div><button class="dlb" id="rpdlb">↓ Скачать</button></div></div></div><div id="dtPb" class="gc" style="display:none"><div class="gci"><div><div class="fl">Тема</div><input class="gi" id="ptt" placeholder="ИИ в 2025..."/></div><div><div class="fl">Слайды</div><select class="gs" id="pts"><option value="8">8</option><option value="12" selected>12</option><option value="16">16</option></select></div><div><div class="fl">Модель</div><select class="gs" id="ptm"><option value="claude_opus">🔵 Claude Opus</option><option value="gpt52">⚡ GPT-5.2</option></select></div><div><div class="fl">Автор</div><input class="gi" id="pta" placeholder="Иван Иванов (опционально)"/></div><button class="gb" id="ptbtn" onclick="gPptx()"><span class="bl">🎞 Создать PPTX</span><div class="bs"></div></button><div class="dlc" id="ptdl"><div class="dli">📊</div><div class="dlinf"><div class="dlfn" id="ptfn">pres.pptx</div><div class="dlm" id="ptmeta">Готово</div></div><button class="dlb" id="ptdlb">↓ Скачать</button></div></div></div><div id="dtWb" class="gc" style="display:none"><div class="gci"><div><div class="fl">Тема</div><input class="gi" id="wpt" placeholder="Тема..."/></div><div><div class="fl">Слайды</div><select class="gs" id="wps"><option value="8">8</option><option value="12" selected>12</option></select></div><div><div class="fl">Модель</div><select class="gs" id="wpm"><option value="claude_opus">🔵 Claude Opus</option><option value="gpt52">⚡ GPT-5.2</option></select></div><div><div class="fl">Пожелания</div><textarea class="gta" id="wpw" placeholder="Минимализм..." style="min-height:58px"></textarea></div><button class="gb" id="wpbtn" onclick="gWpptx()"><span class="bl">🌐 HTML-слайды</span><div class="bs"></div></button><div class="dlc" id="wpdl"><div class="dli">🌐</div><div class="dlinf"><div class="dlfn" id="wpfn">pres.html</div><div class="dlm" id="wpmeta">Готово</div></div><button class="dlb" id="wpdlb">↓ Скачать</button></div></div></div>`}};
+const GTPL={image:{t:'🎨 Картинки',html:()=>`<div class="gc"><div class="gci"><div><div class="fl">Модель</div><select class="gs" id="gim"><option value="flux">🎨 Flux</option><option value="turbo">🚀 Turbo</option><option value="gptimage">🖼 GPT-Image</option><option value="flux_realism">📸 Flux Realism</option><option value="flux_anime">🌸 Flux Anime</option><option value="imagen4">🌟 Imagen 4</option><option value="grokimagine">🤖 Grok</option><option value="flux_klein4">💎 FLUX.2 Klein</option></select></div><div><div class="fl">Соотношение сторон</div><select class="gs" id="giratio"><option value="1:1" selected>◻️ 1:1 Квадрат</option><option value="4:3">📺 4:3 Альбом</option><option value="3:4">📱 3:4 Портрет</option><option value="16:9">🖥 16:9 Широкий</option><option value="9:16">📲 9:16 Вертикал</option></select></div><div><div class="fl">Примеры</div><div class="exr">${IEX.map(e=>`<div class="exch" onclick="sv('gip',\`${e.replace(/`/g,'')}\`)">${esc(e)}</div>`).join('')}</div></div><div><div class="fl">Описание</div><textarea class="gta" id="gip" placeholder="Опиши картинку подробно..."></textarea></div><div class="pw" id="gipw"><div class="pf" id="gipf"></div></div><button class="gb" id="gibtn" onclick="gImg()"><span class="bl">✨ Генерировать</span><div class="bs"></div></button><div class="rb" id="gires"><img id="giimg" src="" alt="" style="border-radius:12px;width:100%"/><div class="ra"><button onclick="shrI()">📤 Поделиться</button><button class="pr" onclick="dlI()">⬇️ Скачать</button></div></div></div></div>`},music:{t:'🎵 Музыка',html:()=>`<div class="gc"><div class="gci"><div><div class="fl">Провайдер</div><div class="chs"><div class="ch2 on" id="mcs" onclick="selMu('suno',this)">🎵 Suno v5</div><div class="ch2" id="mce" onclick="selMu('eleven',this)">🎸 ElevenLabs</div></div></div><div><div class="fl">Стиль</div><div class="chs">${MSTY.map((s,i)=>`<div class="ch2${i===0?' on':''}" onclick="tCh(this,'ms')">${esc(s)}</div>`).join('')}</div></div><div><div class="fl">Примеры</div><div class="exr">${MEX.map(e=>`<div class="exch" onclick="sv('mup',\`${e.replace(/`/g,'')}\`)">${esc(e)}</div>`).join('')}</div></div><div><div class="fl">Описание</div><textarea class="gta" id="mup" placeholder="Настроение, инструменты, темп..."></textarea></div><div class="pw" id="mupw"><div class="pf" id="mupf"></div></div><button class="gb" id="mubtn" onclick="gMus()"><span class="bl">🎵 Создать трек</span><div class="bs"></div></button><div class="rb" id="mures"><audio id="muaud" controls></audio><div class="ra"><button class="pr" onclick="dlM()">⬇️ Скачать MP3</button></div></div></div></div>`},video:{t:'🎥 Видео',html:()=>`<div class="gc"><div class="gci"><div><div class="fl">Модель</div><div class="chs"><div class="ch2 on" onclick="tCh(this,'vm')">🎬 WAN</div><div class="ch2" onclick="tCh(this,'vm')">⚡ WAN Pro</div><div class="ch2" onclick="tCh(this,'vm')">🌊 Mochi</div></div></div><div><div class="fl">Описание</div><textarea class="gta" id="vip" placeholder="Опиши сцену..."></textarea></div><div><div class="fl">Длительность</div><select class="gs" id="vid"><option value="3">3 сек</option><option value="5" selected>5 сек</option><option value="8">8 сек</option></select></div><div class="pw" id="vipw"><div class="pf" id="vipf"></div></div><button class="gb" id="vibtn" onclick="gVid()"><span class="bl">🎬 Создать видео</span><div class="bs"></div></button><div class="rb" id="vires"><video id="vivid" controls playsinline style="max-height:280px;background:#000"></video><div class="ra"><button class="pr" onclick="dlV()">⬇️ Скачать MP4</button></div></div></div></div>`},docs:{t:'📄 Документы',html:()=>`<div style="display:flex;gap:8px;overflow-x:auto;scrollbar-width:none"><div class="ch2 on" id="dtR" onclick="swDT('R')">📝 Реферат</div><div class="ch2" id="dtP" onclick="swDT('P')">🎞 PPTX</div><div class="ch2" id="dtW" onclick="swDT('W')">🌐 HTML</div></div><div id="dtRb" class="gc"><div class="gci"><div><div class="fl">Тема</div><input class="gi" id="rpt" placeholder="Квантовая механика..."/></div><div><div class="fl">Модель</div><select class="gs" id="rpm"><option value="claude_opus">🔵 Claude Opus</option><option value="claude_sonnet">🔷 Sonnet</option><option value="gpt52">⚡ GPT-5.2</option></select></div><div><div class="fl">Страниц</div><select class="gs" id="rpp"><option value="5">5</option><option value="10" selected>10</option><option value="15">15</option></select></div><div><div class="fl">Доп. пожелания</div><textarea class="gta" id="rpe" placeholder="..." style="min-height:58px"></textarea></div><button class="gb" id="rpbtn" onclick="gRpt()"><span class="bl">📝 Создать реферат</span><div class="bs"></div></button><div class="dlc" id="rpdl"><div class="dli">📄</div><div class="dlinf"><div class="dlfn" id="rpfn">doc.docx</div><div class="dlm" id="rpmeta">Готово</div></div><button class="dlb" id="rpdlb">↓ Скачать</button></div></div></div><div id="dtPb" class="gc" style="display:none"><div class="gci"><div><div class="fl">Тема</div><input class="gi" id="ptt" placeholder="ИИ в 2025..."/></div><div><div class="fl">Слайды</div><select class="gs" id="pts"><option value="8">8</option><option value="12" selected>12</option><option value="16">16</option></select></div><div><div class="fl">Модель</div><select class="gs" id="ptm"><option value="claude_opus">🔵 Claude Opus</option><option value="gpt52">⚡ GPT-5.2</option></select></div><div><div class="fl">Автор</div><input class="gi" id="pta" placeholder="Иван Иванов (опционально)"/></div><button class="gb" id="ptbtn" onclick="gPptx()"><span class="bl">🎞 Создать PPTX</span><div class="bs"></div></button><div class="dlc" id="ptdl"><div class="dli">📊</div><div class="dlinf"><div class="dlfn" id="ptfn">pres.pptx</div><div class="dlm" id="ptmeta">Готово</div></div><button class="dlb" id="ptdlb">↓ Скачать</button></div></div></div><div id="dtWb" class="gc" style="display:none"><div class="gci"><div><div class="fl">Тема</div><input class="gi" id="wpt" placeholder="Тема..."/></div><div><div class="fl">Слайды</div><select class="gs" id="wps"><option value="8">8</option><option value="12" selected>12</option></select></div><div><div class="fl">Модель</div><select class="gs" id="wpm"><option value="claude_opus">🔵 Claude Opus</option><option value="gpt52">⚡ GPT-5.2</option></select></div><div><div class="fl">Пожелания</div><textarea class="gta" id="wpw" placeholder="Минимализм..." style="min-height:58px"></textarea></div><button class="gb" id="wpbtn" onclick="gWpptx()"><span class="bl">🌐 HTML-слайды</span><div class="bs"></div></button><div class="dlc" id="wpdl"><div class="dli">🌐</div><div class="dlinf"><div class="dlfn" id="wpfn">pres.html</div><div class="dlm" id="wpmeta">Готово</div></div><button class="dlb" id="wpdlb">↓ Скачать</button></div></div></div>`}};
 const sv=(id,v)=>{const e=document.getElementById(id);if(e)e.value=v;};
 const selMu=(m,btn)=>{S.mum=m;['mcs','mce'].forEach(id=>document.getElementById(id)?.classList.remove('on'));btn.classList.add('on');};
 const tCh=(el,g)=>{el.closest('.chs').querySelectorAll('.ch2').forEach(c=>c.classList.remove('on'));el.classList.add('on');if(g==='vm')S.vum=el.textContent.toLowerCase().includes('pro')?'wan-pro':el.textContent.toLowerCase().includes('mochi')?'mochi':'wan';};
@@ -534,7 +528,51 @@ function pg(pw,pf){const w=document.getElementById(pw),f=document.getElementById
 function openGen(t){hap();const tp=GTPL[t];if(!tp)return;document.getElementById('gptit').textContent=tp.t;document.getElementById('gpbd').innerHTML=tp.html();document.getElementById('gp').classList.add('o');if(tg)tg.BackButton.show();}
 function closeGen(){document.getElementById('gp').classList.remove('o');if(tg)tg.BackButton.hide();}
 function swDT(n){['R','P','W'].forEach(x=>{document.getElementById('dt'+x)?.classList.toggle('on',x===n);const b=document.getElementById('dt'+x+'b');if(b)b.style.display=x===n?'':'none';});}
-async function gImg(){const p=document.getElementById('gip')?.value.trim();if(!p){toast('⚠️ Введи описание','er');return;}ld('gibtn',1);const pr=pg('gipw','gipf');document.getElementById('gires')?.classList.remove('s');try{const m=document.getElementById('gim')?.value||'flux';const w=document.getElementById('giw')?.value||'1024';const h=document.getElementById('gih')?.value||'1024';let src=`${CFG.PI}${encodeURIComponent(p)}?model=${m}&width=${w}&height=${h}&nologo=true&seed=${Date.now()}`;try{const r=await fetch(`${CFG.API}/api/imggen`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:p,model:m,width:parseInt(w),height:parseInt(h),init_data:tg?.initData||''}),signal:AbortSignal.timeout(30000)});const d=await r.json();if(d.ok&&d.url)src=d.url;}catch(e2){}const img=document.getElementById('giimg');await new Promise((ok,fail)=>{img.onload=ok;img.onerror=fail;img.src=src;});document.getElementById('gires')?.classList.add('s');S.ic++;toast('✅ Картинка готова!','ok');}catch(e){toast('❌ Ошибка генерации','er');}pr.done();ld('gibtn',0);}
+async function gImg(){
+  const p=document.getElementById('gip')?.value.trim();
+  if(!p){toast('⚠️ Введи описание','er');return;}
+  ld('gibtn',1);const pr=pg('gipw','gipf');
+  document.getElementById('gires')?.classList.remove('s');
+  try{
+    const m=document.getElementById('gim')?.value||'flux';
+    const ratio=document.getElementById('giratio')?.value||'1:1';
+    const uid=S.tgu?.id||0;
+    const r=await fetch(`${CFG.API}/api/imggen`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({prompt:p,model:m,ratio,uid,init_data:tg?.initData||''}),
+      signal:AbortSignal.timeout(60000)
+    });
+    const d=await r.json();
+    if(!d.ok){
+      if(d.error==='img_limit_exceeded'||d.error==='limit_exceeded'){
+        toast('❌ Лимит генераций исчерпан. Купи подписку!','er');
+      } else if(d.error==='subscription_required'){
+        toast('❌ Нужна подписка для генерации','er');
+      } else {
+        toast('❌ '+(d.error||'Ошибка генерации'),'er');
+      }
+      pr.done();ld('gibtn',0);return;
+    }
+    const img=document.getElementById('giimg');
+    if(d.image_b64){
+      img.src='data:image/jpeg;base64,'+d.image_b64;
+    } else if(d.url){
+      img.src=d.url;
+    } else {
+      // Fallback to Pollinations direct
+      img.src=`${CFG.PI}${encodeURIComponent(p)}?model=${m}&nologo=true&seed=${Date.now()}`;
+    }
+    await new Promise((ok,fail)=>{img.onload=ok;img.onerror=fail;});
+    document.getElementById('gires')?.classList.add('s');
+    S.ic++;
+    // Обновляем счётчик лимитов
+    loadLimits();
+    toast('✅ Картинка готова!','ok');
+  }catch(e){
+    toast('❌ Ошибка: '+(e.message||'попробуй снова'),'er');
+  }
+  pr.done();ld('gibtn',0);
+}
 const dlI=()=>{const i=document.getElementById('giimg');if(!i?.src)return;Object.assign(document.createElement('a'),{href:i.src,download:`img_${Date.now()}.jpg`}).click();};
 const shrI=()=>{const i=document.getElementById('giimg');if(!i?.src)return;navigator.share?.({url:i.src})||navigator.clipboard?.writeText(i.src).then(()=>toast('📋 Ссылка скопирована','ok'));};
 async function gMus(){const p=document.getElementById('mup')?.value.trim();if(!p){toast('⚠️ Введи описание','er');return;}ld('mubtn',1);const pr=pg('mupw','mupf');try{const model=S.mum==='suno'?'suno':'elevenmusic';const r=await fetch(`${CFG.PA}${encodeURIComponent(p)}?model=${model}&nologo=true`,{signal:AbortSignal.timeout(180000)});if(!r.ok)throw new Error('HTTP '+r.status);const bl=await r.blob();const a=document.getElementById('muaud');a.src=URL.createObjectURL(bl);a.__b=bl;document.getElementById('mures')?.classList.add('s');toast('🎵 Трек готов!','ok');}catch(e){toast('❌ '+e.message,'er');}pr.done();ld('mubtn',0);}
@@ -567,18 +605,40 @@ document.addEventListener('DOMContentLoaded',()=>{
 let _sTxt='';
 function openShare(t){hap();_sTxt=t;document.getElementById('shprev').textContent=t.slice(0,200)+(t.length>200?'…':'');document.getElementById('shmod').classList.add('o');}
 function closeShare(){document.getElementById('shmod').classList.remove('o');}
-function shareTg(){
+async function shareTg(){
+  // Сначала пробуем сохранить ответ на сервере и поделиться красивой ссылкой
+  try{
+    const r=await fetch(`${CFG.API}/api/store_answer`,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({text:_sTxt,model:MO[S.mdl]?.l||'ХУЗА AI',modelKey:S.mdl,time:new Date().toLocaleString('ru',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})})});
+    const d=await r.json();
+    if(d.ok&&d.id){
+      const viewUrl=`${CFG.API}/view?id=${d.id}`;
+      const shareText='🤖 ХУЗА AI ответил:\n\n'+_sTxt.slice(0,200)+((_sTxt.length>200)?'...\n\n':'\n\n')+'📖 Читать полностью: '+viewUrl;
+      const tgUrl='https://t.me/share/url?url='+encodeURIComponent(viewUrl)+'&text='+encodeURIComponent(shareText);
+      if(tg){try{tg.openLink(tgUrl);}catch(e){window.open(tgUrl,'_blank');}}else{window.open(tgUrl,'_blank');}
+      closeShare();toast('📤 Поделиться...','ok');return;
+    }
+  }catch(e){}
+  // Fallback — просто текст
   const text='🤖 ХУЗА AI:\n\n'+_sTxt.slice(0,3500);
   const url='https://t.me/share/url?url='+encodeURIComponent('https://t.me/iihuzandelpiibot')+'&text='+encodeURIComponent(text);
   if(tg){try{tg.openLink(url);}catch(e){window.open(url,'_blank');}}else{window.open(url,'_blank');}
   closeShare();toast('📤 Открываю Telegram...','ok');
 }
 function shareCopy(){navigator.clipboard?.writeText(_sTxt).then(()=>{toast('📋 Скопировано!','ok');closeShare();});}
-function shareLink(){
-  // Создаём ссылку на бота с превью ответа в параметре
-  const preview=encodeURIComponent(_sTxt.slice(0,100));
+async function shareLink(){
+  // Сохраняем ответ и копируем красивую ссылку на /view
+  try{
+    const r=await fetch(`${CFG.API}/api/store_answer`,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({text:_sTxt,model:MO[S.mdl]?.l||'ХУЗА AI',modelKey:S.mdl})});
+    const d=await r.json();
+    if(d.ok&&d.id){
+      const viewUrl=`${CFG.API}/view?id=${d.id}`;
+      await navigator.clipboard?.writeText(viewUrl);
+      toast('🔗 Ссылка скопирована!','ok');closeShare();return;
+    }
+  }catch(e){}
   const botUrl='https://t.me/iihuzandelpiibot';
-  const shareUrl=`https://t.me/share/url?url=${encodeURIComponent(botUrl)}&text=${encodeURIComponent('🤖 ХУЗА AI ответил:\n\n'+_sTxt.slice(0,300)+((_sTxt.length>300)?'...\n\n':'')+'Попробуй сам → '+botUrl)}`;
   navigator.clipboard?.writeText(botUrl).then(()=>{toast('🔗 Ссылка скопирована!','ok');closeShare();});
 }// ════ COPY MSG ════
 function cpMsg(btn,text){navigator.clipboard?.writeText(text).then(()=>{btn.textContent='✅ Скопировано';btn.classList.add('done');setTimeout(()=>{btn.textContent='📋 Копировать';btn.classList.remove('done');},2000);});}
@@ -871,9 +931,6 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
   <div class="sbi" onclick="closeSB();openProf()"><span class="sii">☆</span><span class="sit">Подписка</span></div>
   <div class="sbi" onclick="closeSB();newChat()"><span class="sii">⊕</span><span class="sit">Новый чат</span></div>
   <div class="sbi" onclick="closeSB();openGen('image')"><span class="sii">🎨</span><span class="sit">Генерация картинок</span></div>
-  <div class="sbi" onclick="closeSB();openGen('music')"><span class="sii">🎵</span><span class="sit">Генерация музыки</span></div>
-  <div class="sbi" onclick="closeSB();openGen('video')"><span class="sii">🎥</span><span class="sit">Генерация видео</span></div>
-  <div class="sbi" onclick="closeSB();openGen('docs')"><span class="sii">📄</span><span class="sit">Документы / PPTX</span></div>
   <div class="sbi" onclick="closeSB();openMS()"><span class="sii">⚙</span><span class="sit">Настройки модели</span></div>
   <div class="sbsep"></div>
   <div class="sbsl">История чатов</div>
@@ -891,9 +948,6 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
   <div class="sph" style="margin-bottom:8px"></div>
   <div class="tg">
     <div class="tc" onclick="closeSheets();openGen('image')"><div class="tci">🎨</div><div class="tcl">Картинка</div></div>
-    <div class="tc" onclick="closeSheets();openGen('music')"><div class="tci">🎵</div><div class="tcl">Музыка</div></div>
-    <div class="tc" onclick="closeSheets();openGen('video')"><div class="tci">🎥</div><div class="tcl">Видео</div></div>
-    <div class="tc" onclick="closeSheets();openGen('docs')"><div class="tci">📄</div><div class="tcl">Документ</div></div>
     <div class="tc" onclick="closeSheets();openMS()"><div class="tci">🤖</div><div class="tcl">Модель</div></div>
     <div class="tc" onclick="closeSheets();attPhoto()"><div class="tci">📷</div><div class="tcl">Фото</div></div>
     <div class="tc" onclick="closeSheets();newChat()"><div class="tci">✏️</div><div class="tcl">Новый чат</div></div>
@@ -1119,7 +1173,7 @@ function renderProfile(){const u=S.tgu;const L=S.lim;const ini=u?((u.first_name|
         <div class="pr2" onclick="toast('ХУЗА AI v3.0 ✨','')"><span class="pio">ℹ️</span><span class="plt">О приложении</span><span class="par">›</span></div>
       </div>`;}
 // ════════ GEN PAGES ════════
-const GTPL={image:{t:'🎨 Картинки',html:()=>`<div class="gc"><div class="gci"><div><div class="fl">Модель</div><select class="gs" id="gim"><option value="flux">🎨 Flux</option><option value="turbo">🚀 Turbo</option><option value="gptimage">🖼 GPT-Image</option><option value="flux-realism">📸 Flux Realism</option><option value="flux-anime">🌸 Flux Anime</option><option value="imagen-4">🌟 Imagen 4</option><option value="grok-imagine">🤖 Grok</option></select></div><div><div class="fl">Примеры</div><div class="exr">${IEX.map(e=>`<div class="exch" onclick="sv('gip',\`${e.replace(/`/g,'')}\`)">${esc(e)}</div>`).join('')}</div></div><div><div class="fl">Описание</div><textarea class="gta" id="gip" placeholder="Опиши картинку..."></textarea></div><div class="sg2x"><div><div class="fl">Ширина</div><select class="gs" id="giw"><option value="512">512</option><option value="768">768</option><option value="1024" selected>1024</option><option value="1280">1280</option></select></div><div><div class="fl">Высота</div><select class="gs" id="gih"><option value="512">512</option><option value="768">768</option><option value="1024" selected>1024</option><option value="1280">1280</option></select></div></div><div class="pw" id="gipw"><div class="pf" id="gipf"></div></div><button class="gb" id="gibtn" onclick="gImg()"><span class="bl">✨ Генерировать</span><div class="bs"></div></button><div class="rb" id="gires"><img id="giimg" src="" alt=""/><div class="ra"><button onclick="shrI()">📤 Поделиться</button><button class="pr" onclick="dlI()">⬇️ Скачать</button></div></div></div></div>`},music:{t:'🎵 Музыка',html:()=>`<div class="gc"><div class="gci"><div><div class="fl">Провайдер</div><div class="chs"><div class="ch2 on" id="mcs" onclick="selMu('suno',this)">🎵 Suno v5</div><div class="ch2" id="mce" onclick="selMu('eleven',this)">🎸 ElevenLabs</div></div></div><div><div class="fl">Стиль</div><div class="chs">${MSTY.map((s,i)=>`<div class="ch2${i===0?' on':''}" onclick="tCh(this,'ms')">${esc(s)}</div>`).join('')}</div></div><div><div class="fl">Примеры</div><div class="exr">${MEX.map(e=>`<div class="exch" onclick="sv('mup',\`${e.replace(/`/g,'')}\`)">${esc(e)}</div>`).join('')}</div></div><div><div class="fl">Описание</div><textarea class="gta" id="mup" placeholder="Настроение, инструменты, темп..."></textarea></div><div class="pw" id="mupw"><div class="pf" id="mupf"></div></div><button class="gb" id="mubtn" onclick="gMus()"><span class="bl">🎵 Создать трек</span><div class="bs"></div></button><div class="rb" id="mures"><audio id="muaud" controls></audio><div class="ra"><button class="pr" onclick="dlM()">⬇️ Скачать MP3</button></div></div></div></div>`},video:{t:'🎥 Видео',html:()=>`<div class="gc"><div class="gci"><div><div class="fl">Модель</div><div class="chs"><div class="ch2 on" onclick="tCh(this,'vm')">🎬 WAN</div><div class="ch2" onclick="tCh(this,'vm')">⚡ WAN Pro</div><div class="ch2" onclick="tCh(this,'vm')">🌊 Mochi</div></div></div><div><div class="fl">Описание</div><textarea class="gta" id="vip" placeholder="Опиши сцену..."></textarea></div><div><div class="fl">Длительность</div><select class="gs" id="vid"><option value="3">3 сек</option><option value="5" selected>5 сек</option><option value="8">8 сек</option></select></div><div class="pw" id="vipw"><div class="pf" id="vipf"></div></div><button class="gb" id="vibtn" onclick="gVid()"><span class="bl">🎬 Создать видео</span><div class="bs"></div></button><div class="rb" id="vires"><video id="vivid" controls playsinline style="max-height:280px;background:#000"></video><div class="ra"><button class="pr" onclick="dlV()">⬇️ Скачать MP4</button></div></div></div></div>`},docs:{t:'📄 Документы',html:()=>`<div style="display:flex;gap:8px;overflow-x:auto;scrollbar-width:none"><div class="ch2 on" id="dtR" onclick="swDT('R')">📝 Реферат</div><div class="ch2" id="dtP" onclick="swDT('P')">🎞 PPTX</div><div class="ch2" id="dtW" onclick="swDT('W')">🌐 HTML</div></div><div id="dtRb" class="gc"><div class="gci"><div><div class="fl">Тема</div><input class="gi" id="rpt" placeholder="Квантовая механика..."/></div><div><div class="fl">Модель</div><select class="gs" id="rpm"><option value="claude_opus">🔵 Claude Opus</option><option value="claude_sonnet">🔷 Sonnet</option><option value="gpt52">⚡ GPT-5.2</option></select></div><div><div class="fl">Страниц</div><select class="gs" id="rpp"><option value="5">5</option><option value="10" selected>10</option><option value="15">15</option></select></div><div><div class="fl">Доп. пожелания</div><textarea class="gta" id="rpe" placeholder="..." style="min-height:58px"></textarea></div><button class="gb" id="rpbtn" onclick="gRpt()"><span class="bl">📝 Создать реферат</span><div class="bs"></div></button><div class="dlc" id="rpdl"><div class="dli">📄</div><div class="dlinf"><div class="dlfn" id="rpfn">doc.docx</div><div class="dlm" id="rpmeta">Готово</div></div><button class="dlb" id="rpdlb">↓ Скачать</button></div></div></div><div id="dtPb" class="gc" style="display:none"><div class="gci"><div><div class="fl">Тема</div><input class="gi" id="ptt" placeholder="ИИ в 2025..."/></div><div><div class="fl">Слайды</div><select class="gs" id="pts"><option value="8">8</option><option value="12" selected>12</option><option value="16">16</option></select></div><div><div class="fl">Модель</div><select class="gs" id="ptm"><option value="claude_opus">🔵 Claude Opus</option><option value="gpt52">⚡ GPT-5.2</option></select></div><div><div class="fl">Автор</div><input class="gi" id="pta" placeholder="Иван Иванов (опционально)"/></div><button class="gb" id="ptbtn" onclick="gPptx()"><span class="bl">🎞 Создать PPTX</span><div class="bs"></div></button><div class="dlc" id="ptdl"><div class="dli">📊</div><div class="dlinf"><div class="dlfn" id="ptfn">pres.pptx</div><div class="dlm" id="ptmeta">Готово</div></div><button class="dlb" id="ptdlb">↓ Скачать</button></div></div></div><div id="dtWb" class="gc" style="display:none"><div class="gci"><div><div class="fl">Тема</div><input class="gi" id="wpt" placeholder="Тема..."/></div><div><div class="fl">Слайды</div><select class="gs" id="wps"><option value="8">8</option><option value="12" selected>12</option></select></div><div><div class="fl">Модель</div><select class="gs" id="wpm"><option value="claude_opus">🔵 Claude Opus</option><option value="gpt52">⚡ GPT-5.2</option></select></div><div><div class="fl">Пожелания</div><textarea class="gta" id="wpw" placeholder="Минимализм..." style="min-height:58px"></textarea></div><button class="gb" id="wpbtn" onclick="gWpptx()"><span class="bl">🌐 HTML-слайды</span><div class="bs"></div></button><div class="dlc" id="wpdl"><div class="dli">🌐</div><div class="dlinf"><div class="dlfn" id="wpfn">pres.html</div><div class="dlm" id="wpmeta">Готово</div></div><button class="dlb" id="wpdlb">↓ Скачать</button></div></div></div>`}};
+const GTPL={image:{t:'🎨 Картинки',html:()=>`<div class="gc"><div class="gci"><div><div class="fl">Модель</div><select class="gs" id="gim"><option value="flux">🎨 Flux</option><option value="turbo">🚀 Turbo</option><option value="gptimage">🖼 GPT-Image</option><option value="flux_realism">📸 Flux Realism</option><option value="flux_anime">🌸 Flux Anime</option><option value="imagen4">🌟 Imagen 4</option><option value="grokimagine">🤖 Grok</option><option value="flux_klein4">💎 FLUX.2 Klein</option></select></div><div><div class="fl">Соотношение сторон</div><select class="gs" id="giratio"><option value="1:1" selected>◻️ 1:1 Квадрат</option><option value="4:3">📺 4:3 Альбом</option><option value="3:4">📱 3:4 Портрет</option><option value="16:9">🖥 16:9 Широкий</option><option value="9:16">📲 9:16 Вертикал</option></select></div><div><div class="fl">Примеры</div><div class="exr">${IEX.map(e=>`<div class="exch" onclick="sv('gip',\`${e.replace(/`/g,'')}\`)">${esc(e)}</div>`).join('')}</div></div><div><div class="fl">Описание</div><textarea class="gta" id="gip" placeholder="Опиши картинку подробно..."></textarea></div><div class="pw" id="gipw"><div class="pf" id="gipf"></div></div><button class="gb" id="gibtn" onclick="gImg()"><span class="bl">✨ Генерировать</span><div class="bs"></div></button><div class="rb" id="gires"><img id="giimg" src="" alt="" style="border-radius:12px;width:100%"/><div class="ra"><button onclick="shrI()">📤 Поделиться</button><button class="pr" onclick="dlI()">⬇️ Скачать</button></div></div></div></div>`},music:{t:'🎵 Музыка',html:()=>`<div class="gc"><div class="gci"><div><div class="fl">Провайдер</div><div class="chs"><div class="ch2 on" id="mcs" onclick="selMu('suno',this)">🎵 Suno v5</div><div class="ch2" id="mce" onclick="selMu('eleven',this)">🎸 ElevenLabs</div></div></div><div><div class="fl">Стиль</div><div class="chs">${MSTY.map((s,i)=>`<div class="ch2${i===0?' on':''}" onclick="tCh(this,'ms')">${esc(s)}</div>`).join('')}</div></div><div><div class="fl">Примеры</div><div class="exr">${MEX.map(e=>`<div class="exch" onclick="sv('mup',\`${e.replace(/`/g,'')}\`)">${esc(e)}</div>`).join('')}</div></div><div><div class="fl">Описание</div><textarea class="gta" id="mup" placeholder="Настроение, инструменты, темп..."></textarea></div><div class="pw" id="mupw"><div class="pf" id="mupf"></div></div><button class="gb" id="mubtn" onclick="gMus()"><span class="bl">🎵 Создать трек</span><div class="bs"></div></button><div class="rb" id="mures"><audio id="muaud" controls></audio><div class="ra"><button class="pr" onclick="dlM()">⬇️ Скачать MP3</button></div></div></div></div>`},video:{t:'🎥 Видео',html:()=>`<div class="gc"><div class="gci"><div><div class="fl">Модель</div><div class="chs"><div class="ch2 on" onclick="tCh(this,'vm')">🎬 WAN</div><div class="ch2" onclick="tCh(this,'vm')">⚡ WAN Pro</div><div class="ch2" onclick="tCh(this,'vm')">🌊 Mochi</div></div></div><div><div class="fl">Описание</div><textarea class="gta" id="vip" placeholder="Опиши сцену..."></textarea></div><div><div class="fl">Длительность</div><select class="gs" id="vid"><option value="3">3 сек</option><option value="5" selected>5 сек</option><option value="8">8 сек</option></select></div><div class="pw" id="vipw"><div class="pf" id="vipf"></div></div><button class="gb" id="vibtn" onclick="gVid()"><span class="bl">🎬 Создать видео</span><div class="bs"></div></button><div class="rb" id="vires"><video id="vivid" controls playsinline style="max-height:280px;background:#000"></video><div class="ra"><button class="pr" onclick="dlV()">⬇️ Скачать MP4</button></div></div></div></div>`},docs:{t:'📄 Документы',html:()=>`<div style="display:flex;gap:8px;overflow-x:auto;scrollbar-width:none"><div class="ch2 on" id="dtR" onclick="swDT('R')">📝 Реферат</div><div class="ch2" id="dtP" onclick="swDT('P')">🎞 PPTX</div><div class="ch2" id="dtW" onclick="swDT('W')">🌐 HTML</div></div><div id="dtRb" class="gc"><div class="gci"><div><div class="fl">Тема</div><input class="gi" id="rpt" placeholder="Квантовая механика..."/></div><div><div class="fl">Модель</div><select class="gs" id="rpm"><option value="claude_opus">🔵 Claude Opus</option><option value="claude_sonnet">🔷 Sonnet</option><option value="gpt52">⚡ GPT-5.2</option></select></div><div><div class="fl">Страниц</div><select class="gs" id="rpp"><option value="5">5</option><option value="10" selected>10</option><option value="15">15</option></select></div><div><div class="fl">Доп. пожелания</div><textarea class="gta" id="rpe" placeholder="..." style="min-height:58px"></textarea></div><button class="gb" id="rpbtn" onclick="gRpt()"><span class="bl">📝 Создать реферат</span><div class="bs"></div></button><div class="dlc" id="rpdl"><div class="dli">📄</div><div class="dlinf"><div class="dlfn" id="rpfn">doc.docx</div><div class="dlm" id="rpmeta">Готово</div></div><button class="dlb" id="rpdlb">↓ Скачать</button></div></div></div><div id="dtPb" class="gc" style="display:none"><div class="gci"><div><div class="fl">Тема</div><input class="gi" id="ptt" placeholder="ИИ в 2025..."/></div><div><div class="fl">Слайды</div><select class="gs" id="pts"><option value="8">8</option><option value="12" selected>12</option><option value="16">16</option></select></div><div><div class="fl">Модель</div><select class="gs" id="ptm"><option value="claude_opus">🔵 Claude Opus</option><option value="gpt52">⚡ GPT-5.2</option></select></div><div><div class="fl">Автор</div><input class="gi" id="pta" placeholder="Иван Иванов (опционально)"/></div><button class="gb" id="ptbtn" onclick="gPptx()"><span class="bl">🎞 Создать PPTX</span><div class="bs"></div></button><div class="dlc" id="ptdl"><div class="dli">📊</div><div class="dlinf"><div class="dlfn" id="ptfn">pres.pptx</div><div class="dlm" id="ptmeta">Готово</div></div><button class="dlb" id="ptdlb">↓ Скачать</button></div></div></div><div id="dtWb" class="gc" style="display:none"><div class="gci"><div><div class="fl">Тема</div><input class="gi" id="wpt" placeholder="Тема..."/></div><div><div class="fl">Слайды</div><select class="gs" id="wps"><option value="8">8</option><option value="12" selected>12</option></select></div><div><div class="fl">Модель</div><select class="gs" id="wpm"><option value="claude_opus">🔵 Claude Opus</option><option value="gpt52">⚡ GPT-5.2</option></select></div><div><div class="fl">Пожелания</div><textarea class="gta" id="wpw" placeholder="Минимализм..." style="min-height:58px"></textarea></div><button class="gb" id="wpbtn" onclick="gWpptx()"><span class="bl">🌐 HTML-слайды</span><div class="bs"></div></button><div class="dlc" id="wpdl"><div class="dli">🌐</div><div class="dlinf"><div class="dlfn" id="wpfn">pres.html</div><div class="dlm" id="wpmeta">Готово</div></div><button class="dlb" id="wpdlb">↓ Скачать</button></div></div></div>`}};
 const sv=(id,v)=>{const e=document.getElementById(id);if(e)e.value=v;};
 const selMu=(m,btn)=>{S.mum=m;['mcs','mce'].forEach(id=>document.getElementById(id)?.classList.remove('on'));btn.classList.add('on');};
 const tCh=(el,g)=>{el.closest('.chs').querySelectorAll('.ch2').forEach(c=>c.classList.remove('on'));el.classList.add('on');if(g==='vm')S.vum=el.textContent.toLowerCase().includes('pro')?'wan-pro':el.textContent.toLowerCase().includes('mochi')?'mochi':'wan';};
@@ -1128,7 +1182,51 @@ function pg(pw,pf){const w=document.getElementById(pw),f=document.getElementById
 function openGen(t){hap();const tp=GTPL[t];if(!tp)return;document.getElementById('gptit').textContent=tp.t;document.getElementById('gpbd').innerHTML=tp.html();document.getElementById('gp').classList.add('o');if(tg)tg.BackButton.show();}
 function closeGen(){document.getElementById('gp').classList.remove('o');if(tg)tg.BackButton.hide();}
 function swDT(n){['R','P','W'].forEach(x=>{document.getElementById('dt'+x)?.classList.toggle('on',x===n);const b=document.getElementById('dt'+x+'b');if(b)b.style.display=x===n?'':'none';});}
-async function gImg(){const p=document.getElementById('gip')?.value.trim();if(!p){toast('⚠️ Введи описание','er');return;}ld('gibtn',1);const pr=pg('gipw','gipf');document.getElementById('gires')?.classList.remove('s');try{const m=document.getElementById('gim')?.value||'flux';const w=document.getElementById('giw')?.value||'1024';const h=document.getElementById('gih')?.value||'1024';let src=`${CFG.PI}${encodeURIComponent(p)}?model=${m}&width=${w}&height=${h}&nologo=true&seed=${Date.now()}`;try{const r=await fetch(`${CFG.API}/api/imggen`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:p,model:m,width:parseInt(w),height:parseInt(h),init_data:tg?.initData||''}),signal:AbortSignal.timeout(30000)});const d=await r.json();if(d.ok&&d.url)src=d.url;}catch(e2){}const img=document.getElementById('giimg');await new Promise((ok,fail)=>{img.onload=ok;img.onerror=fail;img.src=src;});document.getElementById('gires')?.classList.add('s');S.ic++;toast('✅ Картинка готова!','ok');}catch(e){toast('❌ Ошибка генерации','er');}pr.done();ld('gibtn',0);}
+async function gImg(){
+  const p=document.getElementById('gip')?.value.trim();
+  if(!p){toast('⚠️ Введи описание','er');return;}
+  ld('gibtn',1);const pr=pg('gipw','gipf');
+  document.getElementById('gires')?.classList.remove('s');
+  try{
+    const m=document.getElementById('gim')?.value||'flux';
+    const ratio=document.getElementById('giratio')?.value||'1:1';
+    const uid=S.tgu?.id||0;
+    const r=await fetch(`${CFG.API}/api/imggen`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({prompt:p,model:m,ratio,uid,init_data:tg?.initData||''}),
+      signal:AbortSignal.timeout(60000)
+    });
+    const d=await r.json();
+    if(!d.ok){
+      if(d.error==='img_limit_exceeded'||d.error==='limit_exceeded'){
+        toast('❌ Лимит генераций исчерпан. Купи подписку!','er');
+      } else if(d.error==='subscription_required'){
+        toast('❌ Нужна подписка для генерации','er');
+      } else {
+        toast('❌ '+(d.error||'Ошибка генерации'),'er');
+      }
+      pr.done();ld('gibtn',0);return;
+    }
+    const img=document.getElementById('giimg');
+    if(d.image_b64){
+      img.src='data:image/jpeg;base64,'+d.image_b64;
+    } else if(d.url){
+      img.src=d.url;
+    } else {
+      // Fallback to Pollinations direct
+      img.src=`${CFG.PI}${encodeURIComponent(p)}?model=${m}&nologo=true&seed=${Date.now()}`;
+    }
+    await new Promise((ok,fail)=>{img.onload=ok;img.onerror=fail;});
+    document.getElementById('gires')?.classList.add('s');
+    S.ic++;
+    // Обновляем счётчик лимитов
+    loadLimits();
+    toast('✅ Картинка готова!','ok');
+  }catch(e){
+    toast('❌ Ошибка: '+(e.message||'попробуй снова'),'er');
+  }
+  pr.done();ld('gibtn',0);
+}
 const dlI=()=>{const i=document.getElementById('giimg');if(!i?.src)return;Object.assign(document.createElement('a'),{href:i.src,download:`img_${Date.now()}.jpg`}).click();};
 const shrI=()=>{const i=document.getElementById('giimg');if(!i?.src)return;navigator.share?.({url:i.src})||navigator.clipboard?.writeText(i.src).then(()=>toast('📋 Ссылка скопирована','ok'));};
 async function gMus(){const p=document.getElementById('mup')?.value.trim();if(!p){toast('⚠️ Введи описание','er');return;}ld('mubtn',1);const pr=pg('mupw','mupf');try{const model=S.mum==='suno'?'suno':'elevenmusic';const r=await fetch(`${CFG.PA}${encodeURIComponent(p)}?model=${model}&nologo=true`,{signal:AbortSignal.timeout(180000)});if(!r.ok)throw new Error('HTTP '+r.status);const bl=await r.blob();const a=document.getElementById('muaud');a.src=URL.createObjectURL(bl);a.__b=bl;document.getElementById('mures')?.classList.add('s');toast('🎵 Трек готов!','ok');}catch(e){toast('❌ '+e.message,'er');}pr.done();ld('mubtn',0);}
@@ -1161,18 +1259,40 @@ document.addEventListener('DOMContentLoaded',()=>{
 let _sTxt='';
 function openShare(t){hap();_sTxt=t;document.getElementById('shprev').textContent=t.slice(0,200)+(t.length>200?'…':'');document.getElementById('shmod').classList.add('o');}
 function closeShare(){document.getElementById('shmod').classList.remove('o');}
-function shareTg(){
+async function shareTg(){
+  // Сначала пробуем сохранить ответ на сервере и поделиться красивой ссылкой
+  try{
+    const r=await fetch(`${CFG.API}/api/store_answer`,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({text:_sTxt,model:MO[S.mdl]?.l||'ХУЗА AI',modelKey:S.mdl,time:new Date().toLocaleString('ru',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})})});
+    const d=await r.json();
+    if(d.ok&&d.id){
+      const viewUrl=`${CFG.API}/view?id=${d.id}`;
+      const shareText='🤖 ХУЗА AI ответил:\n\n'+_sTxt.slice(0,200)+((_sTxt.length>200)?'...\n\n':'\n\n')+'📖 Читать полностью: '+viewUrl;
+      const tgUrl='https://t.me/share/url?url='+encodeURIComponent(viewUrl)+'&text='+encodeURIComponent(shareText);
+      if(tg){try{tg.openLink(tgUrl);}catch(e){window.open(tgUrl,'_blank');}}else{window.open(tgUrl,'_blank');}
+      closeShare();toast('📤 Поделиться...','ok');return;
+    }
+  }catch(e){}
+  // Fallback — просто текст
   const text='🤖 ХУЗА AI:\n\n'+_sTxt.slice(0,3500);
   const url='https://t.me/share/url?url='+encodeURIComponent('https://t.me/iihuzandelpiibot')+'&text='+encodeURIComponent(text);
   if(tg){try{tg.openLink(url);}catch(e){window.open(url,'_blank');}}else{window.open(url,'_blank');}
   closeShare();toast('📤 Открываю Telegram...','ok');
 }
 function shareCopy(){navigator.clipboard?.writeText(_sTxt).then(()=>{toast('📋 Скопировано!','ok');closeShare();});}
-function shareLink(){
-  // Создаём ссылку на бота с превью ответа в параметре
-  const preview=encodeURIComponent(_sTxt.slice(0,100));
+async function shareLink(){
+  // Сохраняем ответ и копируем красивую ссылку на /view
+  try{
+    const r=await fetch(`${CFG.API}/api/store_answer`,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({text:_sTxt,model:MO[S.mdl]?.l||'ХУЗА AI',modelKey:S.mdl})});
+    const d=await r.json();
+    if(d.ok&&d.id){
+      const viewUrl=`${CFG.API}/view?id=${d.id}`;
+      await navigator.clipboard?.writeText(viewUrl);
+      toast('🔗 Ссылка скопирована!','ok');closeShare();return;
+    }
+  }catch(e){}
   const botUrl='https://t.me/iihuzandelpiibot';
-  const shareUrl=`https://t.me/share/url?url=${encodeURIComponent(botUrl)}&text=${encodeURIComponent('🤖 ХУЗА AI ответил:\n\n'+_sTxt.slice(0,300)+((_sTxt.length>300)?'...\n\n':'')+'Попробуй сам → '+botUrl)}`;
   navigator.clipboard?.writeText(botUrl).then(()=>{toast('🔗 Ссылка скопирована!','ok');closeShare();});
 }// ════ COPY MSG ════
 function cpMsg(btn,text){navigator.clipboard?.writeText(text).then(()=>{btn.textContent='✅ Скопировано';btn.classList.add('done');setTimeout(()=>{btn.textContent='📋 Копировать';btn.classList.remove('done');},2000);});}
