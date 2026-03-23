@@ -330,7 +330,7 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
 <script>
 // ════════ CONFIG ════════
 const CFG={
-  API:(()=>{const p=new URLSearchParams(window.location.search);return(p.get('api')||'https://huzaoobo-production.up.railway.app').replace(/\/$/,'');})(),
+  API:(()=>{const p=new URLSearchParams(window.location.search);let u=p.get('api')||'https://huzaoobo-production.up.railway.app';if(u&&!u.startsWith('http'))u='https://'+u;return u.replace(/\/$/,'');})(),
   SQ_KEY:(()=>{const p=new URLSearchParams(window.location.search);return p.get('sqkey')||p.get('key')||'';})(),
   SQ_URL:'https://api.onlysq.ru/ai/openai/chat/completions',
   PI:'https://image.pollinations.ai/prompt/',
