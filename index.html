@@ -406,12 +406,9 @@ async function send(){
   if(!S.tgu&&tg){for(let i=0;i<8;i++){await new Promise(r=>setTimeout(r,250));S.tgu=tg.initDataUnsafe?.user||null;if(S.tgu)break;}}
   inp.value='';rsz(inp);document.getElementById('snd').disabled=true;S.busy=1;S.mc++;
   const imgData=S.pi;S.pi=null;document.getElementById('pprev').classList.remove('s');
-  // Проверка vision
-  const needVision=!!imgData;const hasVision=MO[S.mdl]?.v;
-  if(needVision&&!hasVision){toast('⚠️ Эта модель не поддерживает фото','er');S.busy=0;document.getElementById('snd').disabled=!inp.value.trim();return;}
   addU(txt,imgData);
-  // История с фото
-  if(imgData&&hasVision){S.hist.push({role:'user',content:[{type:'image_url',image_url:{url:`data:image/jpeg;base64,${imgData}`}},{type:'text',text:txt}]});}
+  // История с фото (бэкенд сам выбирает vision-модель если текущая не поддерживает)
+  if(imgData){S.hist.push({role:'user',content:[{type:'image_url',image_url:{url:`data:image/jpeg;base64,${imgData}`}},{type:'text',text:txt}]});}
   else{S.hist.push({role:'user',content:txt});}
   const{td,ac,el}=addA();let full='';
   // ── TYPING EFFECT ──
@@ -437,7 +434,7 @@ async function send(){
     try{
       const initD=tg?.initData||'';const uid=S.tgu?.id||null;
       const body={model:S.mdl,messages:S.hist.slice(-20),stream:true,init_data:initD,uid:uid};
-      if(imgData)body.image=imgData;
+      if(imgData)body.images=[imgData];
       const r=await fetch(`${CFG.API}/api/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:AbortSignal.timeout(90000)});
       if(r.status===405||r.status===403||r.status===404){dbg(`Backend ${r.status} → пробую SQ Direct`);}
       else if(!r.ok){const t=await r.text().catch(()=>'');throw new Error(`Backend HTTP ${r.status}: ${t.slice(0,100)}`);}
@@ -459,7 +456,7 @@ async function send(){
     try{
       dbg('Пробую backend no-stream...');
       const body={model:S.mdl,messages:S.hist.slice(-20),stream:false,init_data:tg?.initData||'',uid:S.tgu?.id||null};
-      if(imgData)body.image=imgData;
+      if(imgData)body.images=[imgData];
       const r=await fetch(`${CFG.API}/api/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:AbortSignal.timeout(90000)});
       if(!r.ok)throw new Error(`HTTP ${r.status}`);
       const d=await r.json();const t=d.answer||d.text||d.content||d.choices?.[0]?.message?.content||'';
@@ -1003,12 +1000,9 @@ async function send(){
   if(!S.tgu&&tg){for(let i=0;i<8;i++){await new Promise(r=>setTimeout(r,250));S.tgu=tg.initDataUnsafe?.user||null;if(S.tgu)break;}}
   inp.value='';rsz(inp);document.getElementById('snd').disabled=true;S.busy=1;S.mc++;
   const imgData=S.pi;S.pi=null;document.getElementById('pprev').classList.remove('s');
-  // Проверка vision
-  const needVision=!!imgData;const hasVision=MO[S.mdl]?.v;
-  if(needVision&&!hasVision){toast('⚠️ Эта модель не поддерживает фото','er');S.busy=0;document.getElementById('snd').disabled=!inp.value.trim();return;}
   addU(txt,imgData);
-  // История с фото
-  if(imgData&&hasVision){S.hist.push({role:'user',content:[{type:'image_url',image_url:{url:`data:image/jpeg;base64,${imgData}`}},{type:'text',text:txt}]});}
+  // История с фото (бэкенд сам выбирает vision-модель если текущая не поддерживает)
+  if(imgData){S.hist.push({role:'user',content:[{type:'image_url',image_url:{url:`data:image/jpeg;base64,${imgData}`}},{type:'text',text:txt}]});}
   else{S.hist.push({role:'user',content:txt});}
   const{td,ac,el}=addA();let full='';
   // ── TYPING EFFECT ──
@@ -1034,7 +1028,7 @@ async function send(){
     try{
       const initD=tg?.initData||'';const uid=S.tgu?.id||null;
       const body={model:S.mdl,messages:S.hist.slice(-20),stream:true,init_data:initD,uid:uid};
-      if(imgData)body.image=imgData;
+      if(imgData)body.images=[imgData];
       const r=await fetch(`${CFG.API}/api/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:AbortSignal.timeout(90000)});
       if(r.status===405||r.status===403||r.status===404){dbg(`Backend ${r.status} → пробую SQ Direct`);}
       else if(!r.ok){const t=await r.text().catch(()=>'');throw new Error(`Backend HTTP ${r.status}: ${t.slice(0,100)}`);}
@@ -1056,7 +1050,7 @@ async function send(){
     try{
       dbg('Пробую backend no-stream...');
       const body={model:S.mdl,messages:S.hist.slice(-20),stream:false,init_data:tg?.initData||'',uid:S.tgu?.id||null};
-      if(imgData)body.image=imgData;
+      if(imgData)body.images=[imgData];
       const r=await fetch(`${CFG.API}/api/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:AbortSignal.timeout(90000)});
       if(!r.ok)throw new Error(`HTTP ${r.status}`);
       const d=await r.json();const t=d.answer||d.text||d.content||d.choices?.[0]?.message?.content||'';
