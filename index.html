@@ -393,6 +393,8 @@ const sd=()=>{const m=document.getElementById('msgs');requestAnimationFrame(()=>
 async function send(){
   const inp=document.getElementById('inp');const txt=inp.value.trim();
   if(!txt||S.busy)return;
+  // Если Telegram ещё не инициализировал пользователя — ждём до 2 секунд
+  if(!S.tgu&&tg){for(let i=0;i<8;i++){await new Promise(r=>setTimeout(r,250));S.tgu=tg.initDataUnsafe?.user||null;if(S.tgu)break;}}
   inp.value='';rsz(inp);document.getElementById('snd').disabled=true;S.busy=1;S.mc++;
   const imgData=S.pi;S.pi=null;document.getElementById('pprev').classList.remove('s');
   addU(txt);S.hist.push({role:'user',content:txt});
