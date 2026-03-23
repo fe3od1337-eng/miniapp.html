@@ -361,7 +361,17 @@ const MSTY=['Поп','Электронная','Lo-fi','Рок','Хип-хоп','
 const S={mdl:'gpt52_chat',hist:[],sess:[],cur:null,busy:0,mc:0,ic:0,tgu:null,pi:null,mum:'suno',vum:'wan',lim:{pro_used:0,pro_max:30,img_used:0,img_max:0,music_used:0,music_max:0,video_used:0,video_max:0,has_sub:false,sub_plan:'',sub_expires:'',level:0,level_max:50,referrals:0,join_date:'',model:'',mode:'',total_requests:0,total_gens:0,reset_in:''}};
 // ════════ TG ════════
 const tg=window.Telegram?.WebApp;
-if(tg){tg.ready();tg.expand();tg.setHeaderColor?.('#000');tg.setBackgroundColor?.('#000');tg.enableClosingConfirmation?.();S.tgu=tg.initDataUnsafe?.user||null;}
+if(tg){
+  tg.ready();
+  tg.expand();
+  tg.setHeaderColor?.('#000');
+  tg.setBackgroundColor?.('#000');
+  tg.enableClosingConfirmation?.();
+  // Try to get user from multiple sources
+  S.tgu=tg.initDataUnsafe?.user||null;
+  // If still no user, retry after small delay (Telegram sometimes initializes async)
+  if(!S.tgu){setTimeout(()=>{S.tgu=tg.initDataUnsafe?.user||null;if(S.tgu)loadLimits();},500);}
+}
 const hap=t=>tg?.HapticFeedback?.impactOccurred(t||'light');
 // ════════ MD ════════
 function setupMD(){
@@ -392,7 +402,7 @@ async function send(){
   // ─ СТРАТЕГИЯ 1: Backend ─
   if(!ok){
     try{
-      const initD=tg?.initData||'';const r=await fetch(`${CFG.API}/api/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:S.mdl,messages:S.hist.slice(-20),stream:true,init_data:initD}),signal:AbortSignal.timeout(90000)});
+      const initD=tg?.initData||'';const uid=S.tgu?.id||null;const r=await fetch(`${CFG.API}/api/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:S.mdl,messages:S.hist.slice(-20),stream:true,init_data:initD,uid:uid}),signal:AbortSignal.timeout(90000)});
       if(r.status===405||r.status===403||r.status===404){dbg(`Backend ${r.status} → пробую SQ Direct`);}
       else if(!r.ok){const t=await r.text().catch(()=>'');throw new Error(`Backend HTTP ${r.status}: ${t.slice(0,100)}`);}
       else{await readSSE(r,onChunk);ok=true;}
@@ -412,7 +422,7 @@ async function send(){
   if(!ok){
     try{
       dbg('Пробую backend no-stream...');
-      const r=await fetch(`${CFG.API}/api/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:S.mdl,messages:S.hist.slice(-20),stream:false,init_data:tg?.initData||''}),signal:AbortSignal.timeout(90000)});
+      const r=await fetch(`${CFG.API}/api/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:S.mdl,messages:S.hist.slice(-20),stream:false,init_data:tg?.initData||'',uid:S.tgu?.id||null}),signal:AbortSignal.timeout(90000)});
       if(!r.ok)throw new Error(`HTTP ${r.status}`);
       const d=await r.json();const t=d.text||d.content||d.choices?.[0]?.message?.content||'';
       if(t){onChunk(t);ok=true;dbg('');}
@@ -420,12 +430,10 @@ async function send(){
   }
   if(!ok){
     td.style.display='none';ac.style.display='block';
-    const iD=tg?.initData||'';ac.innerHTML=`<div style="color:var(--re);font-size:14px;margin-bottom:8px">⚠️ Нет соединения с ИИ</div>
-    <div style="font-size:12px;color:var(--tx4);line-height:1.8;background:var(--s1);border-radius:12px;padding:12px">
-      <b style="color:var(--tx2)">Диагностика:</b><br>
-      • API: <code style="color:var(--tx3)">${CFG.API.slice(0,40)}</code><br>
-      • initData: <code style="color:${iD?'var(--gr)':'var(--re)'}">${iD?'✅ есть ('+iD.length+' симв.)':'❌ пусто (открой через бота)'}</code><br>
-      • <a href="${CFG.API}/api/chat" target="_blank" style="color:var(--blue)">Проверить /api/chat →</a>
+    ac.innerHTML=`<div style="color:var(--re);font-size:14px;margin-bottom:6px">⚠️ Нет соединения с ИИ</div>
+    <div style="font-size:13px;color:var(--tx4);line-height:1.7;background:var(--s1);border-radius:12px;padding:12px">
+      Бот не отвечает. Возможно, Railway сервер не запущен.<br>
+      <a href="${CFG.API}/api/chat" target="_blank" style="color:var(--blue);margin-top:4px;display:inline-block">🔍 Проверить сервер →</a>
     </div>`;
   }
   ac.querySelectorAll('.cur').forEach(c=>c.remove());
@@ -466,7 +474,7 @@ function openMS(){hap();renderMods();document.getElementById('msi').value='';doc
 function pickM(k){S.mdl=k;document.getElementById('mname').textContent=MO[k].l;closeSheets();toast('✅ '+MO[k].l,'ok');}
 function closeSheets(){['ms','tp'].forEach(id=>document.getElementById(id).classList.remove('o'));document.getElementById('sho').classList.remove('o');}
 // ════════ LIMITS ════════
-async function loadLimits(){try{const uid=S.tgu?.id;const params=new URLSearchParams();if(uid)params.set('uid',uid);const iData=tg?.initData||'';if(iData)params.set('init_data',iData);const r=await fetch(`${CFG.API}/api/limits?${params}`,{signal:AbortSignal.timeout(10000)});if(!r.ok)return;const d=await r.json();S.lim={pro_used:d.pro_used||0,pro_max:d.pro_max||30,img_used:d.img_used||0,img_max:d.img_max||0,music_used:d.music_used||0,music_max:d.music_max||0,video_used:d.video_used||0,video_max:d.video_max||0,has_sub:!!d.has_sub,sub_plan:d.sub_plan||d.plan||'',sub_expires:d.sub_expires||d.expires||'',level:d.level||0,level_max:d.level_max||50,referrals:d.referrals||0,join_date:d.join_date||'',model:d.model||'',mode:d.mode||'',total_requests:d.total_requests||d.requests||0,total_gens:d.total_gens||d.generations||0,reset_in:d.reset_in||''};const left=Math.max(0,S.lim.pro_max-S.lim.pro_used);document.getElementById('rqnum').textContent=left;document.getElementById('sbap').textContent=S.lim.has_sub?(S.lim.sub_plan||'Pro'):'Free';}catch(e){}}
+async function loadLimits(){try{const uid=S.tgu?.id;const params=new URLSearchParams();if(uid)params.set('uid',uid);const iData=tg?.initData||'';if(iData)params.set('init_data',iData);const lUid=S.tgu?.id||null;if(lUid)params.set('uid',lUid);const r=await fetch(`${CFG.API}/api/limits?${params}`,{signal:AbortSignal.timeout(10000)});if(!r.ok)return;const d=await r.json();S.lim={pro_used:d.pro_used||0,pro_max:d.pro_max||30,img_used:d.img_used||0,img_max:d.img_max||0,music_used:d.music_used||0,music_max:d.music_max||0,video_used:d.video_used||0,video_max:d.video_max||0,has_sub:!!d.has_sub,sub_plan:d.sub_plan||d.plan||'',sub_expires:d.sub_expires||d.expires||'',level:d.level||0,level_max:d.level_max||50,referrals:d.referrals||0,join_date:d.join_date||'',model:d.model||'',mode:d.mode||'',total_requests:d.total_requests||d.requests||0,total_gens:d.total_gens||d.generations||0,reset_in:d.reset_in||''};const left=Math.max(0,S.lim.pro_max-S.lim.pro_used);document.getElementById('rqnum').textContent=left;document.getElementById('sbap').textContent=S.lim.has_sub?(S.lim.sub_plan||'Pro'):'Free';}catch(e){}}
 // ════════ PROFILE ════════
 function openProf(){renderProfile();document.getElementById('prof').classList.add('o');if(tg)tg.BackButton.show();}
 function closeProf(){document.getElementById('prof').classList.remove('o');if(tg)tg.BackButton.hide();}
