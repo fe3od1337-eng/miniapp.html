@@ -33,7 +33,7 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
 .mb2:active{background:var(--s1)}
 .mbn{font-size:16px;font-weight:600;letter-spacing:-.01em;max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .mbc{font-size:11px;color:var(--tx3)}
-.rqb{display:flex;align-items:center;gap:4px;padding:5px 10px;border-radius:18px;background:var(--s1);border:none;cursor:pointer;font-size:14px;font-weight:600;color:var(--tx)}
+.rqb{display:flex;align-items:center;gap:4px;padding:5px 10px;border-radius:18px;background:var(--s1);border:.5px solid transparent;cursor:pointer;font-size:14px;font-weight:600;color:var(--tx);transition:border-color .3s}
 .rqb-st{color:var(--blue);font-size:13px}
 #chat{flex:1;display:flex;flex-direction:column;overflow:hidden}
 #msgs{flex:1;overflow-y:auto;overflow-x:hidden;padding:10px 14px 6px;display:flex;flex-direction:column;gap:3px;scroll-behavior:smooth}
@@ -275,7 +275,7 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
   <div class="ssw"><input class="ss" id="msi" type="text" placeholder="🔍 Поиск..." oninput="fmod(this.value)"/></div>
   <div class="msl" id="ml"></div>
 </div>
-<div class="sheet" id="tp">
+<div class="sheet" id="tp" style="display:flex;flex-direction:column">
   <div class="sph" style="margin-bottom:8px"></div>
   <div class="tg">
     <div class="tc" onclick="closeSheets();openGen('image')"><div class="tci">🎨</div><div class="tcl">Картинка</div></div>
@@ -283,6 +283,9 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
     <div class="tc" onclick="closeSheets();attPhoto()"><div class="tci">📷</div><div class="tcl">Фото</div></div>
     <div class="tc" onclick="closeSheets();newChat()"><div class="tci">✏️</div><div class="tcl">Новый чат</div></div>
     <div class="tc" onclick="closeSheets();openProf()"><div class="tci">👤</div><div class="tcl">Профиль</div></div>
+    <div class="tc" onclick="closeSheets();openGen('docs')"><div class="tci">📄</div><div class="tcl">Документы</div></div>
+    <div class="tc" onclick="closeSheets();openGen('music')"><div class="tci">🎵</div><div class="tcl">Музыка</div></div>
+    <div class="tc" onclick="closeSheets();openGen('video')"><div class="tci">🎬</div><div class="tcl">Видео</div></div>
   </div>
   <div style="padding:0 14px 4px"><button class="gb" onclick="closeSheets()" style="background:var(--s1);color:var(--tx)">Отмена</button></div>
 </div>
@@ -497,6 +500,7 @@ function renderMods(q=''){const ml=document.getElementById('ml');ml.innerHTML=''
 const fmod=v=>renderMods(v);
 function openMS(){hap();renderMods();document.getElementById('msi').value='';document.getElementById('ms').classList.add('o');document.getElementById('sho').classList.add('o');}
 function pickM(k){S.mdl=k;document.getElementById('mname').textContent=MO[k].l;closeSheets();toast('✅ '+MO[k].l,'ok');updAttBtn();}
+function openTP(){hap();document.getElementById('tp').classList.add('o');document.getElementById('sho').classList.add('o');}
 function closeSheets(){['ms','tp'].forEach(id=>document.getElementById(id).classList.remove('o'));document.getElementById('sho').classList.remove('o');}
 // Обновить иконку кнопки прикрепления в зависимости от Vision-модели
 function updAttBtn(){
@@ -511,12 +515,15 @@ function updAttBtn(){
   }
 }
 // ════════ LIMITS ════════
+let _limRetry=0;
 async function loadLimits(){
   try{
     const uid=S.tgu?.id;
-    const params=new URLSearchParams();
-    // Всегда передаём init_data — бэкенд извлекает uid сам
     const iData=tg?.initData||'';
+    // Если нет ни uid, ни initData — подождём и повторим (до 5 раз)
+    if(!uid&&!iData&&_limRetry<5){_limRetry++;setTimeout(loadLimits,600);return;}
+    _limRetry=0;
+    const params=new URLSearchParams();
     if(iData)params.set('init_data',iData);
     if(uid)params.set('uid',uid);
     const r=await fetch(`${CFG.API}/api/limits?${params}`,{signal:AbortSignal.timeout(10000)});
@@ -546,7 +553,13 @@ async function loadLimits(){
       reset_in:d.reset_in||''
     };
     const left=Math.max(0,S.lim.pro_max-S.lim.pro_used);
-    document.getElementById('rqnum').textContent=left;
+    const rqBtn=document.getElementById('rqbtn');
+    const rqNum=document.getElementById('rqnum');
+    if(rqNum)rqNum.textContent=left;
+    if(rqBtn){
+      rqBtn.style.borderColor=left<=3?'rgba(255,69,58,.5)':left<=10?'rgba(255,214,10,.4)':'transparent';
+      rqBtn.title=`Запросов осталось: ${left} из ${S.lim.pro_max}`;
+    }
     document.getElementById('sbap').textContent=S.lim.has_sub?(S.lim.sub_plan||'Pro'):'Free';
   }catch(e){}
 }
@@ -620,7 +633,21 @@ function renderProfile(){
       <div class="pr2" onclick="cpRefLink()"><span class="pio">🔗</span><span class="plt">Реферальная ссылка</span><span class="par">›</span></div>
       <div class="pr2" onclick="newChat();closeProf()"><span class="pio">✏️</span><span class="plt">Новый чат</span><span class="par">›</span></div>
       <div class="pr2" onclick="toast('ХУЗА AI v3.1 ✨','')"><span class="pio">ℹ️</span><span class="plt">О приложении</span><span class="par">›</span></div>
-    </div>`;
+    </div>
+    ${!hasSub?`
+    <div style="background:linear-gradient(135deg,rgba(255,107,53,.15),rgba(255,140,66,.08));border:.5px solid rgba(255,107,53,.3);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="font-size:28px">🚀</div>
+        <div>
+          <div style="font-size:16px;font-weight:700">ХУЗА Pro</div>
+          <div style="font-size:13px;color:var(--tx2);margin-top:2px">Безлимитные запросы · Все модели · GPT, Claude, Gemini</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <button onclick="buySubscription('month')" style="padding:12px 8px;border-radius:12px;background:var(--acc);border:none;cursor:pointer;color:#fff;font-family:var(--f);font-size:14px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:2px"><span>149 ₽</span><span style="font-size:11px;font-weight:400;opacity:.85">в месяц</span></button>
+        <button onclick="buySubscription('year')" style="padding:12px 8px;border-radius:12px;background:var(--tx);border:none;cursor:pointer;color:#000;font-family:var(--f);font-size:14px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:2px"><span>999 ₽</span><span style="font-size:11px;font-weight:400;opacity:.6">в год · экономия 44%</span></button>
+      </div>
+    </div>`:``}`;
 }
 // ════════ GEN PAGES ════════
 const GTPL={
@@ -765,6 +792,25 @@ function cpMsg(btn,idx){
   const text=_msgStore[idx]||'';
   const done=()=>{btn.textContent='✅ Скопировано';btn.classList.add('done');setTimeout(()=>{btn.textContent='📋 Копировать';btn.classList.remove('done');},2000);};
   if(navigator.clipboard){navigator.clipboard.writeText(text).then(done).catch(()=>fallbackCopy(text,done));}else{fallbackCopy(text,done);}
+}
+// ════ SUBSCRIPTION ════
+function buySubscription(plan){
+  hap();
+  const cmd=plan==='year'?'buy_year':'buy_month';
+  // Отправляем команду боту через sendData или открываем бота
+  if(tg){
+    try{
+      // Закрываем миниапп и открываем бота с командой оплаты
+      tg.close();
+      return;
+    }catch(e){}
+    // Fallback: открываем ссылку на бота
+    const url='https://t.me/iihuzandelpiibot?start='+cmd;
+    try{tg.openLink(url);}catch(e){window.open(url,'_blank');}
+  }else{
+    window.open('https://t.me/iihuzandelpiibot?start='+cmd,'_blank');
+  }
+  toast('💳 Открываю оплату...','ok');
 }
 // ════ REF LINK ════
 function cpRefLink(){
