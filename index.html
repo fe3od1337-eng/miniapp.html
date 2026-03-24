@@ -61,15 +61,15 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
 .ac ul,.ac ol{padding-left:20px;margin:5px 0}.ac li{margin:2px 0}
 .ac strong{font-weight:600}.ac em{font-style:italic;color:var(--tx2)}.ac a{color:var(--blue);text-decoration:none}
 .ac blockquote{border-left:3px solid var(--acc);padding-left:12px;margin:7px 0;color:var(--tx2);font-style:italic}
-.cb{border-radius:12px;overflow:hidden;margin:7px 0;border:.5px solid var(--bo2);background:#161b22}
-.ct{display:flex;align-items:center;justify-content:space-between;padding:7px 12px;background:#0d1117;border-bottom:.5px solid #30363d}
+.cb{border-radius:12px;overflow:hidden;margin:7px 0;border:.5px solid var(--bo2);background:#161b22;max-width:100%}
+.ct{display:flex;align-items:center;justify-content:space-between;padding:7px 12px;background:#0d1117;border-bottom:.5px solid #30363d;position:sticky;top:0;z-index:1}
 .cl{font-size:11px;color:#8b949e;font-family:var(--mo)}
 .cc{display:flex;align-items:center;gap:4px;background:none;border:none;cursor:pointer;color:#8b949e;font-size:11px;font-family:var(--f);padding:3px 8px;border-radius:6px}
-.cc.ok{color:var(--gr)}
-.cb pre{margin:0!important;background:transparent!important;border:none!important}
-.cb pre code{font-size:13px;font-family:var(--mo)!important;padding:12px!important;display:block;overflow-x:auto}
-.tw{overflow-x:auto;margin:7px 0;border-radius:10px;border:.5px solid var(--bo2)}
-.ac table{width:100%;border-collapse:collapse;font-size:13px}
+.cc:active{background:rgba(255,255,255,.08)}.cc.ok{color:var(--gr)}
+.cb pre{margin:0!important;background:transparent!important;border:none!important;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.cb pre code{font-size:13px;font-family:var(--mo)!important;padding:12px!important;display:block;white-space:pre;word-break:normal;word-wrap:normal;min-width:max-content}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:7px 0;border-radius:10px;border:.5px solid var(--bo2)}
+.ac table{width:max-content;min-width:100%;border-collapse:collapse;font-size:13px}
 .ac th{background:var(--s1);padding:8px 12px;text-align:left;font-weight:600;font-size:12px;color:var(--tx2);border-bottom:.5px solid var(--bo2);white-space:nowrap}
 .ac td{padding:8px 12px;border-bottom:.5px solid rgba(60,60,67,.3);white-space:nowrap}.ac tr:last-child td{border-bottom:none}
 .td{display:flex;align-items:center;gap:5px;padding:4px 0;height:28px}
@@ -277,17 +277,10 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
 </div>
 <div class="sheet" id="tp" style="display:flex;flex-direction:column">
   <div class="sph" style="margin-bottom:8px"></div>
-  <div class="tg">
-    <div class="tc" onclick="closeSheets();openGen('image')"><div class="tci">🎨</div><div class="tcl">Картинка</div></div>
-    <div class="tc" onclick="closeSheets();openMS()"><div class="tci">🤖</div><div class="tcl">Модель</div></div>
-    <div class="tc" onclick="closeSheets();attPhoto()"><div class="tci">📷</div><div class="tcl">Фото</div></div>
-    <div class="tc" onclick="closeSheets();newChat()"><div class="tci">✏️</div><div class="tcl">Новый чат</div></div>
-    <div class="tc" onclick="closeSheets();openProf()"><div class="tci">👤</div><div class="tcl">Профиль</div></div>
-    <div class="tc" onclick="closeSheets();openGen('docs')"><div class="tci">📄</div><div class="tcl">Документы</div></div>
-    <div class="tc" onclick="closeSheets();openGen('music')"><div class="tci">🎵</div><div class="tcl">Музыка</div></div>
-    <div class="tc" onclick="closeSheets();openGen('video')"><div class="tci">🎬</div><div class="tcl">Видео</div></div>
+  <div style="padding:0 14px 10px;display:flex;flex-direction:column;gap:8px">
+    <button class="gb" onclick="closeSheets();attPhoto()" style="background:var(--s1);color:var(--tx);font-size:16px;gap:10px">📷 Прикрепить фото</button>
+    <button class="gb" onclick="closeSheets()" style="background:var(--s2);color:var(--tx2)">Отмена</button>
   </div>
-  <div style="padding:0 14px 4px"><button class="gb" onclick="closeSheets()" style="background:var(--s1);color:var(--tx)">Отмена</button></div>
 </div>
 <div class="fp" id="gp">
   <div class="fptb">
@@ -633,21 +626,7 @@ function renderProfile(){
       <div class="pr2" onclick="cpRefLink()"><span class="pio">🔗</span><span class="plt">Реферальная ссылка</span><span class="par">›</span></div>
       <div class="pr2" onclick="newChat();closeProf()"><span class="pio">✏️</span><span class="plt">Новый чат</span><span class="par">›</span></div>
       <div class="pr2" onclick="toast('ХУЗА AI v3.1 ✨','')"><span class="pio">ℹ️</span><span class="plt">О приложении</span><span class="par">›</span></div>
-    </div>
-    ${!hasSub?`
-    <div style="background:linear-gradient(135deg,rgba(255,107,53,.15),rgba(255,140,66,.08));border:.5px solid rgba(255,107,53,.3);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:12px">
-      <div style="display:flex;align-items:center;gap:10px">
-        <div style="font-size:28px">🚀</div>
-        <div>
-          <div style="font-size:16px;font-weight:700">ХУЗА Pro</div>
-          <div style="font-size:13px;color:var(--tx2);margin-top:2px">Безлимитные запросы · Все модели · GPT, Claude, Gemini</div>
-        </div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        <button onclick="buySubscription('month')" style="padding:12px 8px;border-radius:12px;background:var(--acc);border:none;cursor:pointer;color:#fff;font-family:var(--f);font-size:14px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:2px"><span>149 ₽</span><span style="font-size:11px;font-weight:400;opacity:.85">в месяц</span></button>
-        <button onclick="buySubscription('year')" style="padding:12px 8px;border-radius:12px;background:var(--tx);border:none;cursor:pointer;color:#000;font-family:var(--f);font-size:14px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:2px"><span>999 ₽</span><span style="font-size:11px;font-weight:400;opacity:.6">в год · экономия 44%</span></button>
-      </div>
-    </div>`:``}`;
+    </div>`;
 }
 // ════════ GEN PAGES ════════
 const GTPL={
