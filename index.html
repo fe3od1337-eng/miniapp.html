@@ -181,7 +181,8 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
 .lf{height:100%;background:linear-gradient(90deg,var(--acc),var(--acc2));border-radius:3px;transition:width .5s}
 .liml{background:var(--s1);border-radius:16px;overflow:hidden}
 .limr{display:flex;align-items:center;gap:12px;padding:12px 15px;border-bottom:.5px solid var(--bo)}
-.limr:last-child{border-bottom:none}.lico{font-size:18px;width:26px;text-align:center}.limt{flex:1;font-size:14px;font-weight:500}.limv{font-size:14px;color:var(--tx2);font-weight:500}
+.limr:last-child{border-bottom:none}.lico{font-size:18px;width:26px;text-align:center;flex-shrink:0}.limt{flex:1;font-size:14px;font-weight:500}.limv{font-size:14px;color:var(--tx2);font-weight:500}
+.limr small{font-size:11px}
 .pg{background:var(--s1);border-radius:16px;overflow:hidden}
 .pr2{display:flex;align-items:center;gap:12px;padding:13px 15px;cursor:pointer;border-bottom:.5px solid var(--bo)}
 .pr2:last-child{border-bottom:none}.pr2:active{background:var(--s2)}
@@ -225,7 +226,7 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
   <div id="tb">
     <div class="tbl"><button class="ib" onclick="openSB()"><svg viewBox="0 0 20 14" fill="none" width="20" height="14"><rect width="20" height="2" rx="1" fill="currentColor"/><rect y="6" width="14" height="2" rx="1" fill="currentColor"/><rect y="12" width="20" height="2" rx="1" fill="currentColor"/></svg></button></div>
     <div class="tbc"><button class="mb2" onclick="openMS()"><span class="mbn" id="mname">GPT-5.2 Chat</span><span class="mbc">▾</span></button></div>
-    <div class="tbr"><button class="rqb" onclick="openProf()" id="rqbtn"><span id="rqnum">—</span><span class="rqb-st">★</span></button></div>
+    <div class="tbr"><button class="rqb" onclick="openProf()" id="rqbtn"><span id="rqnum">—</span><span class="rqb-st" id="rqmax"></span></button></div>
   </div>
   <div id="chat">
     <div id="msgs">
@@ -548,7 +549,9 @@ async function loadLimits(){
     const left=Math.max(0,S.lim.pro_max-S.lim.pro_used);
     const rqBtn=document.getElementById('rqbtn');
     const rqNum=document.getElementById('rqnum');
+    const rqMax=document.getElementById('rqmax');
     if(rqNum)rqNum.textContent=left;
+    if(rqMax)rqMax.textContent=' /'+S.lim.pro_max;
     if(rqBtn){
       rqBtn.style.borderColor=left<=3?'rgba(255,69,58,.5)':left<=10?'rgba(255,214,10,.4)':'transparent';
       rqBtn.title=`Запросов осталось: ${left} из ${S.lim.pro_max}`;
@@ -557,73 +560,132 @@ async function loadLimits(){
   }catch(e){}
 }
 // ════════ PROFILE ════════
-function openProf(){renderProfile();document.getElementById('prof').classList.add('o');if(tg)tg.BackButton.show();}
+function openProf(){loadLimits().then(renderProfile);document.getElementById('prof').classList.add('o');if(tg)tg.BackButton.show();}
 function closeProf(){document.getElementById('prof').classList.remove('o');if(tg)tg.BackButton.hide();}
 function updSBUser(){const u=S.tgu;if(u)document.getElementById('sban').textContent=[u.first_name,u.last_name].filter(Boolean).join(' ')||'ХУЗА AI';}
+
+function _limRow(ico,label,used,max,suffix){
+  if(max<=0)return`<div class="limr"><span class="lico">${ico}</span><span class="limt">${label}</span><span class="limv" style="color:var(--tx4)">недоступно</span></div>`;
+  const left=Math.max(0,max-used);
+  const pct=Math.min(100,Math.round(used/max*100));
+  const col=left===0?'var(--re)':left<=Math.ceil(max*0.15)?'var(--yl)':'var(--gr)';
+  return`<div class="limr" style="flex-direction:column;align-items:stretch;gap:5px;padding:12px 15px">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <span style="display:flex;align-items:center;gap:8px"><span class="lico">${ico}</span><span class="limt">${label}</span></span>
+      <span class="limv" style="color:${col}">${left} <small style="color:var(--tx4)">/ ${max}${suffix}</small></span>
+    </div>
+    <div style="height:3px;background:var(--bg1);border-radius:3px;overflow:hidden"><div style="height:100%;border-radius:3px;background:${col};width:${pct}%;transition:width .5s"></div></div>
+  </div>`;
+}
+
 function renderProfile(){
   const u=S.tgu;const L=S.lim;
   const ini=u?(((u.first_name||'')[0]||'')+((u.last_name||'')[0]||'')):'?';
   const name=u?[u.first_name,u.last_name].filter(Boolean).join(' '):'Гость';
   const uname=u?.username?`@${u.username}`:'';
   const uid=u?.id||'—';
-  const proUsed=L.pro_used,proMax=L.pro_max;
-  const barW=proMax>0?Math.min(100,Math.round(proUsed/proMax*100)):0;
+
+  const proLeft=Math.max(0,L.pro_max-L.pro_used);
+  const proBarW=L.pro_max>0?Math.min(100,Math.round(L.pro_used/L.pro_max*100)):0;
+  const proColor=proLeft===0?'var(--re)':proLeft<=5?'var(--yl)':'var(--acc)';
+
   const hasSub=L.has_sub;
   const subName=hasSub?(L.sub_plan||'Pro')+' подписка':'Free план';
   const subStatus=hasSub?(L.sub_expires?'активна до '+L.sub_expires:'активна'):'Нет подписки';
+
   const botModel=L.model||MO[S.mdl]?.l||S.mdl;
-  const imgRow=L.img_max>0
-    ?`<div class="limr"><span class="lico">🎨</span><span class="limt">Картинки</span><span class="limv">${L.img_used} / ${L.img_max} <small style="color:var(--tx4)">в мес.</small></span></div>`
-    :`<div class="limr"><span class="lico">🎨</span><span class="limt">Картинки</span><span class="limv" style="color:var(--tx4)">недоступно</span></div>`;
-  const musRow=L.music_max>0
-    ?`<div class="limr"><span class="lico">🎵</span><span class="limt">Музыка</span><span class="limv">${L.music_used} / ${L.music_max} <small style="color:var(--tx4)">в мес.</small></span></div>`
-    :`<div class="limr"><span class="lico">🎵</span><span class="limt">Музыка</span><span class="limv" style="color:var(--tx4)">недоступно</span></div>`;
-  const vidRow=L.video_max>0
-    ?`<div class="limr"><span class="lico">🎥</span><span class="limt">Видео</span><span class="limv">${L.video_used} / ${L.video_max} <small style="color:var(--tx4)">в мес.</small></span></div>`
-    :`<div class="limr"><span class="lico">🎥</span><span class="limt">Видео</span><span class="limv" style="color:var(--tx4)">недоступно</span></div>`;
+  const modeLabel=L.mode==='fast'?'⚡ Быстрый':L.mode==='think'?'🧠 Думающий':L.mode||'—';
+
+  // Уровень — повторяет логику бота
+  const totalReq=L.total_requests||S.mc;
+  const lvl=L.level||0;
+  const lvlMax=L.level_max||50;
+  const lvlPct=lvlMax>0?Math.min(100,Math.round(totalReq/lvlMax*100)):0;
+
   document.getElementById('profbd').innerHTML=`
+    <!-- Шапка пользователя -->
     <div class="ph">
       <div class="pa">${esc((ini||'?').toUpperCase())}</div>
-      <div>
+      <div style="flex:1">
         <div class="pn">${esc(name)}</div>
         ${uname?`<div class="pu">${esc(uname)}</div>`:''}
         <div class="pid">ID: ${uid}</div>
-        ${L.join_date?`<div class="pid">Дата входа — ${esc(L.join_date)}</div>`:''}
+        ${L.join_date?`<div class="pid" style="margin-top:2px">📅 С нами с ${esc(L.join_date)}</div>`:''}
       </div>
     </div>
+
+    <!-- Статистика 2×2 -->
     <div class="sg2">
-      <div class="sc"><div class="sci">💬</div><div class="scv">${L.total_requests||S.mc}</div><div class="scl">Запросов</div></div>
+      <div class="sc"><div class="sci">💬</div><div class="scv">${totalReq}</div><div class="scl">Запросов</div></div>
       <div class="sc"><div class="sci">🎨</div><div class="scv">${L.total_gens||S.ic}</div><div class="scl">Генераций</div></div>
-      <div class="sc"><div class="sci">🎁</div><div class="scv">${L.referrals}</div><div class="scl">Рефералов</div></div>
-      <div class="sc"><div class="sci">⭐</div><div class="scv" style="font-size:${L.level>0?'22':'15'}px">${L.level>0?'Ур. '+L.level:'Начинающий'}</div><div class="scl">${L.level_max>0?'до '+L.level_max+' зап.':'Уровень'}</div></div>
+      <div class="sc"><div class="sci">🎁</div><div class="scv">${L.referrals||0}</div><div class="scl">Рефералов</div></div>
+      <div class="sc" style="position:relative;overflow:hidden">
+        <div style="position:absolute;bottom:0;left:0;right:0;height:${lvlPct}%;background:rgba(255,107,53,.08);transition:height .5s"></div>
+        <div class="sci">⭐</div>
+        <div class="scv" style="font-size:${lvl>0?'20':'14'}px">${lvl>0?'Ур. '+lvl:'Нач.'}</div>
+        <div class="scl">${lvlMax>0?totalReq+' / '+lvlMax+' зап.':'Уровень'}</div>
+      </div>
     </div>
+
+    <!-- Подписка -->
     <div class="subc">
       <div class="subr">
         <div class="subico ${hasSub?'pro':''}">💎</div>
-        <div><div class="subn">${esc(subName)}</div><div class="subs">${esc(subStatus)}</div></div>
+        <div style="flex:1">
+          <div class="subn">${esc(subName)}</div>
+          <div class="subs" style="color:${hasSub?'var(--gr)':'var(--tx4)'}">${esc(subStatus)}</div>
+        </div>
+        ${!hasSub?`<button onclick="closeProf();openSB()" style="padding:7px 12px;border-radius:10px;background:var(--acc);border:none;cursor:pointer;color:#fff;font-size:12px;font-weight:700;font-family:var(--f)">Купить</button>`:''}
       </div>
       <div>
-        <div class="lrow"><span>Запросы сегодня</span><span>${proUsed} / ${proMax}${L.reset_in?' ↻ '+L.reset_in:''}</span></div>
-        <div class="lbar"><div class="lf" style="width:${barW}%"></div></div>
+        <div class="lrow">
+          <span>Запросы сегодня</span>
+          <span style="color:${proColor};font-weight:600">${proLeft} / ${L.pro_max}</span>
+        </div>
+        <div class="lbar"><div class="lf" style="width:${proBarW}%;background:${proColor}"></div></div>
+        ${L.reset_in?`<div style="font-size:11px;color:var(--tx4);margin-top:4px;text-align:right">↻ сброс через ${esc(L.reset_in)}</div>`:''}
       </div>
     </div>
+
+    <!-- Лимиты (полные, как в боте) -->
     <div>
       <div class="sec-hdr" style="margin-bottom:6px">💡 Лимиты</div>
       <div class="liml">
-        <div class="limr"><span class="lico">💬</span><span class="limt">Запросы</span><span class="limv">${proUsed} / ${proMax}</span></div>
-        ${imgRow}${musRow}${vidRow}
+        ${_limRow('💬','Запросы (день)',L.pro_used,L.pro_max,'')}
+        ${_limRow('🎨','Картинки',L.img_used,L.img_max,' /мес')}
+        ${_limRow('🎵','Музыка',L.music_used,L.music_max,' /мес')}
+        ${_limRow('🎬','Видео',L.video_used,L.video_max,' /мес')}
       </div>
     </div>
+
+    <!-- Модель и режим (синхронизировано с ботом) -->
     <div>
-      <div class="sec-hdr" style="margin-bottom:6px">⚙️ Настройки</div>
+      <div class="sec-hdr" style="margin-bottom:6px">⚙️ Текущие настройки</div>
       <div class="liml">
-        <div class="limr"><span class="lico">🤖</span><span class="limt">Модель</span><span class="limv" style="font-size:12px;max-width:160px;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(botModel)}</span></div>
-        ${L.mode?`<div class="limr"><span class="lico">⚡</span><span class="limt">Режим</span><span class="limv">${esc(L.mode)}</span></div>`:''}
+        <div class="limr"><span class="lico">🤖</span><span class="limt">Модель</span><span class="limv" style="font-size:12px;max-width:170px;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(botModel)}</span></div>
+        <div class="limr"><span class="lico">⚡</span><span class="limt">Режим ответа</span><span class="limv" style="font-size:13px">${esc(modeLabel)}</span></div>
+        <div class="limr"><span class="lico">🏷</span><span class="limt">Тариф</span><span class="limv" style="color:${hasSub?'var(--gr)':'var(--tx4)'}">${esc(subName)}</span></div>
       </div>
     </div>
+
+    <!-- Доступные функции -->
+    <div>
+      <div class="sec-hdr" style="margin-bottom:6px">🔓 Доступные функции</div>
+      <div class="liml">
+        <div class="limr"><span class="lico">💬</span><span class="limt">Чат с ИИ</span><span class="limv" style="color:var(--gr)">✓ Доступно</span></div>
+        <div class="limr"><span class="lico">🎨</span><span class="limt">Генерация картинок</span><span class="limv" style="color:${L.img_max>0?'var(--gr)':'var(--tx4)'}">${L.img_max>0?'✓ '+L.img_max+' /мес':'✗ Нет'}</span></div>
+        <div class="limr"><span class="lico">🎵</span><span class="limt">Генерация музыки</span><span class="limv" style="color:${L.music_max>0?'var(--gr)':'var(--tx4)'}">${L.music_max>0?'✓ '+L.music_max+' /мес':'✗ Нет'}</span></div>
+        <div class="limr"><span class="lico">🎬</span><span class="limt">Генерация видео</span><span class="limv" style="color:${L.video_max>0?'var(--gr)':'var(--tx4)'}">${L.video_max>0?'✓ '+L.video_max+' /мес':'✗ Нет'}</span></div>
+        <div class="limr"><span class="lico">📷</span><span class="limt">Анализ фото (Vision)</span><span class="limv" style="color:var(--gr)">✓ Доступно</span></div>
+        <div class="limr"><span class="lico">📄</span><span class="limt">Документы / PPTX</span><span class="limv" style="color:${hasSub?'var(--gr)':'var(--tx4)'}">${hasSub?'✓ Доступно':'✗ Нужна подписка'}</span></div>
+      </div>
+    </div>
+
+    <!-- Действия -->
     <div class="pg">
       <div class="pr2" onclick="closeProf();openMS()"><span class="pio">🤖</span><span class="plt">Выбор модели</span><span class="par">›</span></div>
       <div class="pr2" onclick="cpRefLink()"><span class="pio">🔗</span><span class="plt">Реферальная ссылка</span><span class="par">›</span></div>
+      <div class="pr2" onclick="loadLimits().then(renderProfile);toast('🔄 Обновлено','ok')"><span class="pio">🔄</span><span class="plt">Обновить данные</span><span class="par">›</span></div>
       <div class="pr2" onclick="newChat();closeProf()"><span class="pio">✏️</span><span class="plt">Новый чат</span><span class="par">›</span></div>
       <div class="pr2" onclick="toast('ХУЗА AI v3.1 ✨','')"><span class="pio">ℹ️</span><span class="plt">О приложении</span><span class="par">›</span></div>
     </div>`;
