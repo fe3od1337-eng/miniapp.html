@@ -61,7 +61,6 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
 .ac ul,.ac ol{padding-left:20px;margin:5px 0}.ac li{margin:2px 0}
 .ac strong{font-weight:600}.ac em{font-style:italic;color:var(--tx2)}.ac a{color:var(--blue);text-decoration:none}
 .ac blockquote{border-left:3px solid var(--acc);padding-left:12px;margin:7px 0;color:var(--tx2);font-style:italic}
-/* ── Код-блок ── */
 .cb{border-radius:12px;overflow:visible;margin:7px 0;border:.5px solid var(--bo2);background:#161b22;max-width:100%}
 .ct{display:flex;align-items:center;justify-content:space-between;padding:7px 12px;background:#0d1117;border-bottom:.5px solid #30363d;border-radius:12px 12px 0 0}
 .cl{font-size:11px;color:#8b949e;font-family:var(--mo);flex:1}
@@ -69,7 +68,6 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
 .cc:active{background:rgba(255,255,255,.15)}.cc.ok{color:var(--gr);background:rgba(48,209,88,.1)}
 .cb pre{margin:0!important;background:#161b22!important;border:none!important;overflow-x:auto!important;-webkit-overflow-scrolling:touch!important;display:block;border-radius:0 0 12px 12px}
 .cb pre code{font-size:13px;font-family:var(--mo)!important;padding:14px!important;display:block;white-space:pre!important;word-break:normal!important;word-wrap:normal!important;overflow-wrap:normal!important;min-width:max-content}
-/* ── Таблица ── */
 .tw{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:7px 0;border-radius:10px;border:.5px solid var(--bo2);display:block;max-width:100%}
 .ac table{width:max-content;min-width:100%;border-collapse:collapse;font-size:13px}
 .ac th{background:var(--s1);padding:8px 12px;text-align:left;font-weight:600;font-size:12px;color:var(--tx2);border-bottom:.5px solid var(--bo2);white-space:nowrap}
@@ -168,11 +166,13 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
 .dlc.s{display:flex}.dli{font-size:28px}.dlinf{flex:1}
 .dlfn{font-size:14px;font-weight:600;color:var(--gr)}.dlm{font-size:12px;color:var(--tx4);margin-top:2px}
 .dlb{padding:9px 14px;border-radius:10px;background:var(--gr);border:none;cursor:pointer;color:#000;font-size:14px;font-weight:600;font-family:var(--f)}
+
+/* ══ PROFILE (дашборд) ══ */
 .ph{background:var(--s1);border-radius:16px;padding:18px;display:flex;align-items:center;gap:14px}
 .pa{width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,var(--acc),var(--acc2));display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#fff;flex-shrink:0}
 .pn{font-size:18px;font-weight:700}.pu{font-size:14px;color:var(--tx2);margin-top:2px}.pid{font-size:11px;color:var(--tx4);margin-top:3px;font-family:var(--mo)}
 .sg2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.sc{background:var(--s1);border-radius:14px;padding:15px}.sci{font-size:21px;margin-bottom:5px}.scv{font-size:22px;font-weight:700}.scl{font-size:12px;color:var(--tx4);margin-top:3px}
+.sc{background:var(--s1);border-radius:14px;padding:15px;position:relative;overflow:hidden}.sci{font-size:21px;margin-bottom:5px}.scv{font-size:22px;font-weight:700}.scl{font-size:12px;color:var(--tx4);margin-top:3px}
 .subc{background:var(--s1);border-radius:16px;padding:15px;display:flex;flex-direction:column;gap:10px}
 .subr{display:flex;align-items:center;gap:12px}
 .subico{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;background:linear-gradient(135deg,#636366,#48484a)}
@@ -190,6 +190,19 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
 .pr2:last-child{border-bottom:none}.pr2:active{background:var(--s2)}
 .pio{font-size:17px;width:24px;text-align:center}.plt{flex:1;font-size:15px}.par{color:var(--tx4);font-size:13px}
 .sec-hdr{font-size:13px;color:var(--tx4);padding:0 4px}
+
+/* ── профиль: скелет загрузки ── */
+.prof-loading{display:flex;flex-direction:column;gap:12px;padding:4px 0}
+.skel{background:var(--s1);border-radius:14px;animation:sk 1.4s ease-in-out infinite}
+@keyframes sk{0%,100%{opacity:.4}50%{opacity:.9}}
+
+/* ── быстрые кнопки (дашборд) ── */
+.dash-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+.dash-btn{display:flex;flex-direction:column;align-items:center;gap:5px;padding:12px 6px;border-radius:14px;background:var(--s1);border:none;cursor:pointer;color:var(--tx)}
+.dash-btn:active{background:var(--s2)}
+.dash-ico{font-size:22px}
+.dash-lbl{font-size:10px;font-weight:500;color:var(--tx2);text-align:center;line-height:1.3}
+
 #dbg{position:fixed;top:calc(var(--th)+var(--st)+4px);left:8px;right:8px;z-index:200;background:rgba(255,69,58,.12);border:.5px solid rgba(255,69,58,.4);border-radius:10px;padding:8px 12px;font-size:12px;color:var(--re);display:none;line-height:1.4}
 #dbg.s{display:block}
 #toast{position:fixed;top:calc(var(--th) + var(--st) + 10px);left:50%;transform:translateX(-50%) translateY(-6px);background:var(--s2);border:.5px solid var(--bo2);border-radius:12px;padding:9px 16px;font-size:14px;font-weight:500;white-space:nowrap;z-index:300;opacity:0;pointer-events:none;transition:all .22s cubic-bezier(.34,1.3,.64,1)}
@@ -207,6 +220,7 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
 .prmbtn{width:20px;height:20px;border-radius:50%;background:var(--s3);border:none;cursor:pointer;font-size:11px;color:var(--tx);display:flex;align-items:center;justify-content:center}
 .att-btn{width:36px;height:36px;border-radius:50%;background:var(--s1);border:.5px solid var(--bo2);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;color:var(--tx2)}
 .att-btn:active{background:var(--s2)}
+.att-btn.vision-ok{border-color:rgba(48,209,88,.4);color:var(--gr)}
 #shmod{position:fixed;inset:0;z-index:200;display:none;flex-direction:column;justify-content:flex-end}
 #shmod.o{display:flex}
 #shovl{position:absolute;inset:0;background:rgba(0,0,0,.75)}
@@ -219,8 +233,6 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
 .shbtn{padding:13px;border-radius:12px;background:var(--s1);border:.5px solid var(--bo2);cursor:pointer;color:var(--tx);font-family:var(--f);font-size:14px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:8px}
 .shbtn:active{background:var(--s2)}.shbtn.tg{background:rgba(10,132,255,.12);border-color:rgba(10,132,255,.3);color:var(--blue)}
 .shcancel{width:100%;padding:13px;border-radius:12px;background:var(--s2);border:none;cursor:pointer;color:var(--tx);font-family:var(--f);font-size:15px;font-weight:500}
-/* Vision badge for photo attach button */
-.att-btn.vision-ok{border-color:rgba(48,209,88,.4);color:var(--gr)}
 </style>
 </head>
 <body>
@@ -228,7 +240,7 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
   <div id="tb">
     <div class="tbl"><button class="ib" onclick="openSB()"><svg viewBox="0 0 20 14" fill="none" width="20" height="14"><rect width="20" height="2" rx="1" fill="currentColor"/><rect y="6" width="14" height="2" rx="1" fill="currentColor"/><rect y="12" width="20" height="2" rx="1" fill="currentColor"/></svg></button></div>
     <div class="tbc"><button class="mb2" onclick="openMS()"><span class="mbn" id="mname">GPT-5.2 Chat</span><span class="mbc">▾</span></button></div>
-    <div class="tbr"><button class="rqb" onclick="openProf()" id="rqbtn"><span id="rqnum">—</span><span class="rqb-st" id="rqmax"></span></button></div>
+    <div class="tbr"><button class="rqb" onclick="openProf()" id="rqbtn"><span id="rqnum">…</span><span class="rqb-st" id="rqmax"></span></button></div>
   </div>
   <div id="chat">
     <div id="msgs">
@@ -262,9 +274,11 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
     <div class="sbai"><div class="sbico">🤖</div><div><div class="sban" id="sban">ХУЗА AI</div><div class="sbap" id="sbap">Free</div></div></div>
   </div>
   <div class="sbsep"></div>
-  <div class="sbi" onclick="closeSB();openProf()"><span class="sii">☆</span><span class="sit">Подписка</span></div>
+  <div class="sbi" onclick="closeSB();openProf()"><span class="sii">👤</span><span class="sit">Профиль / Подписка</span></div>
   <div class="sbi" onclick="closeSB();newChat()"><span class="sii">⊕</span><span class="sit">Новый чат</span></div>
   <div class="sbi" onclick="closeSB();openGen('image')"><span class="sii">🎨</span><span class="sit">Генерация картинок</span></div>
+  <div class="sbi" onclick="closeSB();openGen('music')"><span class="sii">🎵</span><span class="sit">Генерация музыки</span></div>
+  <div class="sbi" onclick="closeSB();openGen('docs')"><span class="sii">📄</span><span class="sit">Документы / PPTX</span></div>
   <div class="sbi" onclick="closeSB();openMS()"><span class="sii">⚙</span><span class="sit">Настройки модели</span></div>
   <div class="sbsep"></div>
   <div class="sbsl">История чатов</div>
@@ -292,13 +306,24 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
   </div>
   <div class="fpbd" id="gpbd"></div>
 </div>
+
+<!-- ═══ ПРОФИЛЬ — ДАШБОРД ═══ -->
 <div class="fp" id="prof">
   <div class="fptb">
     <button class="fpbk" onclick="closeProf()"><svg viewBox="0 0 9 15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="8 1 2 7.5 8 14"/></svg>Назад</button>
-    <span class="fptit">Профиль</span><span style="min-width:60px"></span>
+    <span class="fptit">Профиль</span>
+    <button onclick="refreshProf()" style="background:none;border:none;cursor:pointer;color:var(--blue);font-size:14px;padding:4px 8px;min-width:60px;font-family:var(--f)">↻ Обновить</button>
   </div>
-  <div class="fpbd" id="profbd"></div>
+  <div class="fpbd" id="profbd">
+    <div class="prof-loading">
+      <div class="skel" style="height:90px"></div>
+      <div class="skel" style="height:130px"></div>
+      <div class="skel" style="height:160px"></div>
+      <div class="skel" style="height:200px"></div>
+    </div>
+  </div>
 </div>
+
 <div id="toast"></div>
 <div id="shmod">
   <div id="shovl" onclick="closeShare()"></div>
@@ -314,6 +339,7 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
   </div>
 </div>
 <input type="file" id="phi" accept="image/*" style="display:none" onchange="onPhoto(event)"/>
+
 <script>
 // ════════ CONFIG ════════
 const CFG={
@@ -345,19 +371,14 @@ const IEX=['🏙 Неоновый Токио, киберпанк','🌲 Лесн
 const MEX=['Вдохновляющий гимн, оркестр','Меланхоличная ночь, пианино lo-fi','Рэп о мечтах, trap'];
 const MSTY=['Поп','Электронная','Lo-fi','Рок','Хип-хоп','Трэп','Джаз','Классика'];
 // ════════ STATE ════════
-const S={mdl:'gpt52_chat',hist:[],sess:[],cur:null,busy:0,mc:0,ic:0,tgu:null,pi:null,mum:'suno',vum:'wan',lim:{pro_used:0,pro_max:30,img_used:0,img_max:0,music_used:0,music_max:0,video_used:0,video_max:0,has_sub:false,sub_plan:'',sub_expires:'',level:0,level_max:50,referrals:0,join_date:'',model:'',mode:'',total_requests:0,total_gens:0,reset_in:''}};
-// Глобальное хранилище текстов сообщений (безопасное — без inline JS)
+const S={mdl:'gpt52_chat',hist:[],sess:[],cur:null,busy:0,mc:0,ic:0,tgu:null,pi:null,mum:'suno',vum:'wan',
+  lim:{pro_used:0,pro_max:30,img_used:0,img_max:0,music_used:0,music_max:0,video_used:0,video_max:0,
+       has_sub:false,sub_plan:'',sub_expires:'',level:0,level_max:50,referrals:0,join_date:'',
+       model:'',mode:'',total_requests:0,total_gens:0,reset_in:''}};
 const _msgStore=[];
 // ════════ TG ════════
 const tg=window.Telegram?.WebApp;
-if(tg){
-  tg.ready();
-  tg.expand();
-  tg.setHeaderColor?.('#000');
-  tg.setBackgroundColor?.('#000');
-  tg.enableClosingConfirmation?.();
-  S.tgu=tg.initDataUnsafe?.user||null;
-}
+if(tg){tg.ready();tg.expand();tg.setHeaderColor?.('#000');tg.setBackgroundColor?.('#000');tg.enableClosingConfirmation?.();S.tgu=tg.initDataUnsafe?.user||null;}
 const hap=t=>tg?.HapticFeedback?.impactOccurred(t||'light');
 // ════════ MD ════════
 function setupMD(){
@@ -376,107 +397,35 @@ const hwlc=()=>document.getElementById('wlc')?.classList.add('g');
 function addU(txt,imgData){hwlc();const m=document.getElementById('msgs');const d=document.createElement('div');d.className='mr u';const imgHtml=imgData?`<img class="umsg-img" src="data:image/jpeg;base64,${imgData}" alt="фото"/>`:'' ;d.innerHTML=`<div class="mc"><div class="bu">${imgHtml}${esc(txt).replace(/\n/g,'<br>')}</div></div><div class="av">👤</div>`;m.appendChild(d);sd();}
 function addA(){const m=document.getElementById('msgs');const d=document.createElement('div');d.className='mr a';d.innerHTML=`<div class="av">🤖</div><div class="mc"><div class="bu"><div class="td"><span></span><span></span><span></span></div><div class="ac" style="display:none"></div></div><div class="msg-actions"></div></div>`;m.appendChild(d);sd();return{td:d.querySelector('.td'),ac:d.querySelector('.ac'),el:d};}
 const sd=()=>{const m=document.getElementById('msgs');requestAnimationFrame(()=>{m.scrollTop=m.scrollHeight;});};
-// Добавить кнопки действий к сообщению (используем _msgStore чтобы избежать проблем с экранированием)
-function addMsgActions(el,text){
-  const act=el?.querySelector('.msg-actions');
-  if(!act)return;
-  const idx=_msgStore.length;
-  _msgStore.push(text);
-  act.innerHTML=`<button class="mact" onclick="cpMsg(this,${idx})">📋 Копировать</button><button class="mact" onclick="openShareIdx(${idx})">📤 Поделиться</button>`;
-  el.classList.add('show-act');
-}
+function addMsgActions(el,text){const act=el?.querySelector('.msg-actions');if(!act)return;const idx=_msgStore.length;_msgStore.push(text);act.innerHTML=`<button class="mact" onclick="cpMsg(this,${idx})">📋 Копировать</button><button class="mact" onclick="openShareIdx(${idx})">📤 Поделиться</button>`;el.classList.add('show-act');}
 // ════════ SEND — 3 стратегии ════════
 async function send(){
   const inp=document.getElementById('inp');const txt=inp.value.trim();
   if(!txt||S.busy)return;
-  // Ждём получения пользователя из Telegram (до 2 сек)
   if(!S.tgu&&tg){for(let i=0;i<8;i++){await new Promise(r=>setTimeout(r,250));S.tgu=tg.initDataUnsafe?.user||null;if(S.tgu)break;}}
   inp.value='';rsz(inp);document.getElementById('snd').disabled=true;S.busy=1;S.mc++;
   const imgData=S.pi;S.pi=null;document.getElementById('pprev').classList.remove('s');
-  updAttBtn();
-  addU(txt,imgData);
+  updAttBtn();addU(txt,imgData);
   if(imgData){S.hist.push({role:'user',content:[{type:'image_url',image_url:{url:`data:image/jpeg;base64,${imgData}`}},{type:'text',text:txt}]});}
   else{S.hist.push({role:'user',content:txt});}
   const{td,ac,el}=addA();let full='';
   let _typBuf='';let _typQ=[];let _typRaf=null;
   const _sonar=S.mdl==='sonar';
   const _stripCit=s=>s.replace(/\s*\[\d+(?:[,\s]+\d+)*\]/g,'').replace(/\[\[?\d+\]?\]/g,'');
-  const _doTyp=()=>{
-    if(!_typQ.length){_typRaf=null;return;}
-    const n=Math.min(Math.max(4,Math.ceil(_typQ.length/8)),30);
-    _typBuf+=_typQ.splice(0,n).join('');
-    const rendered=_sonar?_stripCit(_typBuf):_typBuf;
-    ac.innerHTML=rmd(rendered)+'<span class="cur"></span>';rk(ac);sd();
-    _typRaf=requestAnimationFrame(_doTyp);
-  };
-  const onChunk=chunk=>{
-    if(td.style.display!=='none'){td.style.display='none';ac.style.display='block';}
-    full+=chunk;_typQ.push(...chunk.split(''));
-    if(!_typRaf)_typRaf=requestAnimationFrame(_doTyp);
-  };
+  const _doTyp=()=>{if(!_typQ.length){_typRaf=null;return;}const n=Math.min(Math.max(4,Math.ceil(_typQ.length/8)),30);_typBuf+=_typQ.splice(0,n).join('');const rendered=_sonar?_stripCit(_typBuf):_typBuf;ac.innerHTML=rmd(rendered)+'<span class="cur"></span>';rk(ac);sd();_typRaf=requestAnimationFrame(_doTyp);};
+  const onChunk=chunk=>{if(td.style.display!=='none'){td.style.display='none';ac.style.display='block';}full+=chunk;_typQ.push(...chunk.split(''));if(!_typRaf)_typRaf=requestAnimationFrame(_doTyp);};
   let ok=false;
-  // ─ СТРАТЕГИЯ 1: Backend ─
-  if(!ok){
-    try{
-      const initD=tg?.initData||'';const uid=S.tgu?.id||null;
-      const body={model:S.mdl,messages:S.hist.slice(-20),stream:true,init_data:initD,uid:uid};
-      if(imgData)body.images=[imgData];
-      const r=await fetch(`${CFG.API}/api/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:AbortSignal.timeout(90000)});
-      if(r.status===405||r.status===403||r.status===404){dbg(`Backend ${r.status} → пробую SQ Direct`);}
-      else if(!r.ok){const t=await r.text().catch(()=>'');throw new Error(`Backend HTTP ${r.status}: ${t.slice(0,100)}`);}
-      else{await readSSE(r,onChunk);ok=true;}
-    }catch(e){if(!ok)dbg('Backend fail: '+e.message);}
-  }
-  // ─ СТРАТЕГИЯ 2: OnlySQ напрямую ─
-  if(!ok&&CFG.SQ_KEY){
-    try{
-      dbg('Пробую OnlySQ Direct...');
-      const model=MO[S.mdl];
-      const r=await fetch(CFG.SQ_URL,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${CFG.SQ_KEY}`},body:JSON.stringify({model:model.n,messages:[{role:'system',content:'Ты — ИИ-ассистент ХУЗА. Отвечай на языке пользователя. Используй LaTeX: $формула$. Код в ```lang блоках.'},...S.hist.slice(-20)],stream:true,max_tokens:4096}),signal:AbortSignal.timeout(90000)});
-      if(!r.ok){const t=await r.text().catch(()=>'');throw new Error(`SQ HTTP ${r.status}: ${t.slice(0,150)}`);}
-      await readSSE(r,onChunk);ok=true;dbg('');
-    }catch(e){dbg('SQ Direct fail: '+e.message);}
-  }
-  // ─ СТРАТЕГИЯ 3: Backend без стрима ─
-  if(!ok){
-    try{
-      dbg('Пробую backend no-stream...');
-      const body={model:S.mdl,messages:S.hist.slice(-20),stream:false,init_data:tg?.initData||'',uid:S.tgu?.id||null};
-      if(imgData)body.images=[imgData];
-      const r=await fetch(`${CFG.API}/api/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:AbortSignal.timeout(90000)});
-      if(!r.ok)throw new Error(`HTTP ${r.status}`);
-      const d=await r.json();const t=d.answer||d.text||d.content||d.choices?.[0]?.message?.content||'';
-      if(t){onChunk(t);ok=true;dbg('');}
-    }catch(e){dbg('Backend no-stream fail: '+e.message);}
-  }
-  // Ждём очередь печатания
+  if(!ok){try{const initD=tg?.initData||'';const uid=S.tgu?.id||null;const body={model:S.mdl,messages:S.hist.slice(-20),stream:true,init_data:initD,uid:uid};if(imgData)body.images=[imgData];const r=await fetch(`${CFG.API}/api/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:AbortSignal.timeout(90000)});if(r.status===405||r.status===403||r.status===404){dbg(`Backend ${r.status}`);}else if(!r.ok){const t=await r.text().catch(()=>'');throw new Error(`Backend HTTP ${r.status}: ${t.slice(0,100)}`);}else{await readSSE(r,onChunk);ok=true;}}catch(e){if(!ok)dbg('Backend fail: '+e.message);}}
+  if(!ok&&CFG.SQ_KEY){try{dbg('Пробую OnlySQ...');const model=MO[S.mdl];const r=await fetch(CFG.SQ_URL,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${CFG.SQ_KEY}`},body:JSON.stringify({model:model.n,messages:[{role:'system',content:'Ты — ИИ-ассистент ХУЗА. Отвечай на языке пользователя. Используй LaTeX: $формула$. Код в ```lang блоках.'},...S.hist.slice(-20)],stream:true,max_tokens:4096}),signal:AbortSignal.timeout(90000)});if(!r.ok){const t=await r.text().catch(()=>'');throw new Error(`SQ HTTP ${r.status}: ${t.slice(0,150)}`);}await readSSE(r,onChunk);ok=true;dbg('');}catch(e){dbg('SQ Direct fail: '+e.message);}}
+  if(!ok){try{dbg('backend no-stream...');const body={model:S.mdl,messages:S.hist.slice(-20),stream:false,init_data:tg?.initData||'',uid:S.tgu?.id||null};if(imgData)body.images=[imgData];const r=await fetch(`${CFG.API}/api/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:AbortSignal.timeout(90000)});if(!r.ok)throw new Error(`HTTP ${r.status}`);const d=await r.json();const t=d.answer||d.text||d.content||d.choices?.[0]?.message?.content||'';if(t){onChunk(t);ok=true;dbg('');}}catch(e){dbg('Backend no-stream fail: '+e.message);}}
   await new Promise(res=>{const w=()=>{if(_typQ.length===0&&!_typRaf){res();}else{setTimeout(w,30);}};w();});
-  if(!ok){
-    td.style.display='none';ac.style.display='block';
-    ac.innerHTML=`<div style="color:var(--re);font-size:14px;margin-bottom:6px">⚠️ Нет соединения с ИИ</div>
-    <div style="font-size:13px;color:var(--tx4);line-height:1.7;background:var(--s1);border-radius:12px;padding:12px">
-      Бот не отвечает. Возможно, Railway сервер не запущен.<br>
-      <a href="${CFG.API}/api/chat" target="_blank" style="color:var(--blue);margin-top:4px;display:inline-block">🔍 Проверить сервер →</a>
-    </div>`;
-  }
+  if(!ok){td.style.display='none';ac.style.display='block';ac.innerHTML=`<div style="color:var(--re);font-size:14px;margin-bottom:6px">⚠️ Нет соединения с ИИ</div><div style="font-size:13px;color:var(--tx4);line-height:1.7;background:var(--s1);border-radius:12px;padding:12px">Бот не отвечает.<br><a href="${CFG.API}/api/chat" target="_blank" style="color:var(--blue)">🔍 Проверить сервер →</a></div>`;}
   ac.querySelectorAll('.cur').forEach(c=>c.remove());
-  if(full){
-    const finalText=_sonar?_stripCit(full):full;
-    ac.innerHTML=rmd(finalText);rk(ac);
-    S.hist.push({role:'assistant',content:finalText});saveHistory();
-    addMsgActions(el,finalText);
-  }
+  if(full){const finalText=_sonar?full.replace(/\s*\[\d+(?:[,\s]+\d+)*\]/g,'').replace(/\[\[?\d+\]?\]/g,''):full;ac.innerHTML=rmd(finalText);rk(ac);S.hist.push({role:'assistant',content:finalText});saveHistory();addMsgActions(el,finalText);}
   updHist(txt);S.busy=0;document.getElementById('snd').disabled=!document.getElementById('inp').value.trim();sd();
   loadLimits();
 }
-async function readSSE(resp,cb){
-  if(!resp.body){const d=await resp.json().catch(async()=>({text:await resp.text()}));const t=d.answer||d.text||d.content||d.choices?.[0]?.message?.content||'';if(t)cb(t);return;}
-  const reader=resp.body.getReader();const dec=new TextDecoder();let buf='';
-  while(true){let v,done;try{({value:v,done}=await reader.read());}catch(e){break;}if(done)break;buf+=dec.decode(v,{stream:true});const lines=buf.split('\n');buf=lines.pop()??'';
-    for(const ln of lines){const raw=ln.replace(/^data:\s*/,'');if(!raw||raw==='[DONE]')continue;try{const j=JSON.parse(raw);const d=j.choices?.[0]?.delta?.content??j.answer??j.text??j.content??'';if(d)cb(d);}catch(e){if(ln.startsWith('data:')&&raw&&raw!=='[DONE]')cb(raw);}}
-  }
-  if(buf){const raw=buf.replace(/^data:\s*/,'');if(raw&&raw!=='[DONE]'){try{const j=JSON.parse(raw);const d=j.choices?.[0]?.delta?.content??j.answer??j.text??'';if(d)cb(d);}catch(e){}}}
-}
+async function readSSE(resp,cb){if(!resp.body){const d=await resp.json().catch(async()=>({text:await resp.text()}));const t=d.answer||d.text||d.content||d.choices?.[0]?.message?.content||'';if(t)cb(t);return;}const reader=resp.body.getReader();const dec=new TextDecoder();let buf='';while(true){let v,done;try{({value:v,done}=await reader.read());}catch(e){break;}if(done)break;buf+=dec.decode(v,{stream:true});const lines=buf.split('\n');buf=lines.pop()??'';for(const ln of lines){const raw=ln.replace(/^data:\s*/,'');if(!raw||raw==='[DONE]')continue;try{const j=JSON.parse(raw);const d=j.choices?.[0]?.delta?.content??j.answer??j.text??j.content??'';if(d)cb(d);}catch(e){if(ln.startsWith('data:')&&raw&&raw!=='[DONE]')cb(raw);}}}if(buf){const raw=buf.replace(/^data:\s*/,'');if(raw&&raw!=='[DONE]'){try{const j=JSON.parse(raw);const d=j.choices?.[0]?.delta?.content??j.answer??j.text??'';if(d)cb(d);}catch(e){}}}}
 let _dbt;function dbg(msg){const el=document.getElementById('dbg');if(!msg){el.classList.remove('s');el.textContent='';return;}el.textContent=msg;el.classList.add('s');clearTimeout(_dbt);if(msg)_dbt=setTimeout(()=>{el.classList.remove('s');},5000);}
 function onK(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}}
 function rsz(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,130)+'px';document.getElementById('snd').disabled=!el.value.trim();}
@@ -488,7 +437,6 @@ function renderStoredMsgs(){const m=document.getElementById('msgs');m.innerHTML=
 function renderHist(){const h=document.getElementById('hist');h.innerHTML='';if(!S.sess.length){const e=document.createElement('div');e.style.cssText='padding:12px 18px;font-size:13px;color:var(--tx4)';e.textContent='Нет сохранённых чатов';h.appendChild(e);return;}S.sess.slice(0,30).forEach(s=>{const d=document.createElement('div');d.className='sbi';d.style.cssText='cursor:pointer';const isCur=S.cur&&S.cur.id===s.id;d.innerHTML=`<span class="sii" style="font-size:13px">${isCur?'▶':'💬'}</span><span class="sit" style="font-size:14px;color:${isCur?'var(--acc)':'inherit'}">${esc(s.t)}</span><button class="sdl" onclick="dSess(${s.id},event)">🗑</button>`;d.onclick=(e)=>{if(e.target.classList.contains('sdl'))return;loadSession(s.id,s.t);};h.appendChild(d);});}
 function dSess(id,e){e.stopPropagation();S.sess=S.sess.filter(s=>s.id!==id);try{localStorage.removeItem('huza_h_'+id);}catch(ex){}if(S.cur&&S.cur.id===id){S.cur=null;S.hist=[];}saveHistory();renderHist();}
 function newChat(){S.hist=[];S.cur=null;_msgStore.length=0;document.getElementById('msgs').innerHTML='<div id="wlc"><div class="wi">🤖</div><div class="wt">ХУЗА AI</div><div class="ws">Умный ИИ-помощник. Задай вопрос или выбери пример.</div><div class="wch" id="wch"></div></div>';renderSuggest();closeSB();}
-// ════════ SIDEBAR/SHEETS ════════
 const openSB=()=>{hap();document.getElementById('sb').classList.add('o');document.getElementById('sbo').classList.add('o');};
 const closeSB=()=>{document.getElementById('sb').classList.remove('o');document.getElementById('sbo').classList.remove('o');};
 function renderMods(q=''){const ml=document.getElementById('ml');ml.innerHTML='';const ql=q.toLowerCase();CATS.forEach(cat=>{const ks=cat.k.filter(k=>{const m=MO[k];return m&&(!ql||m.l.toLowerCase().includes(ql));});if(!ks.length)return;if(!ql){const h=document.createElement('div');h.className='ch';h.textContent=cat.h;ml.appendChild(h);}ks.forEach(k=>{const m=MO[k];const em=m.l.split(' ')[0];const nm=m.l.slice(em.length+1);const d=document.createElement('div');d.className='mr2'+(k===S.mdl?' sl':'');d.innerHTML=`<span class="mico">${em}</span><div class="min"><div class="mn">${esc(nm)}</div><div class="mtg">${m.v?'<span class="mb v">📸 Vision</span>':''}${m.pr?'<span class="mb p">⭐ Pro</span>':''}</div></div>${k===S.mdl?'<span class="mck">✓</span>':''}`;d.onclick=()=>{hap();pickM(k);};ml.appendChild(d);});}); }
@@ -497,58 +445,26 @@ function openMS(){hap();renderMods();document.getElementById('msi').value='';doc
 function pickM(k){S.mdl=k;document.getElementById('mname').textContent=MO[k].l;closeSheets();toast('✅ '+MO[k].l,'ok');updAttBtn();}
 function openTP(){hap();document.getElementById('tp').classList.add('o');document.getElementById('sho').classList.add('o');}
 function closeSheets(){['ms','tp'].forEach(id=>document.getElementById(id).classList.remove('o'));document.getElementById('sho').classList.remove('o');}
-// Обновить иконку кнопки прикрепления в зависимости от Vision-модели
-function updAttBtn(){
-  const btn=document.getElementById('attbtn');
-  if(!btn)return;
-  if(MO[S.mdl]?.v){
-    btn.classList.add('vision-ok');
-    btn.title='Прикрепить фото (Vision активна)';
-  } else {
-    btn.classList.remove('vision-ok');
-    btn.title='Открыть меню';
-  }
-}
-// ════════ LIMITS ════════
-async function waitForTgUser(maxMs=3000){
-  // Ждём пока Telegram SDK заполнит initDataUnsafe.user (до maxMs мс)
-  const step=150,end=Date.now()+maxMs;
-  while(Date.now()<end){
-    const u=tg?.initDataUnsafe?.user||null;
-    if(u){S.tgu=u;return u;}
-    await new Promise(r=>setTimeout(r,step));
-  }
-  return S.tgu||null;
-}
+function updAttBtn(){const v=MO[S.mdl]?.v;const btn=document.getElementById('attbtn');if(btn)btn.classList.toggle('vision-ok',!!v);}
 
+// ════════ TG USER WAIT ════════
+async function waitForTgUser(maxMs=3000){const step=150,end=Date.now()+maxMs;while(Date.now()<end){const u=tg?.initDataUnsafe?.user||null;if(u){S.tgu=u;return u;}await new Promise(r=>setTimeout(r,step));}return S.tgu||null;}
+
+// ════════ LOAD LIMITS (с ботом) ════════
 async function loadLimits(retries=2){
   try{
-    // Всегда пробуем получить актуального пользователя
-    if(!S.tgu) await waitForTgUser(3000);
+    if(!S.tgu)await waitForTgUser(3000);
     const uid=S.tgu?.id||null;
     const iData=tg?.initData||'';
-    if(!uid&&!iData){
-      // Открыто не через TG — показываем заглушку
-      document.getElementById('rqnum').textContent='?';
-      document.getElementById('rqmax').textContent='';
-      return;
-    }
+    if(!uid&&!iData){document.getElementById('rqnum').textContent='?';document.getElementById('rqmax').textContent='';return;}
     const params=new URLSearchParams();
     if(iData)params.set('init_data',iData);
     if(uid)params.set('uid',String(uid));
     const r=await fetch(`${CFG.API}/api/limits?${params}`,{signal:AbortSignal.timeout(12000)});
-    if(!r.ok){
-      console.warn('[limits] HTTP',r.status);
-      if(retries>0){await new Promise(res=>setTimeout(res,1500));return loadLimits(retries-1);}
-      return;
-    }
+    if(!r.ok){console.warn('[limits] HTTP',r.status);if(retries>0){await new Promise(res=>setTimeout(res,1500));return loadLimits(retries-1);}return;}
     const d=await r.json();
-    if(!d.ok){
-      console.warn('[limits] ok=false',d);
-      if(retries>0){await new Promise(res=>setTimeout(res,1500));return loadLimits(retries-1);}
-      return;
-    }
-    // Сохраняем все поля из бота
+    if(!d.ok){console.warn('[limits] ok=false',d);if(retries>0){await new Promise(res=>setTimeout(res,1500));return loadLimits(retries-1);}return;}
+    // ─ Сохраняем ВСЕ поля из API бота ─
     S.lim={
       pro_used:d.pro_used||0,      pro_max:d.pro_max||30,
       img_used:d.img_used||0,      img_max:d.img_max||0,
@@ -566,55 +482,70 @@ async function loadLimits(retries=2){
       total_gens:d.total_gens||d.generations||0,
       reset_in:d.reset_in||d.pro_reset||''
     };
-    // ── Обновляем счётчик в хедере ──
+    // ─ Хедер: счётчик запросов ─
     const left=Math.max(0,S.lim.pro_max-S.lim.pro_used);
     const numEl=document.getElementById('rqnum');
     const maxEl=document.getElementById('rqmax');
     const btn=document.getElementById('rqbtn');
-    if(numEl) numEl.textContent=String(left);
-    if(maxEl) maxEl.textContent='/'+S.lim.pro_max;
-    if(btn){
-      if(left===0)           btn.style.borderColor='rgba(255,69,58,.6)';
-      else if(left<=5)       btn.style.borderColor='rgba(255,214,10,.5)';
-      else                   btn.style.borderColor='rgba(48,209,88,.3)';
-    }
-    // ── Сайдбар ──
-    const sbap=document.getElementById('sbap');
-    const sban=document.getElementById('sban');
-    if(sbap) sbap.textContent=S.lim.has_sub?(S.lim.sub_plan||'Pro'):'Free';
-    if(sban&&S.tgu) sban.textContent=[S.tgu.first_name,S.tgu.last_name].filter(Boolean).join(' ')||'ХУЗА AI';
-  }catch(e){
-    console.error('[limits] ошибка:',e);
-  }
+    if(numEl)numEl.textContent=String(left);
+    if(maxEl)maxEl.textContent='/'+S.lim.pro_max;
+    if(btn){if(left===0)btn.style.borderColor='rgba(255,69,58,.6)';else if(left<=5)btn.style.borderColor='rgba(255,214,10,.5)';else btn.style.borderColor='rgba(48,209,88,.3)';}
+    // ─ Сайдбар ─
+    const sbap=document.getElementById('sbap');const sban=document.getElementById('sban');
+    if(sbap)sbap.textContent=S.lim.has_sub?(S.lim.sub_plan||'Pro'):'Free';
+    if(sban&&S.tgu)sban.textContent=[S.tgu.first_name,S.tgu.last_name].filter(Boolean).join(' ')||'ХУЗА AI';
+  }catch(e){console.error('[limits] ошибка:',e);}
 }
-// ════════ PROFILE ════════
-function openProf(){loadLimits().then(renderProfile);document.getElementById('prof').classList.add('o');if(tg)tg.BackButton.show();}
-function closeProf(){document.getElementById('prof').classList.remove('o');if(tg)tg.BackButton.hide();}
 function updSBUser(){
-  const u=S.tgu||tg?.initDataUnsafe?.user||null;
-  if(u){
-    const n=[u.first_name,u.last_name].filter(Boolean).join(' ')||'ХУЗА AI';
-    const sban=document.getElementById('sban');
-    if(sban)sban.textContent=n;
-  }
+  const sbap=document.getElementById('sbap');const sban=document.getElementById('sban');
+  if(sban&&S.tgu)sban.textContent=[S.tgu.first_name,S.tgu.last_name].filter(Boolean).join(' ')||'ХУЗА AI';
+  if(sbap)sbap.textContent=S.lim.has_sub?(S.lim.sub_plan||'Pro'):'Free';
 }
 
-function _limRow(ico,label,used,max,suffix){
-  if(max<=0)return`<div class="limr"><span class="lico">${ico}</span><span class="limt">${label}</span><span class="limv" style="color:var(--tx4)">недоступно</span></div>`;
+// ════════════════════════════════════════
+// ██ ПРОФИЛЬ — ДАШБОРД (синхр. с ботом) ██
+// ════════════════════════════════════════
+function openProf(){
+  hap();
+  document.getElementById('prof').classList.add('o');
+  if(tg)tg.BackButton.show();
+  // Показываем скелет, потом грузим
+  document.getElementById('profbd').innerHTML=`<div class="prof-loading"><div class="skel" style="height:90px"></div><div class="skel" style="height:130px"></div><div class="skel" style="height:160px"></div><div class="skel" style="height:200px"></div></div>`;
+  loadLimits().then(renderProfile);
+}
+function closeProf(){document.getElementById('prof').classList.remove('o');if(tg)tg.BackButton.hide();}
+async function refreshProf(){
+  hap();
+  document.getElementById('profbd').innerHTML=`<div class="prof-loading"><div class="skel" style="height:90px"></div><div class="skel" style="height:130px"></div><div class="skel" style="height:160px"></div><div class="skel" style="height:200px"></div></div>`;
+  await loadLimits(2);
+  renderProfile();
+  toast('🔄 Данные обновлены','ok');
+}
+
+function _limRow(ico,label,used,max,unit){
   const left=Math.max(0,max-used);
-  const pct=Math.min(100,Math.round(used/max*100));
-  const col=left===0?'var(--re)':left<=Math.ceil(max*0.15)?'var(--yl)':'var(--gr)';
-  return`<div class="limr" style="flex-direction:column;align-items:stretch;gap:5px;padding:12px 15px">
-    <div style="display:flex;align-items:center;justify-content:space-between">
-      <span style="display:flex;align-items:center;gap:8px"><span class="lico">${ico}</span><span class="limt">${label}</span></span>
-      <span class="limv" style="color:${col}">${left} <small style="color:var(--tx4)">/ ${max}${suffix}</small></span>
-    </div>
-    <div style="height:3px;background:var(--bg1);border-radius:3px;overflow:hidden"><div style="height:100%;border-radius:3px;background:${col};width:${pct}%;transition:width .5s"></div></div>
+  const pct=max>0?Math.min(100,Math.round(used/max*100)):0;
+  const col=left===0?'var(--re)':left<=3?'var(--yl)':'var(--acc)';
+  const noLimit=max===0;
+  return`<div class="limr">
+    <span class="lico">${ico}</span>
+    <span class="limt">${label}</span>
+    ${noLimit
+      ?`<span class="limv" style="color:var(--tx4)">—</span>`
+      :`<div style="flex:1;margin-left:8px">
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--tx4);margin-bottom:3px">
+            <span style="color:${col};font-weight:600">${left}</span>
+            <span>/ ${max}${unit}</span>
+          </div>
+          <div class="lbar"><div class="lf" style="width:${pct}%;background:${col}"></div></div>
+        </div>`
+    }
   </div>`;
 }
 
 function renderProfile(){
-  const u=S.tgu;const L=S.lim;
+  const u=S.tgu;
+  const L=S.lim;
   const ini=u?(((u.first_name||'')[0]||'')+((u.last_name||'')[0]||'')):'?';
   const name=u?[u.first_name,u.last_name].filter(Boolean).join(' '):'Гость';
   const uname=u?.username?`@${u.username}`:'';
@@ -622,40 +553,55 @@ function renderProfile(){
 
   const proLeft=Math.max(0,L.pro_max-L.pro_used);
   const proBarW=L.pro_max>0?Math.min(100,Math.round(L.pro_used/L.pro_max*100)):0;
-  const proColor=proLeft===0?'var(--re)':proLeft<=5?'var(--yl)':'var(--acc)';
+  const proColor=proLeft===0?'var(--re)':proLeft<=5?'var(--yl)':'var(--gr)';
 
   const hasSub=L.has_sub;
-  const subName=hasSub?(L.sub_plan||'Pro')+' подписка':'Free план';
-  const subStatus=hasSub?(L.sub_expires?'активна до '+L.sub_expires:'активна'):'Нет подписки';
+  const subName=hasSub?(L.sub_plan||'Pro'):'Free план';
+  const subStatus=hasSub?(L.sub_expires?'✅ активна до '+L.sub_expires:'✅ активна'):'Нет подписки';
 
   const botModel=L.model||MO[S.mdl]?.l||S.mdl;
-  const modeLabel=L.mode==='fast'?'⚡ Быстрый':L.mode==='think'?'🧠 Думающий':L.mode||'—';
+  const modeLabel=L.mode==='fast'?'⚡ Быстро':L.mode==='quick'?'⚡ Быстро':L.mode==='detailed'?'📖 Подробно':L.mode==='developer'?'💻 Разработчик':L.mode==='student'?'📚 Студент':L.mode==='creative'?'🎨 Творческий':L.mode||'⚡ Быстро';
 
-  // Уровень — повторяет логику бота
   const totalReq=L.total_requests||S.mc;
   const lvl=L.level||0;
   const lvlMax=L.level_max||50;
   const lvlPct=lvlMax>0?Math.min(100,Math.round(totalReq/lvlMax*100)):0;
 
   document.getElementById('profbd').innerHTML=`
+
     <!-- Шапка пользователя -->
     <div class="ph">
       <div class="pa">${esc((ini||'?').toUpperCase())}</div>
-      <div style="flex:1">
-        <div class="pn">${esc(name)}</div>
+      <div style="flex:1;min-width:0">
+        <div class="pn" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(name)}</div>
         ${uname?`<div class="pu">${esc(uname)}</div>`:''}
         <div class="pid">ID: ${uid}</div>
-        ${L.join_date?`<div class="pid" style="margin-top:2px">📅 С нами с ${esc(L.join_date)}</div>`:''}
+        ${L.join_date?`<div class="pid" style="margin-top:2px">📅 ${esc(L.join_date)}</div>`:''}
+        <div style="margin-top:6px;display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:8px;background:${hasSub?'rgba(255,107,53,.15)':'rgba(99,99,102,.15)'};font-size:11px;font-weight:600;color:${hasSub?'var(--acc)':'var(--tx4)'}">
+          ${hasSub?'💎':'🆓'} ${esc(subName)}
+        </div>
       </div>
     </div>
 
-    <!-- Статистика 2×2 -->
+    <!-- 4 статистики -->
     <div class="sg2">
-      <div class="sc"><div class="sci">💬</div><div class="scv">${totalReq}</div><div class="scl">Запросов</div></div>
-      <div class="sc"><div class="sci">🎨</div><div class="scv">${L.total_gens||S.ic}</div><div class="scl">Генераций</div></div>
-      <div class="sc"><div class="sci">🎁</div><div class="scv">${L.referrals||0}</div><div class="scl">Рефералов</div></div>
-      <div class="sc" style="position:relative;overflow:hidden">
-        <div style="position:absolute;bottom:0;left:0;right:0;height:${lvlPct}%;background:rgba(255,107,53,.08);transition:height .5s"></div>
+      <div class="sc">
+        <div class="sci">💬</div>
+        <div class="scv">${totalReq}</div>
+        <div class="scl">Запросов</div>
+      </div>
+      <div class="sc">
+        <div class="sci">🎨</div>
+        <div class="scv">${L.total_gens||S.ic}</div>
+        <div class="scl">Генераций</div>
+      </div>
+      <div class="sc">
+        <div class="sci">🎁</div>
+        <div class="scv">${L.referrals||0}</div>
+        <div class="scl">Рефералов</div>
+      </div>
+      <div class="sc" style="overflow:hidden">
+        <div style="position:absolute;bottom:0;left:0;right:0;height:${lvlPct}%;background:rgba(255,107,53,.08);transition:height .6s;pointer-events:none"></div>
         <div class="sci">⭐</div>
         <div class="scv" style="font-size:${lvl>0?'20':'14'}px">${lvl>0?'Ур. '+lvl:'Нач.'}</div>
         <div class="scl">${lvlMax>0?totalReq+' / '+lvlMax+' зап.':'Уровень'}</div>
@@ -667,11 +613,12 @@ function renderProfile(){
       <div class="subr">
         <div class="subico ${hasSub?'pro':''}">💎</div>
         <div style="flex:1">
-          <div class="subn">${esc(subName)}</div>
+          <div class="subn">${esc(hasSub?(L.sub_plan||'Pro')+' подписка':'Free план')}</div>
           <div class="subs" style="color:${hasSub?'var(--gr)':'var(--tx4)'}">${esc(subStatus)}</div>
         </div>
-        ${!hasSub?`<button onclick="closeProf();openSB()" style="padding:7px 12px;border-radius:10px;background:var(--acc);border:none;cursor:pointer;color:#fff;font-size:12px;font-weight:700;font-family:var(--f)">Купить</button>`:''}
+        ${!hasSub?`<button onclick="buySubscription('month')" style="padding:8px 14px;border-radius:10px;background:var(--acc);border:none;cursor:pointer;color:#fff;font-size:13px;font-weight:700;font-family:var(--f)">Купить</button>`:''}
       </div>
+      <!-- Прогресс запросов сегодня -->
       <div>
         <div class="lrow">
           <span>Запросы сегодня</span>
@@ -679,6 +626,25 @@ function renderProfile(){
         </div>
         <div class="lbar"><div class="lf" style="width:${proBarW}%;background:${proColor}"></div></div>
         ${L.reset_in?`<div style="font-size:11px;color:var(--tx4);margin-top:4px;text-align:right">↻ сброс через ${esc(L.reset_in)}</div>`:''}
+      </div>
+    </div>
+
+    <!-- Быстрые действия -->
+    <div>
+      <div class="sec-hdr" style="margin-bottom:8px">⚡ Быстрые действия</div>
+      <div class="dash-grid">
+        <button class="dash-btn" onclick="closeProf();openGen('image')">
+          <span class="dash-ico">🎨</span><span class="dash-lbl">Картинки</span>
+        </button>
+        <button class="dash-btn" onclick="closeProf();openGen('music')">
+          <span class="dash-ico">🎵</span><span class="dash-lbl">Музыка</span>
+        </button>
+        <button class="dash-btn" onclick="closeProf();openGen('video')">
+          <span class="dash-ico">🎬</span><span class="dash-lbl">Видео</span>
+        </button>
+        <button class="dash-btn" onclick="closeProf();openGen('docs')">
+          <span class="dash-ico">📄</span><span class="dash-lbl">Документы</span>
+        </button>
       </div>
     </div>
 
@@ -693,13 +659,25 @@ function renderProfile(){
       </div>
     </div>
 
-    <!-- Модель и режим (синхронизировано с ботом) -->
+    <!-- Текущие настройки (синхронизировано с ботом) -->
     <div>
-      <div class="sec-hdr" style="margin-bottom:6px">⚙️ Текущие настройки</div>
+      <div class="sec-hdr" style="margin-bottom:6px">⚙️ Настройки (из бота)</div>
       <div class="liml">
-        <div class="limr"><span class="lico">🤖</span><span class="limt">Модель</span><span class="limv" style="font-size:12px;max-width:170px;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(botModel)}</span></div>
-        <div class="limr"><span class="lico">⚡</span><span class="limt">Режим ответа</span><span class="limv" style="font-size:13px">${esc(modeLabel)}</span></div>
-        <div class="limr"><span class="lico">🏷</span><span class="limt">Тариф</span><span class="limv" style="color:${hasSub?'var(--gr)':'var(--tx4)'}">${esc(subName)}</span></div>
+        <div class="limr">
+          <span class="lico">🤖</span>
+          <span class="limt">Модель</span>
+          <span class="limv" style="font-size:12px;max-width:160px;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(botModel)}</span>
+        </div>
+        <div class="limr">
+          <span class="lico">⚡</span>
+          <span class="limt">Режим ответа</span>
+          <span class="limv" style="font-size:13px">${esc(modeLabel)}</span>
+        </div>
+        <div class="limr">
+          <span class="lico">🏷</span>
+          <span class="limt">Тариф</span>
+          <span class="limv" style="color:${hasSub?'var(--gr)':'var(--tx4)'}">${esc(subName)}</span>
+        </div>
       </div>
     </div>
 
@@ -707,7 +685,7 @@ function renderProfile(){
     <div>
       <div class="sec-hdr" style="margin-bottom:6px">🔓 Доступные функции</div>
       <div class="liml">
-        <div class="limr"><span class="lico">💬</span><span class="limt">Чат с ИИ</span><span class="limv" style="color:var(--gr)">✓ Доступно</span></div>
+        <div class="limr"><span class="lico">💬</span><span class="limt">Чат с ИИ</span><span class="limv" style="color:var(--gr)">✓ Всегда</span></div>
         <div class="limr"><span class="lico">🎨</span><span class="limt">Генерация картинок</span><span class="limv" style="color:${L.img_max>0?'var(--gr)':'var(--tx4)'}">${L.img_max>0?'✓ '+L.img_max+' /мес':'✗ Нет'}</span></div>
         <div class="limr"><span class="lico">🎵</span><span class="limt">Генерация музыки</span><span class="limv" style="color:${L.music_max>0?'var(--gr)':'var(--tx4)'}">${L.music_max>0?'✓ '+L.music_max+' /мес':'✗ Нет'}</span></div>
         <div class="limr"><span class="lico">🎬</span><span class="limt">Генерация видео</span><span class="limv" style="color:${L.video_max>0?'var(--gr)':'var(--tx4)'}">${L.video_max>0?'✓ '+L.video_max+' /мес':'✗ Нет'}</span></div>
@@ -720,17 +698,19 @@ function renderProfile(){
     <div class="pg">
       <div class="pr2" onclick="closeProf();openMS()"><span class="pio">🤖</span><span class="plt">Выбор модели</span><span class="par">›</span></div>
       <div class="pr2" onclick="cpRefLink()"><span class="pio">🔗</span><span class="plt">Реферальная ссылка</span><span class="par">›</span></div>
-      <div class="pr2" onclick="loadLimits().then(renderProfile);toast('🔄 Обновлено','ok')"><span class="pio">🔄</span><span class="plt">Обновить данные</span><span class="par">›</span></div>
+      <div class="pr2" onclick="refreshProf()"><span class="pio">🔄</span><span class="plt">Обновить данные с сервера</span><span class="par">›</span></div>
       <div class="pr2" onclick="newChat();closeProf()"><span class="pio">✏️</span><span class="plt">Новый чат</span><span class="par">›</span></div>
-      <div class="pr2" onclick="toast('ХУЗА AI v3.1 ✨','')"><span class="pio">ℹ️</span><span class="plt">О приложении</span><span class="par">›</span></div>
-    </div>`;
+      <div class="pr2" onclick="toast('ХУЗА AI v3.2 ✨ — синхр. с ботом','ok')"><span class="pio">ℹ️</span><span class="plt">О приложении</span><span class="par">›</span></div>
+    </div>
+  `;
 }
+
 // ════════ GEN PAGES ════════
 const GTPL={
   image:{t:'🎨 Картинки',html:()=>`<div class="gc"><div class="gci"><div><div class="fl">Модель</div><select class="gs" id="gim"><option value="flux">🎨 Flux</option><option value="turbo">🚀 Turbo</option><option value="gptimage">🖼 GPT-Image</option><option value="flux_realism">📸 Flux Realism</option><option value="flux_anime">🌸 Flux Anime</option><option value="imagen4">🌟 Imagen 4</option><option value="grokimagine">🤖 Grok</option><option value="flux_klein4">💎 FLUX.2 Klein</option></select></div><div><div class="fl">Соотношение сторон</div><select class="gs" id="giratio"><option value="1:1" selected>◻️ 1:1 Квадрат</option><option value="4:3">📺 4:3 Альбом</option><option value="3:4">📱 3:4 Портрет</option><option value="16:9">🖥 16:9 Широкий</option><option value="9:16">📲 9:16 Вертикал</option></select></div><div><div class="fl">Примеры</div><div class="exr">${IEX.map(e=>`<div class="exch" onclick="sv('gip',\`${e.replace(/`/g,'')}\`)">${esc(e)}</div>`).join('')}</div></div><div><div class="fl">Описание</div><textarea class="gta" id="gip" placeholder="Опиши картинку подробно..."></textarea></div><div class="pw" id="gipw"><div class="pf" id="gipf"></div></div><button class="gb" id="gibtn" onclick="gImg()"><span class="bl">✨ Генерировать</span><div class="bs"></div></button><div class="rb" id="gires"><img id="giimg" src="" alt="" style="border-radius:12px;width:100%"/><div class="ra"><button onclick="shrI()">📤 Поделиться</button><button class="pr" onclick="dlI()">⬇️ Скачать</button></div></div></div></div>`},
   music:{t:'🎵 Музыка',html:()=>`<div class="gc"><div class="gci"><div><div class="fl">Провайдер</div><div class="chs"><div class="ch2 on" id="mcs" onclick="selMu('suno',this)">🎵 Suno v5</div><div class="ch2" id="mce" onclick="selMu('eleven',this)">🎸 ElevenLabs</div></div></div><div><div class="fl">Стиль</div><div class="chs">${MSTY.map((s,i)=>`<div class="ch2${i===0?' on':''}" onclick="tCh(this,'ms')">${esc(s)}</div>`).join('')}</div></div><div><div class="fl">Примеры</div><div class="exr">${MEX.map(e=>`<div class="exch" onclick="sv('mup',\`${e.replace(/`/g,'')}\`)">${esc(e)}</div>`).join('')}</div></div><div><div class="fl">Описание</div><textarea class="gta" id="mup" placeholder="Настроение, инструменты, темп..."></textarea></div><div class="pw" id="mupw"><div class="pf" id="mupf"></div></div><button class="gb" id="mubtn" onclick="gMus()"><span class="bl">🎵 Создать трек</span><div class="bs"></div></button><div class="rb" id="mures"><audio id="muaud" controls></audio><div class="ra"><button class="pr" onclick="dlM()">⬇️ Скачать MP3</button></div></div></div></div>`},
   video:{t:'🎥 Видео',html:()=>`<div class="gc"><div class="gci"><div><div class="fl">Модель</div><div class="chs"><div class="ch2 on" onclick="tCh(this,'vm')">🎬 WAN</div><div class="ch2" onclick="tCh(this,'vm')">⚡ WAN Pro</div><div class="ch2" onclick="tCh(this,'vm')">🌊 Mochi</div></div></div><div><div class="fl">Описание</div><textarea class="gta" id="vip" placeholder="Опиши сцену..."></textarea></div><div><div class="fl">Длительность</div><select class="gs" id="vid"><option value="3">3 сек</option><option value="5" selected>5 сек</option><option value="8">8 сек</option></select></div><div class="pw" id="vipw"><div class="pf" id="vipf"></div></div><button class="gb" id="vibtn" onclick="gVid()"><span class="bl">🎬 Создать видео</span><div class="bs"></div></button><div class="rb" id="vires"><video id="vivid" controls playsinline style="max-height:280px;background:#000"></video><div class="ra"><button class="pr" onclick="dlV()">⬇️ Скачать MP4</button></div></div></div></div>`},
-  docs:{t:'📄 Документы',html:()=>`<div style="display:flex;gap:8px;overflow-x:auto;scrollbar-width:none"><div class="ch2 on" id="dtR" onclick="swDT('R')">📝 Реферат</div><div class="ch2" id="dtP" onclick="swDT('P')">🎞 PPTX</div><div class="ch2" id="dtW" onclick="swDT('W')">🌐 HTML</div></div><div id="dtRb" class="gc"><div class="gci"><div><div class="fl">Тема</div><input class="gi" id="rpt" placeholder="Квантовая механика..."/></div><div><div class="fl">Модель</div><select class="gs" id="rpm"><option value="claude_opus">🔵 Claude Opus</option><option value="claude_sonnet">🔷 Sonnet</option><option value="gpt52">⚡ GPT-5.2</option></select></div><div><div class="fl">Страниц</div><select class="gs" id="rpp"><option value="5">5</option><option value="10" selected>10</option><option value="15">15</option></select></div><div><div class="fl">Доп. пожелания</div><textarea class="gta" id="rpe" placeholder="..." style="min-height:58px"></textarea></div><button class="gb" id="rpbtn" onclick="gRpt()"><span class="bl">📝 Создать реферат</span><div class="bs"></div></button><div class="dlc" id="rpdl"><div class="dli">📄</div><div class="dlinf"><div class="dlfn" id="rpfn">doc.docx</div><div class="dlm" id="rpmeta">Готово</div></div><button class="dlb" id="rpdlb">↓ Скачать</button></div></div></div><div id="dtPb" class="gc" style="display:none"><div class="gci"><div><div class="fl">Тема</div><input class="gi" id="ptt" placeholder="ИИ в 2025..."/></div><div><div class="fl">Слайды</div><select class="gs" id="pts"><option value="8">8</option><option value="12" selected>12</option><option value="16">16</option></select></div><div><div class="fl">Модель</div><select class="gs" id="ptm"><option value="claude_opus">🔵 Claude Opus</option><option value="gpt52">⚡ GPT-5.2</option></select></div><div><div class="fl">Автор</div><input class="gi" id="pta" placeholder="Иван Иванов (опционально)"/></div><button class="gb" id="ptbtn" onclick="gPptx()"><span class="bl">🎞 Создать PPTX</span><div class="bs"></div></button><div class="dlc" id="ptdl"><div class="dli">📊</div><div class="dlinf"><div class="dlfn" id="ptfn">pres.pptx</div><div class="dlm" id="ptmeta">Готово</div></div><button class="dlb" id="ptdlb">↓ Скачать</button></div></div></div><div id="dtWb" class="gc" style="display:none"><div class="gci"><div><div class="fl">Тема</div><input class="gi" id="wpt" placeholder="Тема..."/></div><div><div class="fl">Слайды</div><select class="gs" id="wps"><option value="8">8</option><option value="12" selected>12</option></select></div><div><div class="fl">Модель</div><select class="gs" id="wpm"><option value="claude_opus">🔵 Claude Opus</option><option value="gpt52">⚡ GPT-5.2</option></select></div><div><div class="fl">Пожелания</div><textarea class="gta" id="wpw" placeholder="Минимализм..." style="min-height:58px"></textarea></div><button class="gb" id="wpbtn" onclick="gWpptx()"><span class="bl">🌐 HTML-слайды</span><div class="bs"></div></button><div class="dlc" id="wpdl"><div class="dli">🌐</div><div class="dlinf"><div class="dlfn" id="wpfn">pres.html</div><div class="dlm" id="wpmeta">Готово</div></div><button class="dlb" id="wpdlb">↓ Скачать</button></div></div></div>`}
+  docs:{t:'📄 Документы',html:()=>`<div style="display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px"><div class="ch2 on" id="dtR" onclick="swDT('R')">📝 Реферат</div><div class="ch2" id="dtP" onclick="swDT('P')">🎞 PPTX</div><div class="ch2" id="dtW" onclick="swDT('W')">🌐 HTML</div></div><div id="dtRb" class="gc"><div class="gci"><div><div class="fl">Тема</div><input class="gi" id="rpt" placeholder="Квантовая механика..."/></div><div><div class="fl">Модель</div><select class="gs" id="rpm"><option value="claude_opus">🔵 Claude Opus</option><option value="claude_sonnet">🔷 Sonnet</option><option value="gpt52">⚡ GPT-5.2</option></select></div><div><div class="fl">Страниц</div><select class="gs" id="rpp"><option value="5">5</option><option value="10" selected>10</option><option value="15">15</option></select></div><div><div class="fl">Доп. пожелания</div><textarea class="gta" id="rpe" placeholder="..." style="min-height:58px"></textarea></div><button class="gb" id="rpbtn" onclick="gRpt()"><span class="bl">📝 Создать реферат</span><div class="bs"></div></button><div class="dlc" id="rpdl"><div class="dli">📄</div><div class="dlinf"><div class="dlfn" id="rpfn">doc.docx</div><div class="dlm" id="rpmeta">Готово</div></div><button class="dlb" id="rpdlb">↓ Скачать</button></div></div></div><div id="dtPb" class="gc" style="display:none"><div class="gci"><div><div class="fl">Тема</div><input class="gi" id="ptt" placeholder="ИИ в 2025..."/></div><div><div class="fl">Слайды</div><select class="gs" id="pts"><option value="8">8</option><option value="12" selected>12</option><option value="16">16</option></select></div><div><div class="fl">Модель</div><select class="gs" id="ptm"><option value="claude_opus">🔵 Claude Opus</option><option value="gpt52">⚡ GPT-5.2</option></select></div><div><div class="fl">Автор</div><input class="gi" id="pta" placeholder="Иван Иванов (опционально)"/></div><button class="gb" id="ptbtn" onclick="gPptx()"><span class="bl">🎞 Создать PPTX</span><div class="bs"></div></button><div class="dlc" id="ptdl"><div class="dli">📊</div><div class="dlinf"><div class="dlfn" id="ptfn">pres.pptx</div><div class="dlm" id="ptmeta">Готово</div></div><button class="dlb" id="ptdlb">↓ Скачать</button></div></div></div><div id="dtWb" class="gc" style="display:none"><div class="gci"><div><div class="fl">Тема</div><input class="gi" id="wpt" placeholder="Тема..."/></div><div><div class="fl">Слайды</div><select class="gs" id="wps"><option value="8">8</option><option value="12" selected>12</option></select></div><div><div class="fl">Модель</div><select class="gs" id="wpm"><option value="claude_opus">🔵 Claude Opus</option><option value="gpt52">⚡ GPT-5.2</option></select></div><div><div class="fl">Пожелания</div><textarea class="gta" id="wpw" placeholder="Минимализм..." style="min-height:58px"></textarea></div><button class="gb" id="wpbtn" onclick="gWpptx()"><span class="bl">🌐 HTML-слайды</span><div class="bs"></div></button><div class="dlc" id="wpdl"><div class="dli">🌐</div><div class="dlinf"><div class="dlfn" id="wpfn">pres.html</div><div class="dlm" id="wpmeta">Готово</div></div><button class="dlb" id="wpdlb">↓ Скачать</button></div></div></div>`}
 };
 const sv=(id,v)=>{const e=document.getElementById(id);if(e)e.value=v;};
 const selMu=(m,btn)=>{S.mum=m;['mcs','mce'].forEach(id=>document.getElementById(id)?.classList.remove('on'));btn.classList.add('on');};
@@ -740,37 +720,7 @@ function pg(pw,pf){const w=document.getElementById(pw),f=document.getElementById
 function openGen(t){hap();const tp=GTPL[t];if(!tp)return;document.getElementById('gptit').textContent=tp.t;document.getElementById('gpbd').innerHTML=tp.html();document.getElementById('gp').classList.add('o');if(tg)tg.BackButton.show();}
 function closeGen(){document.getElementById('gp').classList.remove('o');if(tg)tg.BackButton.hide();}
 function swDT(n){['R','P','W'].forEach(x=>{document.getElementById('dt'+x)?.classList.toggle('on',x===n);const b=document.getElementById('dt'+x+'b');if(b)b.style.display=x===n?'':'none';});}
-async function gImg(){
-  const p=document.getElementById('gip')?.value.trim();
-  if(!p){toast('⚠️ Введи описание','er');return;}
-  ld('gibtn',1);const pr=pg('gipw','gipf');
-  document.getElementById('gires')?.classList.remove('s');
-  try{
-    const m=document.getElementById('gim')?.value||'flux';
-    const ratio=document.getElementById('giratio')?.value||'1:1';
-    const uid=S.tgu?.id||0;
-    const r=await fetch(`${CFG.API}/api/imggen`,{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({prompt:p,model:m,ratio,uid,init_data:tg?.initData||''}),
-      signal:AbortSignal.timeout(60000)
-    });
-    const d=await r.json();
-    if(!d.ok){
-      if(d.error==='img_limit_exceeded'||d.error==='limit_exceeded'){toast('❌ Лимит генераций исчерпан. Купи подписку!','er');}
-      else if(d.error==='subscription_required'){toast('❌ Нужна подписка для генерации','er');}
-      else{toast('❌ '+(d.error||'Ошибка генерации'),'er');}
-      pr.done();ld('gibtn',0);return;
-    }
-    const img=document.getElementById('giimg');
-    if(d.image_b64){img.src='data:image/jpeg;base64,'+d.image_b64;}
-    else if(d.url){img.src=d.url;}
-    else{img.src=`${CFG.PI}${encodeURIComponent(p)}?model=${m}&nologo=true&seed=${Date.now()}`;}
-    await new Promise((ok,fail)=>{img.onload=ok;img.onerror=fail;});
-    document.getElementById('gires')?.classList.add('s');
-    S.ic++;loadLimits();toast('✅ Картинка готова!','ok');
-  }catch(e){toast('❌ Ошибка: '+(e.message||'попробуй снова'),'er');}
-  pr.done();ld('gibtn',0);
-}
+async function gImg(){const p=document.getElementById('gip')?.value.trim();if(!p){toast('⚠️ Введи описание','er');return;}ld('gibtn',1);const pr=pg('gipw','gipf');document.getElementById('gires')?.classList.remove('s');try{const m=document.getElementById('gim')?.value||'flux';const ratio=document.getElementById('giratio')?.value||'1:1';const uid=S.tgu?.id||0;const r=await fetch(`${CFG.API}/api/imggen`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:p,model:m,ratio,uid,init_data:tg?.initData||''}),signal:AbortSignal.timeout(60000)});const d=await r.json();if(!d.ok){if(d.error==='img_limit_exceeded'||d.error==='limit_exceeded'){toast('❌ Лимит генераций исчерпан. Купи подписку!','er');}else if(d.error==='subscription_required'){toast('❌ Нужна подписка','er');}else{toast('❌ '+(d.error||'Ошибка'),'er');}pr.done();ld('gibtn',0);return;}const img=document.getElementById('giimg');if(d.image_b64){img.src='data:image/jpeg;base64,'+d.image_b64;}else if(d.url){img.src=d.url;}else{img.src=`${CFG.PI}${encodeURIComponent(p)}?model=${m}&nologo=true&seed=${Date.now()}`;}await new Promise((ok,fail)=>{img.onload=ok;img.onerror=fail;});document.getElementById('gires')?.classList.add('s');S.ic++;loadLimits();toast('✅ Картинка готова!','ok');}catch(e){toast('❌ '+(e.message||'попробуй снова'),'er');}pr.done();ld('gibtn',0);}
 const dlI=()=>{const i=document.getElementById('giimg');if(!i?.src)return;Object.assign(document.createElement('a'),{href:i.src,download:`img_${Date.now()}.jpg`}).click();};
 const shrI=()=>{const i=document.getElementById('giimg');if(!i?.src)return;navigator.share?.({url:i.src})||navigator.clipboard?.writeText(i.src).then(()=>toast('📋 Ссылка скопирована','ok'));};
 async function gMus(){const p=document.getElementById('mup')?.value.trim();if(!p){toast('⚠️ Введи описание','er');return;}ld('mubtn',1);const pr=pg('mupw','mupf');try{const model=S.mum==='suno'?'suno':'elevenmusic';const r=await fetch(`${CFG.PA}${encodeURIComponent(p)}?model=${model}&nologo=true`,{signal:AbortSignal.timeout(180000)});if(!r.ok)throw new Error('HTTP '+r.status);const bl=await r.blob();const a=document.getElementById('muaud');a.src=URL.createObjectURL(bl);a.__b=bl;document.getElementById('mures')?.classList.add('s');toast('🎵 Трек готов!','ok');}catch(e){toast('❌ '+e.message,'er');}pr.done();ld('mubtn',0);}
@@ -782,33 +732,9 @@ function b64dl(b64,fn,mime){const bl=new Blob([Uint8Array.from(atob(b64),c=>c.ch
 async function gRpt(){const topic=document.getElementById('rpt')?.value.trim();if(!topic){toast('⚠️ Введи тему','er');return;}ld('rpbtn',1);try{const d=await apiPost('/api/report',{topic,model:document.getElementById('rpm')?.value,pages:parseInt(document.getElementById('rpp')?.value)||10,extra:document.getElementById('rpe')?.value||''});document.getElementById('rpfn').textContent=d.filename||'doc.docx';document.getElementById('rpmeta').textContent='Готово!';document.getElementById('rpdl').classList.add('s');document.getElementById('rpdlb').onclick=()=>b64dl(d.docx_b64,d.filename||'doc.docx','application/vnd.openxmlformats-officedocument.wordprocessingml.document');toast('📄 Реферат готов!','ok');}catch(e){toast('❌ '+e.message,'er');}ld('rpbtn',0);}
 async function gPptx(){const topic=document.getElementById('ptt')?.value.trim();if(!topic){toast('⚠️ Введи тему','er');return;}ld('ptbtn',1);try{const d=await apiPost('/api/pptx',{topic,slides:parseInt(document.getElementById('pts')?.value)||12,model:document.getElementById('ptm')?.value,author:document.getElementById('pta')?.value||''});document.getElementById('ptfn').textContent=d.filename||'pres.pptx';document.getElementById('ptmeta').textContent=(d.slides_count||'?')+' слайдов';document.getElementById('ptdl').classList.add('s');document.getElementById('ptdlb').onclick=()=>b64dl(d.pptx_b64,d.filename||'pres.pptx','application/vnd.openxmlformats-officedocument.presentationml.presentation');toast('🎞 PPTX готов!','ok');}catch(e){toast('❌ '+e.message,'er');}ld('ptbtn',0);}
 async function gWpptx(){const topic=document.getElementById('wpt')?.value.trim();if(!topic){toast('⚠️ Введи тему','er');return;}ld('wpbtn',1);try{const d=await apiPost('/api/webpptx',{topic,slides:parseInt(document.getElementById('wps')?.value)||12,model:document.getElementById('wpm')?.value,wishes:document.getElementById('wpw')?.value||''});document.getElementById('wpfn').textContent=d.filename||'pres.html';document.getElementById('wpmeta').textContent=(d.slides_count||'?')+' слайдов';document.getElementById('wpdl').classList.add('s');document.getElementById('wpdlb').onclick=()=>b64dl(d.html_b64,d.filename||'pres.html','text/html;charset=utf-8');toast('🌐 HTML готов!','ok');}catch(e){toast('❌ '+e.message,'er');}ld('wpbtn',0);}
-// ════ ФОТО — исправлено: всегда открывает файловый диалог, Vision показывает подсказку ════
-function attPhoto(){
-  // Если модель не поддерживает Vision — предупреждаем, но НЕ блокируем
-  // (бэкенд сам переключит на Vision-модель)
-  if(!MO[S.mdl]?.v){
-    toast('📷 Бэкенд выберет Vision-модель автоматически','');
-  }
-  document.getElementById('phi').click();
-}
-function onPhoto(e){
-  const f=e.target.files[0];if(!f)return;
-  // Проверяем размер — не более 10 МБ
-  if(f.size>10*1024*1024){toast('❌ Фото слишком большое (макс. 10 МБ)','er');e.target.value='';return;}
-  const r=new FileReader();
-  r.onload=ev=>{
-    S.pi=ev.target.result.split(',')[1];
-    document.getElementById('pthumb').src=ev.target.result;
-    document.getElementById('pprev').classList.add('s');
-    const i=document.getElementById('inp');
-    if(!i.value)i.value='Что на этом изображении?';
-    rsz(i);
-    document.getElementById('snd').disabled=false;
-    toast('📷 Фото прикреплено','ok');
-  };
-  r.readAsDataURL(f);
-  e.target.value='';
-}
+// ════ ФОТО ════
+function attPhoto(){if(!MO[S.mdl]?.v){toast('📷 Бэкенд выберет Vision-модель автоматически','');}document.getElementById('phi').click();}
+function onPhoto(e){const f=e.target.files[0];if(!f)return;if(f.size>10*1024*1024){toast('❌ Фото слишком большое (макс. 10 МБ)','er');e.target.value='';return;}const r=new FileReader();r.onload=ev=>{S.pi=ev.target.result.split(',')[1];document.getElementById('pthumb').src=ev.target.result;document.getElementById('pprev').classList.add('s');const i=document.getElementById('inp');if(!i.value)i.value='Что на этом изображении?';rsz(i);document.getElementById('snd').disabled=false;toast('📷 Фото прикреплено','ok');};r.readAsDataURL(f);e.target.value='';}
 function rmPhoto(){S.pi=null;document.getElementById('pprev').classList.remove('s');}
 let _tt;function toast(msg,t=''){const el=document.getElementById('toast');el.textContent=msg;el.className='toast s'+(t?' '+t:'');clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('s'),2800);}
 function renderSuggest(){const c=document.getElementById('wch');if(!c)return;c.innerHTML='';SUGG.forEach(s=>{const d=document.createElement('div');d.className='wc';d.textContent=s;d.onclick=()=>{const i=document.getElementById('inp');i.value=s.replace(/^[^\s]+\s/,'');rsz(i);i.focus();hap();};c.appendChild(d);});}
@@ -817,10 +743,8 @@ document.addEventListener('DOMContentLoaded',async()=>{
   setupMD();renderSuggest();renderMods();loadHistory();
   document.getElementById('mname').textContent=MO[S.mdl].l;
   updAttBtn();
-  // Показываем индикатор загрузки в хедере сразу
   const _rqEl=document.getElementById('rqnum');
   if(_rqEl)_rqEl.textContent='…';
-  // Ждём пользователя TG (до 4 сек), потом грузим лимиты
   await waitForTgUser(4000);
   updSBUser();
   await loadLimits();
@@ -833,74 +757,14 @@ let _sTxt='';
 function openShare(t){hap();_sTxt=t;document.getElementById('shprev').textContent=t.slice(0,200)+(t.length>200?'…':'');document.getElementById('shmod').classList.add('o');}
 function openShareIdx(idx){openShare(_msgStore[idx]||'');}
 function closeShare(){document.getElementById('shmod').classList.remove('o');}
-async function shareTg(){
-  try{
-    const r=await fetch(`${CFG.API}/api/store_answer`,{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({text:_sTxt,model:MO[S.mdl]?.l||'ХУЗА AI',modelKey:S.mdl,time:new Date().toLocaleString('ru',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})})});
-    const d=await r.json();
-    if(d.ok&&d.id){
-      const viewUrl=`${CFG.API}/view?id=${d.id}`;
-      const shareText='🤖 ХУЗА AI ответил:\n\n'+_sTxt.slice(0,200)+((_sTxt.length>200)?'...\n\n':'\n\n')+'📖 Читать полностью: '+viewUrl;
-      const tgUrl='https://t.me/share/url?url='+encodeURIComponent(viewUrl)+'&text='+encodeURIComponent(shareText);
-      if(tg){try{tg.openLink(tgUrl);}catch(e){window.open(tgUrl,'_blank');}}else{window.open(tgUrl,'_blank');}
-      closeShare();toast('📤 Поделиться...','ok');return;
-    }
-  }catch(e){}
-  const text='🤖 ХУЗА AI:\n\n'+_sTxt.slice(0,3500);
-  const url='https://t.me/share/url?url='+encodeURIComponent('https://t.me/iihuzandelpiibot')+'&text='+encodeURIComponent(text);
-  if(tg){try{tg.openLink(url);}catch(e){window.open(url,'_blank');}}else{window.open(url,'_blank');}
-  closeShare();toast('📤 Открываю Telegram...','ok');
-}
-function shareCopy(){const done=()=>{toast('📋 Скопировано!','ok');closeShare();};if(navigator.clipboard){navigator.clipboard.writeText(_sTxt).then(done).catch(()=>{fallbackCopy(_sTxt,done);});}else{fallbackCopy(_sTxt,done);}}
-async function shareLink(){
-  try{
-    const r=await fetch(`${CFG.API}/api/store_answer`,{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({text:_sTxt,model:MO[S.mdl]?.l||'ХУЗА AI',modelKey:S.mdl})});
-    const d=await r.json();
-    if(d.ok&&d.id){
-      const viewUrl=`${CFG.API}/view?id=${d.id}`;
-      const doneLnk=()=>{toast('🔗 Ссылка скопирована!','ok');closeShare();};
-      if(navigator.clipboard){await navigator.clipboard.writeText(viewUrl).catch(()=>fallbackCopy(viewUrl,doneLnk));doneLnk();}
-      else{fallbackCopy(viewUrl,doneLnk);}return;
-    }
-  }catch(e){}
-  const botUrl='https://t.me/iihuzandelpiibot';
-  const doneLink2=()=>{toast('🔗 Ссылка скопирована!','ok');closeShare();};
-  if(navigator.clipboard){navigator.clipboard.writeText(botUrl).then(doneLink2).catch(()=>fallbackCopy(botUrl,doneLink2));}else{fallbackCopy(botUrl,doneLink2);}
-}
-// ════ COPY MSG ════
-function cpMsg(btn,idx){
-  const text=_msgStore[idx]||'';
-  const done=()=>{btn.textContent='✅ Скопировано';btn.classList.add('done');setTimeout(()=>{btn.textContent='📋 Копировать';btn.classList.remove('done');},2000);};
-  if(navigator.clipboard){navigator.clipboard.writeText(text).then(done).catch(()=>fallbackCopy(text,done));}else{fallbackCopy(text,done);}
-}
+async function shareTg(){try{const r=await fetch(`${CFG.API}/api/store_answer`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:_sTxt,model:MO[S.mdl]?.l||'ХУЗА AI',modelKey:S.mdl,time:new Date().toLocaleString('ru',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})})});const d=await r.json();if(d.ok&&d.id){const viewUrl=`${CFG.API}/view?id=${d.id}`;const shareText='🤖 ХУЗА AI ответил:\n\n'+_sTxt.slice(0,200)+((_sTxt.length>200)?'...\n\n':'\n\n')+'📖 Читать полностью: '+viewUrl;const tgUrl='https://t.me/share/url?url='+encodeURIComponent(viewUrl)+'&text='+encodeURIComponent(shareText);if(tg){try{tg.openLink(tgUrl);}catch(e){window.open(tgUrl,'_blank');}}else{window.open(tgUrl,'_blank');}closeShare();toast('📤 Поделиться...','ok');return;}}catch(e){}const text='🤖 ХУЗА AI:\n\n'+_sTxt.slice(0,3500);const url='https://t.me/share/url?url='+encodeURIComponent('https://t.me/iihuzandelpiibot')+'&text='+encodeURIComponent(text);if(tg){try{tg.openLink(url);}catch(e){window.open(url,'_blank');}}else{window.open(url,'_blank');}closeShare();toast('📤 Открываю Telegram...','ok');}
+function shareCopy(){const done=()=>{toast('📋 Скопировано!','ok');closeShare();};if(navigator.clipboard){navigator.clipboard.writeText(_sTxt).then(done).catch(()=>fallbackCopy(_sTxt,done));}else{fallbackCopy(_sTxt,done);}}
+async function shareLink(){try{const r=await fetch(`${CFG.API}/api/store_answer`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:_sTxt,model:MO[S.mdl]?.l||'ХУЗА AI',modelKey:S.mdl})});const d=await r.json();if(d.ok&&d.id){const viewUrl=`${CFG.API}/view?id=${d.id}`;const doneLnk=()=>{toast('🔗 Ссылка скопирована!','ok');closeShare();};if(navigator.clipboard){await navigator.clipboard.writeText(viewUrl).catch(()=>fallbackCopy(viewUrl,doneLnk));doneLnk();}else{fallbackCopy(viewUrl,doneLnk);}return;}}catch(e){}const botUrl='https://t.me/iihuzandelpiibot';const doneLink2=()=>{toast('🔗 Ссылка скопирована!','ok');closeShare();};if(navigator.clipboard){navigator.clipboard.writeText(botUrl).then(doneLink2).catch(()=>fallbackCopy(botUrl,doneLink2));}else{fallbackCopy(botUrl,doneLink2);}}
+function cpMsg(btn,idx){const text=_msgStore[idx]||'';const done=()=>{btn.textContent='✅ Скопировано';btn.classList.add('done');setTimeout(()=>{btn.textContent='📋 Копировать';btn.classList.remove('done');},2000);};if(navigator.clipboard){navigator.clipboard.writeText(text).then(done).catch(()=>fallbackCopy(text,done));}else{fallbackCopy(text,done);}}
 // ════ SUBSCRIPTION ════
-function buySubscription(plan){
-  hap();
-  const cmd=plan==='year'?'buy_year':'buy_month';
-  // Отправляем команду боту через sendData или открываем бота
-  if(tg){
-    try{
-      // Закрываем миниапп и открываем бота с командой оплаты
-      tg.close();
-      return;
-    }catch(e){}
-    // Fallback: открываем ссылку на бота
-    const url='https://t.me/iihuzandelpiibot?start='+cmd;
-    try{tg.openLink(url);}catch(e){window.open(url,'_blank');}
-  }else{
-    window.open('https://t.me/iihuzandelpiibot?start='+cmd,'_blank');
-  }
-  toast('💳 Открываю оплату...','ok');
-}
+function buySubscription(plan){hap();const cmd=plan==='year'?'buy_year':'buy_month';if(tg){try{tg.close();return;}catch(e){}const url='https://t.me/iihuzandelpiibot?start='+cmd;try{tg.openLink(url);}catch(e){window.open(url,'_blank');}}else{window.open('https://t.me/iihuzandelpiibot?start='+cmd,'_blank');}toast('💳 Открываю оплату...','ok');}
 // ════ REF LINK ════
-function cpRefLink(){
-  const uid=S.tgu?.id;
-  if(!uid){toast('⚠️ Открой через Telegram бота','er');return;}
-  const link='https://t.me/iihuzandelpiibot?start=ref_'+uid;
-  const doneRef=()=>toast('🔗 Реф. ссылка скопирована!','ok');
-  if(navigator.clipboard){navigator.clipboard.writeText(link).then(doneRef).catch(()=>fallbackCopy(link,doneRef));}else{fallbackCopy(link,doneRef);}
-}
+function cpRefLink(){const uid=S.tgu?.id;if(!uid){toast('⚠️ Открой через Telegram бота','er');return;}const link='https://t.me/iihuzandelpiibot?start=ref_'+uid;const doneRef=()=>toast('🔗 Реф. ссылка скопирована!','ok');if(navigator.clipboard){navigator.clipboard.writeText(link).then(doneRef).catch(()=>fallbackCopy(link,doneRef));}else{fallbackCopy(link,doneRef);}}
 </script>
 </body>
 </html>
