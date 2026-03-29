@@ -228,7 +228,7 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
   <div id="tb">
     <div class="tbl"><button class="ib" onclick="openSB()"><svg viewBox="0 0 20 14" fill="none" width="20" height="14"><rect width="20" height="2" rx="1" fill="currentColor"/><rect y="6" width="14" height="2" rx="1" fill="currentColor"/><rect y="12" width="20" height="2" rx="1" fill="currentColor"/></svg></button></div>
     <div class="tbc"><button class="mb2" onclick="openMS()"><span class="mbn" id="mname">GPT-5.2 Chat</span><span class="mbc">▾</span></button></div>
-    <div class="tbr"><button class="rqb" onclick="openProf()" id="rqbtn"><span id="rqnum">—</span><span class="rqb-st" id="rqmax"></span></button></div>
+    <div class="tbr"><button class="rqb" onclick="openProf()" id="rqbtn"><tg-emoji emoji-id="5870657884844462243" style="font-size:14px">💬</tg-emoji><span id="rqnum">—</span><span class="rqb-st" id="rqmax"></span></button></div>
   </div>
   <div id="chat">
     <div id="msgs">
@@ -262,10 +262,10 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
     <div class="sbai"><div class="sbico">🤖</div><div><div class="sban" id="sban">ХУЗА AI</div><div class="sbap" id="sbap">Free</div></div></div>
   </div>
   <div class="sbsep"></div>
-  <div class="sbi" onclick="closeSB();openProf()"><span class="sii">☆</span><span class="sit">Подписка</span></div>
-  <div class="sbi" onclick="closeSB();newChat()"><span class="sii">⊕</span><span class="sit">Новый чат</span></div>
-  <div class="sbi" onclick="closeSB();openGen('image')"><span class="sii">🎨</span><span class="sit">Генерация картинок</span></div>
-  <div class="sbi" onclick="closeSB();openMS()"><span class="sii">⚙</span><span class="sit">Настройки модели</span></div>
+  <div class="sbi" onclick="closeSB();openProf()"><span class="sii"><tg-emoji emoji-id="5769126056262898415">👛</tg-emoji></span><span class="sit">Подписка</span></div>
+  <div class="sbi" onclick="closeSB();newChat()"><span class="sii"><tg-emoji emoji-id="5870657884844462243">❌</tg-emoji></span><span class="sit">Новый чат</span></div>
+  <div class="sbi" onclick="closeSB();openGen('image')"><span class="sii"><tg-emoji emoji-id="6035128606563241721">🖼</tg-emoji></span><span class="sit">Генерация картинок</span></div>
+  <div class="sbi" onclick="closeSB();openMS()"><span class="sii"><tg-emoji emoji-id="5870982283724328568">⚙</tg-emoji></span><span class="sit">Настройки модели</span></div>
   <div class="sbsep"></div>
   <div class="sbsl">История чатов</div>
   <div id="hist" style="overflow-y:auto;flex:1"></div>
@@ -465,6 +465,10 @@ async function send(){
     ac.innerHTML=rmd(finalText);rk(ac);
     S.hist.push({role:'assistant',content:finalText});saveHistory();
     addMsgActions(el,finalText);
+    // Декремент счётчика запросов
+    S.lim.pro_used=Math.min(S.lim.pro_max,(S.lim.pro_used||0)+1);
+    const _rqEl=document.getElementById('rqnum');
+    if(_rqEl)_rqEl.textContent=String(Math.max(0,S.lim.pro_max-S.lim.pro_used));
   }
   updHist(txt);S.busy=0;document.getElementById('snd').disabled=!document.getElementById('inp').value.trim();sd();
   loadLimits();
@@ -531,8 +535,9 @@ async function loadLimits(retries=2){
       // Открыто не через TG — показываем дефолт
       const _n=document.getElementById('rqnum');
       const _m=document.getElementById('rqmax');
-      if(_n)_n.textContent=String(Math.max(0,S.lim.pro_max-S.lim.pro_used)||30);
-      if(_m)_m.textContent='/30';
+      const _defMax=S.lim.has_sub?75:30;
+      if(_n)_n.textContent=String(Math.max(0,S.lim.pro_max-S.lim.pro_used)||_defMax);
+      if(_m)_m.textContent='/'+_defMax;
       return;
     }
     const params=new URLSearchParams();
@@ -657,12 +662,12 @@ function renderProfile(){
 
     <!-- Статистика 2×2 -->
     <div class="sg2">
-      <div class="sc"><div class="sci">💬</div><div class="scv">${totalReq}</div><div class="scl">Запросов</div></div>
-      <div class="sc"><div class="sci">🎨</div><div class="scv">${L.total_gens||S.ic}</div><div class="scl">Генераций</div></div>
-      <div class="sc"><div class="sci">🎁</div><div class="scv">${L.referrals||0}</div><div class="scl">Рефералов</div></div>
+      <div class="sc"><div class="sci"><tg-emoji emoji-id="5870657884844462243">💬</tg-emoji></div><div class="scv">${totalReq}</div><div class="scl">Запросов</div></div>
+      <div class="sc"><div class="sci"><tg-emoji emoji-id="6035128606563241721">🖼</tg-emoji></div><div class="scv">${L.total_gens||S.ic}</div><div class="scl">Генераций</div></div>
+      <div class="sc"><div class="sci"><tg-emoji emoji-id="6032644646587338669">🎁</tg-emoji></div><div class="scv">${L.referrals||0}</div><div class="scl">Рефералов</div></div>
       <div class="sc" style="position:relative;overflow:hidden">
         <div style="position:absolute;bottom:0;left:0;right:0;height:${lvlPct}%;background:rgba(255,107,53,.08);transition:height .5s"></div>
-        <div class="sci">⭐</div>
+        <div class="sci"><tg-emoji emoji-id="5870930636742595124">⭐</tg-emoji></div>
         <div class="scv" style="font-size:${lvl>0?'20':'14'}px">${lvl>0?'Ур. '+lvl:'Нач.'}</div>
         <div class="scl">${lvlMax>0?totalReq+' / '+lvlMax+' зап.':'Уровень'}</div>
       </div>
@@ -692,43 +697,43 @@ function renderProfile(){
     <div>
       <div class="sec-hdr" style="margin-bottom:6px">💡 Лимиты</div>
       <div class="liml">
-        ${_limRow('💬','Запросы (день)',L.pro_used,L.pro_max,'')}
-        ${_limRow('🎨','Картинки',L.img_used,L.img_max,' /мес')}
-        ${_limRow('🎵','Музыка',L.music_used,L.music_max,' /мес')}
-        ${_limRow('🎬','Видео',L.video_used,L.video_max,' /мес')}
+        ${_limRow('<tg-emoji emoji-id="5870657884844462243">💬</tg-emoji>','Запросы (день)',L.pro_used,L.pro_max,'')}
+        ${_limRow('<tg-emoji emoji-id="6035128606563241721">🖼</tg-emoji>','Картинки',L.img_used,L.img_max,' /мес')}
+        ${_limRow('<tg-emoji emoji-id="5884479287171485878">📦</tg-emoji>','Музыка',L.music_used,L.music_max,' /мес')}
+        ${_limRow('<tg-emoji emoji-id="5769289093221454192">🔗</tg-emoji>','Видео',L.video_used,L.video_max,' /мес')}
       </div>
     </div>
 
     <!-- Модель и режим (синхронизировано с ботом) -->
     <div>
-      <div class="sec-hdr" style="margin-bottom:6px">⚙️ Текущие настройки</div>
+      <div class="sec-hdr" style="margin-bottom:6px"><tg-emoji emoji-id="5870982283724328568">⚙️</tg-emoji> Текущие настройки</div>
       <div class="liml">
-        <div class="limr"><span class="lico">🤖</span><span class="limt">Модель</span><span class="limv" style="font-size:12px;max-width:170px;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(botModel)}</span></div>
-        <div class="limr"><span class="lico">⚡</span><span class="limt">Режим ответа</span><span class="limv" style="font-size:13px">${esc(modeLabel)}</span></div>
-        <div class="limr"><span class="lico">🏷</span><span class="limt">Тариф</span><span class="limv" style="color:${hasSub?'var(--gr)':'var(--tx4)'}">${esc(subName)}</span></div>
+        <div class="limr"><span class="lico"><tg-emoji emoji-id="6030400221232501136">🤖</tg-emoji></span><span class="limt">Модель</span><span class="limv" style="font-size:12px;max-width:170px;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(botModel)}</span></div>
+        <div class="limr"><span class="lico"><tg-emoji emoji-id="5870930636742595124">📊</tg-emoji></span><span class="limt">Режим ответа</span><span class="limv" style="font-size:13px">${esc(modeLabel)}</span></div>
+        <div class="limr"><span class="lico"><tg-emoji emoji-id="5886285355279193209">🏷</tg-emoji></span><span class="limt">Тариф</span><span class="limv" style="color:${hasSub?'var(--gr)':'var(--tx4)'}">${esc(subName)}</span></div>
       </div>
     </div>
 
     <!-- Доступные функции -->
     <div>
-      <div class="sec-hdr" style="margin-bottom:6px">🔓 Доступные функции</div>
+      <div class="sec-hdr" style="margin-bottom:6px"><tg-emoji emoji-id="6037496202990194718">🔓</tg-emoji> Доступные функции</div>
       <div class="liml">
-        <div class="limr"><span class="lico">💬</span><span class="limt">Чат с ИИ</span><span class="limv" style="color:var(--gr)">✓ Доступно</span></div>
-        <div class="limr"><span class="lico">🎨</span><span class="limt">Генерация картинок</span><span class="limv" style="color:${L.img_max>0?'var(--gr)':'var(--tx4)'}">${L.img_max>0?'✓ '+L.img_max+' /мес':'✗ Нет'}</span></div>
-        <div class="limr"><span class="lico">🎵</span><span class="limt">Генерация музыки</span><span class="limv" style="color:${L.music_max>0?'var(--gr)':'var(--tx4)'}">${L.music_max>0?'✓ '+L.music_max+' /мес':'✗ Нет'}</span></div>
-        <div class="limr"><span class="lico">🎬</span><span class="limt">Генерация видео</span><span class="limv" style="color:${L.video_max>0?'var(--gr)':'var(--tx4)'}">${L.video_max>0?'✓ '+L.video_max+' /мес':'✗ Нет'}</span></div>
-        <div class="limr"><span class="lico">📷</span><span class="limt">Анализ фото (Vision)</span><span class="limv" style="color:var(--gr)">✓ Доступно</span></div>
-        <div class="limr"><span class="lico">📄</span><span class="limt">Документы / PPTX</span><span class="limv" style="color:${hasSub?'var(--gr)':'var(--tx4)'}">${hasSub?'✓ Доступно':'✗ Нужна подписка'}</span></div>
+        <div class="limr"><span class="lico"><tg-emoji emoji-id="5870657884844462243">💬</tg-emoji></span><span class="limt">Чат с ИИ</span><span class="limv" style="color:var(--gr)">✓ Доступно</span></div>
+        <div class="limr"><span class="lico"><tg-emoji emoji-id="6035128606563241721">🖼</tg-emoji></span><span class="limt">Генерация картинок</span><span class="limv" style="color:${L.img_max>0?'var(--gr)':'var(--tx4)'}">${L.img_max>0?'✓ '+L.img_max+' /мес':'✗ Нет'}</span></div>
+        <div class="limr"><span class="lico"><tg-emoji emoji-id="5884479287171485878">📦</tg-emoji></span><span class="limt">Генерация музыки</span><span class="limv" style="color:${L.music_max>0?'var(--gr)':'var(--tx4)'}">${L.music_max>0?'✓ '+L.music_max+' /мес':'✗ Нет'}</span></div>
+        <div class="limr"><span class="lico"><tg-emoji emoji-id="5769289093221454192">🔗</tg-emoji></span><span class="limt">Генерация видео</span><span class="limv" style="color:${L.video_max>0?'var(--gr)':'var(--tx4)'}">${L.video_max>0?'✓ '+L.video_max+' /мес':'✗ Нет'}</span></div>
+        <div class="limr"><span class="lico"><tg-emoji emoji-id="6035128606563241721">📷</tg-emoji></span><span class="limt">Анализ фото (Vision)</span><span class="limv" style="color:var(--gr)">✓ Доступно</span></div>
+        <div class="limr"><span class="lico"><tg-emoji emoji-id="5870528606328852614">📁</tg-emoji></span><span class="limt">Документы / PPTX</span><span class="limv" style="color:${hasSub?'var(--gr)':'var(--tx4)'}">${hasSub?'✓ Доступно':'✗ Нужна подписка'}</span></div>
       </div>
     </div>
 
     <!-- Действия -->
     <div class="pg">
-      <div class="pr2" onclick="closeProf();openMS()"><span class="pio">🤖</span><span class="plt">Выбор модели</span><span class="par">›</span></div>
-      <div class="pr2" onclick="cpRefLink()"><span class="pio">🔗</span><span class="plt">Реферальная ссылка</span><span class="par">›</span></div>
-      <div class="pr2" onclick="loadLimits().then(renderProfile);toast('🔄 Обновлено','ok')"><span class="pio">🔄</span><span class="plt">Обновить данные</span><span class="par">›</span></div>
-      <div class="pr2" onclick="newChat();closeProf()"><span class="pio">✏️</span><span class="plt">Новый чат</span><span class="par">›</span></div>
-      <div class="pr2" onclick="toast('ХУЗА AI v3.1 ✨','')"><span class="pio">ℹ️</span><span class="plt">О приложении</span><span class="par">›</span></div>
+      <div class="pr2" onclick="closeProf();openMS()"><span class="pio"><tg-emoji emoji-id="6030400221232501136">🤖</tg-emoji></span><span class="plt">Выбор модели</span><span class="par">›</span></div>
+      <div class="pr2" onclick="cpRefLink()"><span class="pio"><tg-emoji emoji-id="5769289093221454192">🔗</tg-emoji></span><span class="plt">Реферальная ссылка</span><span class="par">›</span></div>
+      <div class="pr2" onclick="loadLimits().then(renderProfile);toast('🔄 Обновлено','ok')"><span class="pio"><tg-emoji emoji-id="5345906554510012647">🔄</tg-emoji></span><span class="plt">Обновить данные</span><span class="par">›</span></div>
+      <div class="pr2" onclick="newChat();closeProf()"><span class="pio"><tg-emoji emoji-id="5870676941614354370">✏️</tg-emoji></span><span class="plt">Новый чат</span><span class="par">›</span></div>
+      <div class="pr2" onclick="toast('ХУЗА AI v3.1 ✨','')"><span class="pio"><tg-emoji emoji-id="6028435952299413210">ℹ️</tg-emoji></span><span class="plt">О приложении</span><span class="par">›</span></div>
     </div>`;
 }
 // ════════ GEN PAGES ════════
