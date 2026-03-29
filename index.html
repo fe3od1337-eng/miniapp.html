@@ -465,10 +465,6 @@ async function send(){
     ac.innerHTML=rmd(finalText);rk(ac);
     S.hist.push({role:'assistant',content:finalText});saveHistory();
     addMsgActions(el,finalText);
-    // Декремент счётчика запросов
-    S.lim.pro_used=Math.min(S.lim.pro_max,(S.lim.pro_used||0)+1);
-    const _rqEl=document.getElementById('rqnum');
-    if(_rqEl)_rqEl.textContent=String(Math.max(0,S.lim.pro_max-S.lim.pro_used));
   }
   updHist(txt);S.busy=0;document.getElementById('snd').disabled=!document.getElementById('inp').value.trim();sd();
   loadLimits();
