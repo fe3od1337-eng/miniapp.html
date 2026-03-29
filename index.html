@@ -345,7 +345,9 @@ const IEX=['🏙 Неоновый Токио, киберпанк','🌲 Лесн
 const MEX=['Вдохновляющий гимн, оркестр','Меланхоличная ночь, пианино lo-fi','Рэп о мечтах, trap'];
 const MSTY=['Поп','Электронная','Lo-fi','Рок','Хип-хоп','Трэп','Джаз','Классика'];
 // ════════ STATE ════════
-const S={mdl:'gpt52_chat',hist:[],sess:[],cur:null,busy:0,mc:0,ic:0,tgu:null,pi:null,mum:'suno',vum:'wan',lim:{pro_used:0,pro_max:30,img_used:0,img_max:0,music_used:0,music_max:0,video_used:0,video_max:0,has_sub:false,sub_plan:'',sub_expires:'',level:0,level_max:50,referrals:0,join_date:'',model:'',mode:'',total_requests:0,total_gens:0,reset_in:''}};
+const S={mdl:'gpt52_chat',hist:[],sess:[],cur:null,busy:0,mc:0,ic:0,tgu:null,pi:null,mum:'suno',vum:'wan',
+  prof:{},  // данные из /user/profile (бот = источник истины)
+  lim:{pro_used:0,pro_max:30,img_used:0,img_max:0,music_used:0,music_max:0,video_used:0,video_max:0,has_sub:false,sub_plan:'',sub_expires:'',level:0,level_max:50,referrals:0,join_date:'',model:'',mode:'',total_requests:0,total_gens:0,reset_in:''}};
 // Глобальное хранилище текстов сообщений (безопасное — без inline JS)
 const _msgStore=[];
 // ════════ TG ════════
@@ -543,35 +545,38 @@ async function loadLimits(retries=2){
     const params=new URLSearchParams();
     if(iData)params.set('init_data',iData);
     if(uid)params.set('uid',String(uid));
-    const r=await fetch(`${CFG.API}/api/limits?${params}`,{signal:AbortSignal.timeout(12000)});
+    // Используем /user/profile как основной источник истины
+    const r=await fetch(`${CFG.API}/user/profile?${params}`,{signal:AbortSignal.timeout(12000)});
     if(!r.ok){
-      console.warn('[limits] HTTP',r.status);
+      console.warn('[profile] HTTP',r.status);
       if(retries>0){await new Promise(res=>setTimeout(res,1500));return loadLimits(retries-1);}
       return;
     }
     const d=await r.json();
     if(!d.ok){
-      console.warn('[limits] ok=false',d);
+      console.warn('[profile] ok=false',d);
       if(retries>0){await new Promise(res=>setTimeout(res,1500));return loadLimits(retries-1);}
       return;
     }
-    // Сохраняем все поля из бота
+    const lm=d.limits||{};
+    // Сохраняем все поля из бота — ТОЛЬКО реальные данные с backend
     S.lim={
-      pro_used:d.pro_used||0,      pro_max:d.pro_max||30,
-      img_used:d.img_used||0,      img_max:d.img_max||0,
-      music_used:d.music_used||0,  music_max:d.music_max||0,
-      video_used:d.video_used||0,  video_max:d.video_max||0,
+      pro_used:lm.requests_used||0,        pro_max:lm.requests_day||30,
+      img_used:lm.images_used||0,          img_max:lm.images||0,
+      music_used:lm.music_used||0,         music_max:lm.music||0,
+      video_used:lm.video_used||0,         video_max:lm.video||0,
       has_sub:!!d.has_sub,
-      sub_plan:d.sub_plan||d.plan||'',
-      sub_expires:d.sub_expires||d.expires||'',
-      level:d.level||0,            level_max:d.level_max||50,
+      sub_plan:d.plan_label||d.plan||'',
+      sub_expires:d.sub_expires||'',
+      level:d.level||0,                    level_max:d.level_next||d.level_max||50,
+      level_name:d.level_name||'',
       referrals:d.referrals||0,
       join_date:d.join_date||'',
       model:d.model||'',
       mode:d.mode||'',
-      total_requests:d.total_requests||d.requests||0,
-      total_gens:d.total_gens||d.generations||0,
-      reset_in:d.reset_in||d.pro_reset||''
+      total_requests:d.requests||0,
+      total_gens:d.generations||0,
+      reset_in:lm.reset_in||''
     };
     // ── Обновляем счётчик в хедере ──
     const left=Math.max(0,S.lim.pro_max-S.lim.pro_used);
@@ -591,12 +596,18 @@ async function loadLimits(retries=2){
     if(sbap) sbap.textContent=S.lim.has_sub?(S.lim.sub_plan||'Pro'):'Free';
     if(sban&&S.tgu) sban.textContent=[S.tgu.first_name,S.tgu.last_name].filter(Boolean).join(' ')||'ХУЗА AI';
   }catch(e){
-    console.error('[limits] ошибка:',e);
+    console.error('[profile] ошибка:',e);
     // Показываем хотя бы дефолтные значения при ошибке
     const _n=document.getElementById('rqnum');
     const _m=document.getElementById('rqmax');
     if(_n&&_n.textContent==='…'){_n.textContent=String(Math.max(0,S.lim.pro_max-S.lim.pro_used)||'—');if(_m)_m.textContent='';}
   }
+}
+// ── Авто-обновление лимитов каждые 60 секунд ──
+let _limitsPoller=null;
+function startLimitsPolling(){
+  if(_limitsPoller)return;
+  _limitsPoller=setInterval(()=>{if(!S.busy)loadLimits();},60000);
 }
 // ════════ PROFILE ════════
 function openProf(){loadLimits().then(renderProfile);document.getElementById('prof').classList.add('o');if(tg)tg.BackButton.show();}
@@ -642,9 +653,9 @@ function renderProfile(){
   const botModel=L.model||MO[S.mdl]?.l||S.mdl;
   const modeLabel=L.mode==='fast'?'⚡ Быстрый':L.mode==='think'?'🧠 Думающий':L.mode||'—';
 
-  // Уровень — повторяет логику бота
-  const totalReq=L.total_requests||S.mc;
-  const lvl=L.level||0;
+  // Уровень — данные с бэкенда (никаких захардкоженных значений)
+  const totalReq=L.total_requests;
+  const lvlName=L.level_name||'🌱 Новичок';
   const lvlMax=L.level_max||50;
   const lvlPct=lvlMax>0?Math.min(100,Math.round(totalReq/lvlMax*100)):0;
 
@@ -663,12 +674,12 @@ function renderProfile(){
     <!-- Статистика 2×2 -->
     <div class="sg2">
       <div class="sc"><div class="sci"><tg-emoji emoji-id="5870657884844462243">💬</tg-emoji></div><div class="scv">${totalReq}</div><div class="scl">Запросов</div></div>
-      <div class="sc"><div class="sci"><tg-emoji emoji-id="6035128606563241721">🖼</tg-emoji></div><div class="scv">${L.total_gens||S.ic}</div><div class="scl">Генераций</div></div>
-      <div class="sc"><div class="sci"><tg-emoji emoji-id="6032644646587338669">🎁</tg-emoji></div><div class="scv">${L.referrals||0}</div><div class="scl">Рефералов</div></div>
+      <div class="sc"><div class="sci"><tg-emoji emoji-id="6035128606563241721">🖼</tg-emoji></div><div class="scv">${L.total_gens}</div><div class="scl">Генераций</div></div>
+      <div class="sc"><div class="sci"><tg-emoji emoji-id="6032644646587338669">🎁</tg-emoji></div><div class="scv">${L.referrals}</div><div class="scl">Рефералов</div></div>
       <div class="sc" style="position:relative;overflow:hidden">
         <div style="position:absolute;bottom:0;left:0;right:0;height:${lvlPct}%;background:rgba(255,107,53,.08);transition:height .5s"></div>
         <div class="sci"><tg-emoji emoji-id="5870930636742595124">⭐</tg-emoji></div>
-        <div class="scv" style="font-size:${lvl>0?'20':'14'}px">${lvl>0?'Ур. '+lvl:'Нач.'}</div>
+        <div class="scv" style="font-size:14px;line-height:1.3">${esc(lvlName)}</div>
         <div class="scl">${lvlMax>0?totalReq+' / '+lvlMax+' зап.':'Уровень'}</div>
       </div>
     </div>
@@ -837,6 +848,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
   await waitForTgUser(4000);
   updSBUser();
   await loadLimits();
+  startLimitsPolling();
   // Если после загрузки всё ещё показывает …, ставим дефолт
   if(_rqEl&&_rqEl.textContent==='…'){_rqEl.textContent='30';if(_mxEl)_mxEl.textContent='/30';}
   if(tg){tg.BackButton.onClick(()=>{if(document.getElementById('prof').classList.contains('o')){closeProf();return;}if(document.getElementById('gp').classList.contains('o')){closeGen();return;}tg.BackButton.hide();});}
