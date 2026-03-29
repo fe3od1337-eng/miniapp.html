@@ -345,7 +345,7 @@ const IEX=['🏙 Неоновый Токио, киберпанк','🌲 Лесн
 const MEX=['Вдохновляющий гимн, оркестр','Меланхоличная ночь, пианино lo-fi','Рэп о мечтах, trap'];
 const MSTY=['Поп','Электронная','Lo-fi','Рок','Хип-хоп','Трэп','Джаз','Классика'];
 // ════════ STATE ════════
-const S={mdl:'gpt52_chat',hist:[],sess:[],cur:null,busy:0,mc:0,ic:0,tgu:null,pi:null,mum:'suno',vum:'wan',lim:{pro_used:0,pro_max:30,img_used:0,img_max:0,music_used:0,music_max:0,video_used:0,video_max:0,has_sub:false,sub_plan:'',sub_expires:'',level:0,level_max:50,referrals:0,join_date:'',model:'',mode:'',total_requests:0,total_gens:0,reset_in:''}};
+const S={mdl:'gpt52_chat',hist:[],sess:[],cur:null,busy:0,mc:0,ic:0,tgu:null,pi:null,mum:'suno',vum:'wan',lim:{pro_used:0,pro_max:30,img_used:0,img_max:0,music_used:0,music_max:0,video_used:0,video_max:0,has_sub:false,sub_plan:'',sub_expires:'',level:0,level_max:50,referrals:0,join_date:'',model:'',mode:'',total_requests:0,total_gens:0,total_generations:0,reset_in:'',name:'',username:''}};
 // Глобальное хранилище текстов сообщений (безопасное — без inline JS)
 const _msgStore=[];
 // ════════ TG ════════
@@ -566,8 +566,11 @@ async function loadLimits(retries=2){
       model:d.model||'',
       mode:d.mode||'',
       total_requests:d.total_requests||d.requests||0,
-      total_gens:d.total_gens||d.generations||0,
-      reset_in:d.reset_in||d.pro_reset||''
+      total_gens:d.total_gens||d.total_generations||d.generations||0,
+      total_generations:d.total_generations||d.total_gens||0,
+      reset_in:d.reset_in||d.pro_reset||'',
+      name:d.name||'',
+      username:d.username||''
     };
     // ── Обновляем счётчик в хедере ──
     const left=Math.max(0,S.lim.pro_max-S.lim.pro_used);
@@ -622,10 +625,15 @@ function _limRow(ico,label,used,max,suffix){
 
 function renderProfile(){
   const u=S.tgu;const L=S.lim;
-  const ini=u?(((u.first_name||'')[0]||'')+((u.last_name||'')[0]||'')):'?';
-  const name=u?[u.first_name,u.last_name].filter(Boolean).join(' '):'Гость';
-  const uname=u?.username?`@${u.username}`:'';
-  const uid=u?.id||'—';
+  // Имя: приоритет backend (prof.name), fallback — TG initDataUnsafe
+  const _backendName=L.name||'';
+  const _tgName=u?[u.first_name,u.last_name].filter(Boolean).join(' '):'';
+  const name=_backendName||_tgName||'Гость';
+  const _backendUname=L.username?`@${L.username.replace(/^@/,'')}`:null;
+  const _tgUname=u?.username?`@${u.username}`:null;
+  const uname=_backendUname||_tgUname||'';
+  const ini=(name[0]||'?').toUpperCase();
+  const uid=u?.id||L.user_id||'—';
 
   const proLeft=Math.max(0,L.pro_max-L.pro_used);
   const proBarW=L.pro_max>0?Math.min(100,Math.round(L.pro_used/L.pro_max*100)):0;
@@ -636,10 +644,10 @@ function renderProfile(){
   const subStatus=hasSub?(L.sub_expires?'активна до '+L.sub_expires:'активна'):'Нет подписки';
 
   const botModel=L.model||MO[S.mdl]?.l||S.mdl;
-  const modeLabel=L.mode==='fast'?'⚡ Быстрый':L.mode==='think'?'🧠 Думающий':L.mode||'—';
+  const modeLabel=L.mode==='fast'?'Быстрый':L.mode==='think'?'Думающий':L.mode||'—';
 
   // Уровень — повторяет логику бота
-  const totalReq=L.total_requests||S.mc;
+  const totalReq=L.total_requests||0;
   const lvl=L.level||0;
   const lvlMax=L.level_max||50;
   const lvlPct=lvlMax>0?Math.min(100,Math.round(totalReq/lvlMax*100)):0;
@@ -652,14 +660,14 @@ function renderProfile(){
         <div class="pn">${esc(name)}</div>
         ${uname?`<div class="pu">${esc(uname)}</div>`:''}
         <div class="pid">ID: ${uid}</div>
-        ${L.join_date?`<div class="pid" style="margin-top:2px">📅 С нами с ${esc(L.join_date)}</div>`:''}
+        ${L.join_date?`<div class="pid" style="margin-top:2px"><tg-emoji emoji-id="5890937706803894250">📅</tg-emoji> С нами с ${esc(L.join_date)}</div>`:''}
       </div>
     </div>
 
     <!-- Статистика 2×2 -->
     <div class="sg2">
       <div class="sc"><div class="sci"><tg-emoji emoji-id="5870657884844462243">💬</tg-emoji></div><div class="scv">${totalReq}</div><div class="scl">Запросов</div></div>
-      <div class="sc"><div class="sci"><tg-emoji emoji-id="6035128606563241721">🖼</tg-emoji></div><div class="scv">${L.total_gens||S.ic}</div><div class="scl">Генераций</div></div>
+      <div class="sc"><div class="sci"><tg-emoji emoji-id="6035128606563241721">🖼</tg-emoji></div><div class="scv">${L.total_generations||L.total_gens||0}</div><div class="scl">Генераций</div></div>
       <div class="sc"><div class="sci"><tg-emoji emoji-id="6032644646587338669">🎁</tg-emoji></div><div class="scv">${L.referrals||0}</div><div class="scl">Рефералов</div></div>
       <div class="sc" style="position:relative;overflow:hidden">
         <div style="position:absolute;bottom:0;left:0;right:0;height:${lvlPct}%;background:rgba(255,107,53,.08);transition:height .5s"></div>
@@ -672,7 +680,7 @@ function renderProfile(){
     <!-- Подписка -->
     <div class="subc">
       <div class="subr">
-        <div class="subico ${hasSub?'pro':''}">💎</div>
+        <div class="subico ${hasSub?'pro':''}"><tg-emoji emoji-id="6037249452824072506">💎</tg-emoji></div>
         <div style="flex:1">
           <div class="subn">${esc(subName)}</div>
           <div class="subs" style="color:${hasSub?'var(--gr)':'var(--tx4)'}">${esc(subStatus)}</div>
@@ -691,7 +699,7 @@ function renderProfile(){
 
     <!-- Лимиты (полные, как в боте) -->
     <div>
-      <div class="sec-hdr" style="margin-bottom:6px">💡 Лимиты</div>
+      <div class="sec-hdr" style="margin-bottom:6px"><tg-emoji emoji-id="6028435952299413210">💡</tg-emoji> Лимиты</div>
       <div class="liml">
         ${_limRow('<tg-emoji emoji-id="5870657884844462243">💬</tg-emoji>','Запросы (день)',L.pro_used,L.pro_max,'')}
         ${_limRow('<tg-emoji emoji-id="6035128606563241721">🖼</tg-emoji>','Картинки',L.img_used,L.img_max,' /мес')}
@@ -774,7 +782,7 @@ async function gImg(){
     else{img.src=`${CFG.PI}${encodeURIComponent(p)}?model=${m}&nologo=true&seed=${Date.now()}`;}
     await new Promise((ok,fail)=>{img.onload=ok;img.onerror=fail;});
     document.getElementById('gires')?.classList.add('s');
-    S.ic++;loadLimits();toast('✅ Картинка готова!','ok');
+    loadLimits();toast('✅ Картинка готова!','ok');
   }catch(e){toast('❌ Ошибка: '+(e.message||'попробуй снова'),'er');}
   pr.done();ld('gibtn',0);
 }
