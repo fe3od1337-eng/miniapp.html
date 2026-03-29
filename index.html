@@ -33,9 +33,8 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
 .mb2:active{background:var(--s1)}
 .mbn{font-size:16px;font-weight:600;letter-spacing:-.01em;max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .mbc{font-size:11px;color:var(--tx3)}
-.rqb{display:flex;align-items:center;gap:4px;padding:5px 10px;border-radius:18px;background:var(--s1);border:.5px solid rgba(48,209,88,.3);cursor:pointer;font-size:14px;font-weight:600;color:var(--tx);transition:border-color .3s}
-.rqb-st{color:var(--tx4);font-size:12px}
-.rqb-ico{font-size:13px;opacity:.7}
+.rqb{display:flex;align-items:center;gap:4px;padding:5px 10px;border-radius:18px;background:var(--s1);border:.5px solid transparent;cursor:pointer;font-size:14px;font-weight:600;color:var(--tx);transition:border-color .3s}
+.rqb-st{color:var(--blue);font-size:13px}
 #chat{flex:1;display:flex;flex-direction:column;overflow:hidden}
 #msgs{flex:1;overflow-y:auto;overflow-x:clip;padding:10px 14px 6px;display:flex;flex-direction:column;gap:3px;scroll-behavior:smooth}
 #msgs::-webkit-scrollbar{width:0}
@@ -229,7 +228,7 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
   <div id="tb">
     <div class="tbl"><button class="ib" onclick="openSB()"><svg viewBox="0 0 20 14" fill="none" width="20" height="14"><rect width="20" height="2" rx="1" fill="currentColor"/><rect y="6" width="14" height="2" rx="1" fill="currentColor"/><rect y="12" width="20" height="2" rx="1" fill="currentColor"/></svg></button></div>
     <div class="tbc"><button class="mb2" onclick="openMS()"><span class="mbn" id="mname">GPT-5.2 Chat</span><span class="mbc">▾</span></button></div>
-    <div class="tbr"><button class="rqb" onclick="openProf()" id="rqbtn"><span class="rqb-ico">💬</span><span id="rqnum">…</span><span class="rqb-st" id="rqmax"></span></button></div>
+    <div class="tbr"><button class="rqb" onclick="openProf()" id="rqbtn"><span id="rqnum">—</span><span class="rqb-st" id="rqmax"></span></button></div>
   </div>
   <div id="chat">
     <div id="msgs">
@@ -529,9 +528,11 @@ async function loadLimits(retries=2){
     const uid=S.tgu?.id||null;
     const iData=tg?.initData||'';
     if(!uid&&!iData){
-      // Открыто не через TG — показываем заглушку
-      document.getElementById('rqnum').textContent='?';
-      document.getElementById('rqmax').textContent='';
+      // Открыто не через TG — показываем дефолт
+      const _n=document.getElementById('rqnum');
+      const _m=document.getElementById('rqmax');
+      if(_n)_n.textContent=String(Math.max(0,S.lim.pro_max-S.lim.pro_used)||30);
+      if(_m)_m.textContent='/30';
       return;
     }
     const params=new URLSearchParams();
@@ -586,6 +587,10 @@ async function loadLimits(retries=2){
     if(sban&&S.tgu) sban.textContent=[S.tgu.first_name,S.tgu.last_name].filter(Boolean).join(' ')||'ХУЗА AI';
   }catch(e){
     console.error('[limits] ошибка:',e);
+    // Показываем хотя бы дефолтные значения при ошибке
+    const _n=document.getElementById('rqnum');
+    const _m=document.getElementById('rqmax');
+    if(_n&&_n.textContent==='…'){_n.textContent=String(Math.max(0,S.lim.pro_max-S.lim.pro_used)||'—');if(_m)_m.textContent='';}
   }
 }
 // ════════ PROFILE ════════
@@ -652,21 +657,9 @@ function renderProfile(){
 
     <!-- Статистика 2×2 -->
     <div class="sg2">
-      <div class="sc">
-        <div class="sci">💬</div>
-        <div class="scv">${totalReq}</div>
-        <div class="scl">Запросов</div>
-      </div>
-      <div class="sc">
-        <div class="sci">🎨</div>
-        <div class="scv">${L.total_gens||S.ic||0}</div>
-        <div class="scl">Генераций</div>
-      </div>
-      <div class="sc">
-        <div class="sci">🎁</div>
-        <div class="scv">${L.referrals||0}</div>
-        <div class="scl">Рефералов</div>
-      </div>
+      <div class="sc"><div class="sci">💬</div><div class="scv">${totalReq}</div><div class="scl">Запросов</div></div>
+      <div class="sc"><div class="sci">🎨</div><div class="scv">${L.total_gens||S.ic}</div><div class="scl">Генераций</div></div>
+      <div class="sc"><div class="sci">🎁</div><div class="scv">${L.referrals||0}</div><div class="scl">Рефералов</div></div>
       <div class="sc" style="position:relative;overflow:hidden">
         <div style="position:absolute;bottom:0;left:0;right:0;height:${lvlPct}%;background:rgba(255,107,53,.08);transition:height .5s"></div>
         <div class="sci">⭐</div>
@@ -830,13 +823,17 @@ document.addEventListener('DOMContentLoaded',async()=>{
   setupMD();renderSuggest();renderMods();loadHistory();
   document.getElementById('mname').textContent=MO[S.mdl].l;
   updAttBtn();
-  // Показываем индикатор загрузки в хедере сразу
+  // Показываем дефолт сразу (обновится после загрузки)
   const _rqEl=document.getElementById('rqnum');
+  const _mxEl=document.getElementById('rqmax');
   if(_rqEl)_rqEl.textContent='…';
+  if(_mxEl)_mxEl.textContent='';
   // Ждём пользователя TG (до 4 сек), потом грузим лимиты
   await waitForTgUser(4000);
   updSBUser();
   await loadLimits();
+  // Если после загрузки всё ещё показывает …, ставим дефолт
+  if(_rqEl&&_rqEl.textContent==='…'){_rqEl.textContent='30';if(_mxEl)_mxEl.textContent='/30';}
   if(tg){tg.BackButton.onClick(()=>{if(document.getElementById('prof').classList.contains('o')){closeProf();return;}if(document.getElementById('gp').classList.contains('o')){closeGen();return;}tg.BackButton.hide();});}
   const tryK=()=>{if(window.renderMathInElement)return;setTimeout(tryK,200);};tryK();
   setTimeout(()=>document.getElementById('inp')?.focus(),400);
