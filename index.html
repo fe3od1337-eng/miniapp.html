@@ -437,7 +437,7 @@ async function send(){
       const initD=tg?.initData||'';const uid=getTgUid();
       const body={model:S.mdl,messages:S.hist.slice(-20),stream:true,init_data:initD,uid:uid};
       if(imgData)body.images=[imgData];
-      const r=await fetch(`${CFG.API}/api/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:AbortSignal.timeout(90000)});
+      const r=await fetch(`${CFG.API}/api/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:(()=>{const _a=new AbortController();setTimeout(()=>_a.abort(),90000);return _a.signal;})()});
       if(r.status===405||r.status===403||r.status===404){dbg(`Backend ${r.status} → пробую SQ Direct`);}
       else if(!r.ok){const t=await r.text().catch(()=>'');throw new Error(`Backend HTTP ${r.status}: ${t.slice(0,100)}`);}
       else{await readSSE(r,onChunk);ok=true;}
@@ -448,7 +448,7 @@ async function send(){
     try{
       dbg('Пробую OnlySQ Direct...');
       const model=MO[S.mdl];
-      const r=await fetch(CFG.SQ_URL,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${CFG.SQ_KEY}`},body:JSON.stringify({model:model.n,messages:[{role:'system',content:'Ты — ИИ-ассистент ХУЗА. Отвечай на языке пользователя. Используй LaTeX: $формула$. Код в ```lang блоках.'},...S.hist.slice(-20)],stream:true,max_tokens:4096}),signal:AbortSignal.timeout(90000)});
+      const r=await fetch(CFG.SQ_URL,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${CFG.SQ_KEY}`},body:JSON.stringify({model:model.n,messages:[{role:'system',content:'Ты — ИИ-ассистент ХУЗА. Отвечай на языке пользователя. Используй LaTeX: $формула$. Код в ```lang блоках.'},...S.hist.slice(-20)],stream:true,max_tokens:4096}),signal:(()=>{const _a=new AbortController();setTimeout(()=>_a.abort(),90000);return _a.signal;})()});
       if(!r.ok){const t=await r.text().catch(()=>'');throw new Error(`SQ HTTP ${r.status}: ${t.slice(0,150)}`);}
       await readSSE(r,onChunk);ok=true;dbg('');
     }catch(e){dbg('SQ Direct fail: '+e.message);}
@@ -459,7 +459,7 @@ async function send(){
       dbg('Пробую backend no-stream...');
       const body={model:S.mdl,messages:S.hist.slice(-20),stream:false,init_data:tg?.initData||'',uid:getTgUid()};
       if(imgData)body.images=[imgData];
-      const r=await fetch(`${CFG.API}/api/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:AbortSignal.timeout(90000)});
+      const r=await fetch(`${CFG.API}/api/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:(()=>{const _a=new AbortController();setTimeout(()=>_a.abort(),90000);return _a.signal;})()});
       if(!r.ok)throw new Error(`HTTP ${r.status}`);
       const d=await r.json();const t=d.answer||d.text||d.content||d.choices?.[0]?.message?.content||'';
       if(t){onChunk(t);ok=true;dbg('');}
@@ -565,7 +565,8 @@ async function loadLimits(retries=2){
     if(uid!=null){params.set('uid',String(uid));}
     if(iData){params.set('init_data',iData);}
     console.log('[limits] fetch uid='+uid+' initData='+!!iData+' api='+CFG.API);
-    const r=await fetch(`${CFG.API}/api/limits?${params}`,{signal:AbortSignal.timeout(12000)});
+    const _ac=new AbortController();const _acT=setTimeout(()=>_ac.abort(),12000);
+    let r;try{r=await fetch(`${CFG.API}/api/limits?${params}`,{signal:_ac.signal});}finally{clearTimeout(_acT);}
     if(!r.ok){
       console.warn('[limits] HTTP',r.status);
       if(retries>0){await new Promise(res=>setTimeout(res,1500));return loadLimits(retries-1);}
@@ -811,7 +812,7 @@ async function gImg(){
     const r=await fetch(`${CFG.API}/api/imggen`,{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({prompt:p,model:m,ratio,uid,init_data:tg?.initData||''}),
-      signal:AbortSignal.timeout(60000)
+      signal:(()=>{const _a=new AbortController();setTimeout(()=>_a.abort(),60000);return _a.signal;})()
     });
     const d=await r.json();
     if(!d.ok){
@@ -832,11 +833,11 @@ async function gImg(){
 }
 const dlI=()=>{const i=document.getElementById('giimg');if(!i?.src)return;Object.assign(document.createElement('a'),{href:i.src,download:`img_${Date.now()}.jpg`}).click();};
 const shrI=()=>{const i=document.getElementById('giimg');if(!i?.src)return;navigator.share?.({url:i.src})||navigator.clipboard?.writeText(i.src).then(()=>toast('📋 Ссылка скопирована','ok'));};
-async function gMus(){const p=document.getElementById('mup')?.value.trim();if(!p){toast('⚠️ Введи описание','er');return;}ld('mubtn',1);const pr=pg('mupw','mupf');try{const model=S.mum==='suno'?'suno':'elevenmusic';const r=await fetch(`${CFG.PA}${encodeURIComponent(p)}?model=${model}&nologo=true`,{signal:AbortSignal.timeout(180000)});if(!r.ok)throw new Error('HTTP '+r.status);const bl=await r.blob();const a=document.getElementById('muaud');a.src=URL.createObjectURL(bl);a.__b=bl;document.getElementById('mures')?.classList.add('s');toast('🎵 Трек готов!','ok');}catch(e){toast('❌ '+e.message,'er');}pr.done();ld('mubtn',0);}
+async function gMus(){const p=document.getElementById('mup')?.value.trim();if(!p){toast('⚠️ Введи описание','er');return;}ld('mubtn',1);const pr=pg('mupw','mupf');try{const model=S.mum==='suno'?'suno':'elevenmusic';const r=await fetch(`${CFG.PA}${encodeURIComponent(p)}?model=${model}&nologo=true`,{signal:(()=>{const _a=new AbortController();setTimeout(()=>_a.abort(),180000);return _a.signal;})()});if(!r.ok)throw new Error('HTTP '+r.status);const bl=await r.blob();const a=document.getElementById('muaud');a.src=URL.createObjectURL(bl);a.__b=bl;document.getElementById('mures')?.classList.add('s');toast('🎵 Трек готов!','ok');}catch(e){toast('❌ '+e.message,'er');}pr.done();ld('mubtn',0);}
 const dlM=()=>{const a=document.getElementById('muaud');if(!a?.__b)return;Object.assign(document.createElement('a'),{href:URL.createObjectURL(a.__b),download:`track_${Date.now()}.mp3`}).click();};
 async function gVid(){const p=document.getElementById('vip')?.value.trim();if(!p){toast('⚠️ Введи описание','er');return;}ld('vibtn',1);const pr=pg('vipw','vipf');try{const dur=document.getElementById('vid')?.value||'5';const ctrl=new AbortController();const to=setTimeout(()=>ctrl.abort(),150000);const r=await fetch(`${CFG.PV}${encodeURIComponent(p)}?model=${S.vum}&duration=${dur}&nologo=true`,{signal:ctrl.signal});clearTimeout(to);if(!r.ok)throw new Error('HTTP '+r.status);const bl=await r.blob();const v=document.getElementById('vivid');v.src=URL.createObjectURL(bl);v.__b=bl;document.getElementById('vires')?.classList.add('s');toast('🎬 Видео готово!','ok');}catch(e){toast(e.name==='AbortError'?'⏱ Таймаут':'❌ '+e.message,'er');}pr.done();ld('vibtn',0);}
 const dlV=()=>{const v=document.getElementById('vivid');if(!v?.__b)return;Object.assign(document.createElement('a'),{href:URL.createObjectURL(v.__b),download:`video_${Date.now()}.mp4`}).click();};
-async function apiPost(path,body){const r=await fetch(`${CFG.API}${path}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...body,init_data:tg?.initData||''}),signal:AbortSignal.timeout(180000)});const d=await r.json();if(!d.ok)throw new Error(d.error||'Ошибка');return d;}
+async function apiPost(path,body){const r=await fetch(`${CFG.API}${path}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...body,init_data:tg?.initData||''}),signal:(()=>{const _a=new AbortController();setTimeout(()=>_a.abort(),180000);return _a.signal;})()});const d=await r.json();if(!d.ok)throw new Error(d.error||'Ошибка');return d;}
 function b64dl(b64,fn,mime){const bl=new Blob([Uint8Array.from(atob(b64),c=>c.charCodeAt(0))],{type:mime});Object.assign(document.createElement('a'),{href:URL.createObjectURL(bl),download:fn}).click();}
 async function gRpt(){const topic=document.getElementById('rpt')?.value.trim();if(!topic){toast('⚠️ Введи тему','er');return;}ld('rpbtn',1);try{const d=await apiPost('/api/report',{topic,model:document.getElementById('rpm')?.value,pages:parseInt(document.getElementById('rpp')?.value)||10,extra:document.getElementById('rpe')?.value||''});document.getElementById('rpfn').textContent=d.filename||'doc.docx';document.getElementById('rpmeta').textContent='Готово!';document.getElementById('rpdl').classList.add('s');document.getElementById('rpdlb').onclick=()=>b64dl(d.docx_b64,d.filename||'doc.docx','application/vnd.openxmlformats-officedocument.wordprocessingml.document');toast('📄 Реферат готов!','ok');}catch(e){toast('❌ '+e.message,'er');}ld('rpbtn',0);}
 async function gPptx(){const topic=document.getElementById('ptt')?.value.trim();if(!topic){toast('⚠️ Введи тему','er');return;}ld('ptbtn',1);try{const d=await apiPost('/api/pptx',{topic,slides:parseInt(document.getElementById('pts')?.value)||12,model:document.getElementById('ptm')?.value,author:document.getElementById('pta')?.value||''});document.getElementById('ptfn').textContent=d.filename||'pres.pptx';document.getElementById('ptmeta').textContent=(d.slides_count||'?')+' слайдов';document.getElementById('ptdl').classList.add('s');document.getElementById('ptdlb').onclick=()=>b64dl(d.pptx_b64,d.filename||'pres.pptx','application/vnd.openxmlformats-officedocument.presentationml.presentation');toast('🎞 PPTX готов!','ok');}catch(e){toast('❌ '+e.message,'er');}ld('ptbtn',0);}
