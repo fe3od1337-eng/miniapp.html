@@ -262,7 +262,7 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
 <div id="sb">
   <div class="sbh">
     <button class="sbbk" onclick="closeSB()">‹</button>
-    <div class="sbai"><div class="sbico">🤖</div><div><div class="sban" id="sban">ХУЗА AI</div><div class="sbap" id="sbap">Free</div></div></div>
+    <div class="sbai"><div class="sbico">🤖</div><div><div class="sban" id="sban" data-name>ХУЗА AI</div><div class="sbap" id="sbap" data-sub>Free</div></div></div>
   </div>
   <div class="sbsep"></div>
   <div class="sbi" onclick="closeSB();openProf()"><span class="sii"><tg-emoji emoji-id="5769126056262898415">👛</tg-emoji></span><span class="sit">Подписка</span></div>
@@ -554,6 +554,17 @@ async function loadLimits(retries=2){
       if(retries>0){await new Promise(res=>setTimeout(res,1500));return loadLimits(retries-1);}
       return;
     }
+    // ── data-атрибуты: универсальное обновление DOM ──
+    const _q=(sel,val)=>{const el=document.querySelector(sel);if(el)el.textContent=val;};
+    _q('[data-name]',            d.name||d.username||'user');
+    _q('[data-id]',              d.user_id||'');
+    _q('[data-requests]',        d.total_requests??0);
+    _q('[data-generations]',     d.total_generations??d.total_gens??0);
+    _q('[data-referrals]',       d.referrals??0);
+    _q('[data-sub]',             d.has_sub?(d.sub_plan||'PRO'):'Free plan');
+    _q('[data-limit-req]',       `${d.pro_used??0}/${d.pro_max??30}`);
+    const _subBtn=document.querySelector('[data-sub-btn]');
+    if(_subBtn)_subBtn.style.display=d.has_sub?'none':'block';
     // Сохраняем все поля из бота
     S.lim={
       pro_used:d.pro_used||0,      pro_max:d.pro_max||30,
