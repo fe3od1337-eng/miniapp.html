@@ -368,7 +368,9 @@ const hap=t=>tg?.HapticFeedback?.impactOccurred(t||'light');
 function getTgUid(){
   // Обновляем S.tgu если ещё не получен
   if(!S.tgu&&tg?.initDataUnsafe?.user){S.tgu=tg.initDataUnsafe.user;}
-  return S.tgu?.id||null;
+  const _uid=S.tgu?.id||null;
+  console.log('[getTgUid] TG USER:', S.tgu, '| UID:', _uid, '| initData:', tg?.initData?.slice(0,80)||'(empty)');
+  return _uid;
 }
 // ════════ MD ════════
 function setupMD(){
@@ -523,12 +525,16 @@ function updAttBtn(){
 // ════════ LIMITS ════════
 async function waitForTgUser(maxMs=3000){
   // Ждём пока Telegram SDK заполнит initDataUnsafe.user (до maxMs мс)
+  // Если user не появился, но initData есть — это тоже успех (Swiftgram и др. клиенты)
   const step=150,end=Date.now()+maxMs;
   while(Date.now()<end){
     const u=tg?.initDataUnsafe?.user||null;
-    if(u){S.tgu=u;return u;}
+    if(u){S.tgu=u;console.log('[waitForTgUser] user found:',u);return u;}
+    // Если есть initData — backend сможет достать uid из него сам
+    if(tg?.initData){console.log('[waitForTgUser] no user but initData present, proceeding');return null;}
     await new Promise(r=>setTimeout(r,step));
   }
+  console.warn('[waitForTgUser] timeout. user=',S.tgu,'initData=',tg?.initData?.slice(0,80)||'(empty)');
   return S.tgu||null;
 }
 
