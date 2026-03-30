@@ -359,9 +359,17 @@ if(tg){
   tg.setHeaderColor?.('#000');
   tg.setBackgroundColor?.('#000');
   tg.enableClosingConfirmation?.();
-  S.tgu=tg.initDataUnsafe?.user||null;
+  // FIX: НЕ читаем initDataUnsafe здесь — SDK может ещё не заполнить user.
+  // Инициализация S.tgu происходит в DOMContentLoaded через waitForTgUser().
 }
 const hap=t=>tg?.HapticFeedback?.impactOccurred(t||'light');
+
+// Единый геттер актуального uid — всегда читаем из одного места
+function getTgUid(){
+  // Обновляем S.tgu если ещё не получен
+  if(!S.tgu&&tg?.initDataUnsafe?.user){S.tgu=tg.initDataUnsafe.user;}
+  return S.tgu?.id||null;
+}
 // ════════ MD ════════
 function setupMD(){
   const r=new marked.Renderer();
@@ -392,8 +400,7 @@ function addMsgActions(el,text){
 async function send(){
   const inp=document.getElementById('inp');const txt=inp.value.trim();
   if(!txt||S.busy)return;
-  // Ждём получения пользователя из Telegram (до 2 сек)
-  if(!S.tgu&&tg){for(let i=0;i<8;i++){await new Promise(r=>setTimeout(r,250));S.tgu=tg.initDataUnsafe?.user||null;if(S.tgu)break;}}
+  // FIX: пользователь гарантированно получен в DOMContentLoaded; здесь просто читаем
   inp.value='';rsz(inp);document.getElementById('snd').disabled=true;S.busy=1;S.mc++;
   const imgData=S.pi;S.pi=null;document.getElementById('pprev').classList.remove('s');
   updAttBtn();
@@ -421,7 +428,7 @@ async function send(){
   // ─ СТРАТЕГИЯ 1: Backend ─
   if(!ok){
     try{
-      const initD=tg?.initData||'';const uid=S.tgu?.id||null;
+      const initD=tg?.initData||'';const uid=getTgUid();
       const body={model:S.mdl,messages:S.hist.slice(-20),stream:true,init_data:initD,uid:uid};
       if(imgData)body.images=[imgData];
       const r=await fetch(`${CFG.API}/api/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:AbortSignal.timeout(90000)});
@@ -444,7 +451,7 @@ async function send(){
   if(!ok){
     try{
       dbg('Пробую backend no-stream...');
-      const body={model:S.mdl,messages:S.hist.slice(-20),stream:false,init_data:tg?.initData||'',uid:S.tgu?.id||null};
+      const body={model:S.mdl,messages:S.hist.slice(-20),stream:false,init_data:tg?.initData||'',uid:getTgUid()};
       if(imgData)body.images=[imgData];
       const r=await fetch(`${CFG.API}/api/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:AbortSignal.timeout(90000)});
       if(!r.ok)throw new Error(`HTTP ${r.status}`);
@@ -526,9 +533,8 @@ async function waitForTgUser(maxMs=3000){
 
 async function loadLimits(retries=2){
   try{
-    // Всегда пробуем получить актуального пользователя
-    if(!S.tgu) await waitForTgUser(3000);
-    const uid=S.tgu?.id||null;
+    // FIX: всегда пробуем получить актуального пользователя через геттер
+    const uid=getTgUid();
     const iData=tg?.initData||'';
     if(!uid&&!iData){
       // Открыто не через TG — показываем дефолт
@@ -541,7 +547,8 @@ async function loadLimits(retries=2){
     }
     const params=new URLSearchParams();
     if(iData)params.set('init_data',iData);
-    if(uid){params.set('uid',String(uid));}
+    // FIX: uid всегда передаём как строку; если null — не добавляем параметр
+    if(uid!=null){params.set('uid',String(uid));}
     const r=await fetch(`${CFG.API}/api/limits?${params}`,{signal:AbortSignal.timeout(12000)});
     if(!r.ok){
       console.warn('[limits] HTTP',r.status);
@@ -778,7 +785,7 @@ async function gImg(){
   try{
     const m=document.getElementById('gim')?.value||'flux';
     const ratio=document.getElementById('giratio')?.value||'1:1';
-    const uid=S.tgu?.id||0;
+    const uid=getTgUid()||0;
     const r=await fetch(`${CFG.API}/api/imggen`,{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({prompt:p,model:m,ratio,uid,init_data:tg?.initData||''}),
@@ -842,9 +849,9 @@ function onPhoto(e){
 function rmPhoto(){S.pi=null;document.getElementById('pprev').classList.remove('s');}
 let _tt;function toast(msg,t=''){const el=document.getElementById('toast');el.textContent=msg;el.className='toast s'+(t?' '+t:'');clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('s'),2800);}
 function renderSuggest(){const c=document.getElementById('wch');if(!c)return;c.innerHTML='';SUGG.forEach(s=>{const d=document.createElement('div');d.className='wc';d.textContent=s;d.onclick=()=>{const i=document.getElementById('inp');i.value=s.replace(/^[^\s]+\s/,'');rsz(i);i.focus();hap();};c.appendChild(d);});}
-// ════════ INIT ════════
+// ════ INIT ════
 document.addEventListener('DOMContentLoaded',async()=>{
-  // Принудительно инициализируем и разворачиваем WebApp (сбрасывает кэш TG)
+  // FIX: единственное место инициализации пользователя TG
   if(window.Telegram?.WebApp){window.Telegram.WebApp.ready();window.Telegram.WebApp.expand();}
   setupMD();renderSuggest();renderMods();loadHistory();
   document.getElementById('mname').textContent=MO[S.mdl].l;
@@ -854,9 +861,11 @@ document.addEventListener('DOMContentLoaded',async()=>{
   const _mxEl=document.getElementById('rqmax');
   if(_rqEl)_rqEl.textContent='…';
   if(_mxEl)_mxEl.textContent='';
-  // Ждём пользователя TG (до 4 сек), потом грузим лимиты
-  await waitForTgUser(4000);
+  // FIX: одно ожидание пользователя — результат сохраняется в S.tgu
+  const tgUser=await waitForTgUser(5000);
+  if(tgUser)S.tgu=tgUser;
   updSBUser();
+  // FIX: loadLimits теперь использует getTgUid() — дополнительного ожидания внутри нет
   await loadLimits();
   // Если после загрузки всё ещё показывает …, ставим дефолт
   if(_rqEl&&_rqEl.textContent==='…'){_rqEl.textContent='30';if(_mxEl)_mxEl.textContent='/30';}
@@ -931,7 +940,7 @@ function buySubscription(plan){
 }
 // ════ REF LINK ════
 function cpRefLink(){
-  const uid=S.tgu?.id;
+  const uid=getTgUid();
   if(!uid){toast('⚠️ Открой через Telegram бота','er');return;}
   const link='https://t.me/iihuzandelpiibot?start=ref_'+uid;
   const doneRef=()=>toast('🔗 Реф. ссылка скопирована!','ok');
