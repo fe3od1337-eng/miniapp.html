@@ -565,8 +565,17 @@ async function loadLimits(retries=2){
     if(uid!=null){params.set('uid',String(uid));}
     if(iData){params.set('init_data',iData);}
     console.log('[limits] fetch uid='+uid+' initData='+!!iData+' api='+CFG.API);
-    const _ac=new AbortController();const _acT=setTimeout(()=>_ac.abort(),12000);
-    let r;try{r=await fetch(`${CFG.API}/api/limits?${params}`,{signal:_ac.signal});}finally{clearTimeout(_acT);}
+    const _ac=new AbortController();const _acT=setTimeout(()=>_ac.abort(),30000);
+    let r;
+    try{r=await fetch(`${CFG.API}/api/limits?${params}`,{signal:_ac.signal});}
+    catch(fetchErr){
+      clearTimeout(_acT);
+      const isTimeout=fetchErr.name==='AbortError';
+      console.error('[limits] fetch FAILED name='+fetchErr.name+' timeout='+isTimeout+' msg='+fetchErr.message);
+      if(retries>0){await new Promise(res=>setTimeout(res,2000));return loadLimits(retries-1);}
+      _showDash();return;
+    }
+    finally{clearTimeout(_acT);}
     if(!r.ok){
       console.warn('[limits] HTTP',r.status);
       if(retries>0){await new Promise(res=>setTimeout(res,1500));return loadLimits(retries-1);}
@@ -630,7 +639,7 @@ async function loadLimits(retries=2){
     if(sbap) sbap.textContent=S.lim.has_sub?(S.lim.sub_plan||'Pro'):'Free';
     if(sban&&S.tgu) sban.textContent=[S.tgu.first_name,S.tgu.last_name].filter(Boolean).join(' ')||'ХУЗА AI';
   }catch(e){
-    console.error('[limits] ошибка:',e);
+    console.error('[limits] ошибка: name='+e.name+' msg='+e.message, e);
     _showDash();
   }
 }
