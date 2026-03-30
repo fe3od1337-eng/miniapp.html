@@ -477,7 +477,8 @@ async function send(){
     addMsgActions(el,finalText);
   }
   updHist(txt);S.busy=0;document.getElementById('snd').disabled=!document.getElementById('inp').value.trim();sd();
-  loadLimits();
+  // FIX: принудительно обновляем лимиты после каждого запроса — счётчик сразу синхронизируется с ботом
+  await loadLimits();
 }
 async function readSSE(resp,cb){
   if(!resp.body){const d=await resp.json().catch(async()=>({text:await resp.text()}));const t=d.answer||d.text||d.content||d.choices?.[0]?.message?.content||'';if(t)cb(t);return;}
@@ -537,12 +538,9 @@ async function loadLimits(retries=2){
     const uid=getTgUid();
     const iData=tg?.initData||'';
     if(!uid&&!iData){
-      // Открыто не через TG — показываем дефолт
-      const _n=document.getElementById('rqnum');
-      const _m=document.getElementById('rqmax');
-      const _defMax=S.lim.has_sub?75:30;
-      if(_n)_n.textContent=String(Math.max(0,S.lim.pro_max-S.lim.pro_used)||_defMax);
-      if(_m)_m.textContent='/'+_defMax;
+      // Открыто не через TG — показываем прочерки (не фиктивные значения)
+      const _n=document.getElementById('rqnum');const _m=document.getElementById('rqmax');
+      if(_n&&_n.textContent==='…'){_n.textContent='—';if(_m)_m.textContent='';}
       return;
     }
     const params=new URLSearchParams();
@@ -620,10 +618,18 @@ async function loadLimits(retries=2){
   }
 }
 // ════════ PROFILE ════════
-function openProf(){loadLimits().then(renderProfile);document.getElementById('prof').classList.add('o');if(tg)tg.BackButton.show();}
+function openProf(){
+  // FIX: сначала открываем профиль с лоадером, потом грузим актуальные данные
+  document.getElementById('prof').classList.add('o');
+  if(tg)tg.BackButton.show();
+  document.getElementById('profbd').innerHTML='<div style="padding:40px;text-align:center;color:var(--tx4);font-size:14px">⏳ Загрузка...</div>';
+  loadLimits().then(renderProfile);
+}
 function closeProf(){document.getElementById('prof').classList.remove('o');if(tg)tg.BackButton.hide();}
 function updSBUser(){
-  const u=S.tgu||tg?.initDataUnsafe?.user||null;
+  // FIX: всегда берём из getTgUid() источника чтобы не рассинхронизироваться
+  if(!S.tgu&&tg?.initDataUnsafe?.user)S.tgu=tg.initDataUnsafe.user;
+  const u=S.tgu;
   if(u){
     const n=[u.first_name,u.last_name].filter(Boolean).join(' ')||'ХУЗА AI';
     const sban=document.getElementById('sban');
@@ -868,7 +874,8 @@ document.addEventListener('DOMContentLoaded',async()=>{
   // FIX: loadLimits теперь использует getTgUid() — дополнительного ожидания внутри нет
   await loadLimits();
   // Если после загрузки всё ещё показывает …, ставим дефолт
-  if(_rqEl&&_rqEl.textContent==='…'){_rqEl.textContent='30';if(_mxEl)_mxEl.textContent='/30';}
+  // FIX: не заменяем '…' на фиктивные '30' — реальные данные уже должны прийти с бэкенда
+  if(_rqEl&&_rqEl.textContent==='…'){_rqEl.textContent='—';if(_mxEl)_mxEl.textContent='';}
   if(tg){tg.BackButton.onClick(()=>{if(document.getElementById('prof').classList.contains('o')){closeProf();return;}if(document.getElementById('gp').classList.contains('o')){closeGen();return;}tg.BackButton.hide();});}
   const tryK=()=>{if(window.renderMathInElement)return;setTimeout(tryK,200);};tryK();
   setTimeout(()=>document.getElementById('inp')?.focus(),400);
