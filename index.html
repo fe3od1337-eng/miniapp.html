@@ -7,6 +7,10 @@
 <meta http-equiv="Pragma" content="no-cache"/>
 <meta http-equiv="Expires" content="0"/>
 <title>ХУЗА AI</title>
+<!-- ERUDA DEBUG — удалить после отладки -->
+<script src="https://cdn.jsdelivr.net/npm/eruda@3/eruda.min.js"></script>
+<script>eruda.init();</script>
+<!-- /ERUDA DEBUG -->
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"/>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
@@ -545,13 +549,22 @@ async function loadLimits(retries=2){
     if(!S.tgu&&tg?.initDataUnsafe?.user){S.tgu=tg.initDataUnsafe.user;}
     const uid=S.tgu?.id||null;
     const iData=tg?.initData||'';
-    // Только если вообще нет ни uid ни initData — не в TG, показываем прочерки
-    if(!uid&&!iData){_showDash();return;}
+    // ДИАГНОСТИКА — обязательно
+    console.log('[loadLimits] TG USER:', S.tgu);
+    console.log('[loadLimits] UID:', uid);
+    console.log('[loadLimits] initData:', iData.slice(0,120)||'(empty)');
+    // Только если вообще нет ни uid ни initData — не в TG, показываем ошибку
+    if(!uid&&!iData){
+      console.error('❌ Telegram user not found — not opened via bot button');
+      _showDash();
+      alert('Открой мини-приложение через кнопку в Telegram боте');
+      return;
+    }
     const params=new URLSearchParams();
     // uid передаём ВСЕГДА первым параметром — backend его ищет первым
     if(uid!=null){params.set('uid',String(uid));}
     if(iData){params.set('init_data',iData);}
-    console.log('[limits] fetch uid='+uid+' api='+CFG.API);
+    console.log('[limits] fetch uid='+uid+' initData='+!!iData+' api='+CFG.API);
     const r=await fetch(`${CFG.API}/api/limits?${params}`,{signal:AbortSignal.timeout(12000)});
     if(!r.ok){
       console.warn('[limits] HTTP',r.status);
@@ -559,8 +572,9 @@ async function loadLimits(retries=2){
       _showDash();return;
     }
     const d=await r.json();
+    console.log('[limits] FINAL DATA:', d);
     if(!d.ok){
-      console.warn('[limits] ok=false',d);
+      console.error('[limits] API ERROR:', d);
       if(retries>0){await new Promise(res=>setTimeout(res,1500));return loadLimits(retries-1);}
       _showDash();return;
     }
