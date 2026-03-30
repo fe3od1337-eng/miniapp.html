@@ -541,7 +541,7 @@ async function loadLimits(retries=2){
     }
     const params=new URLSearchParams();
     if(iData)params.set('init_data',iData);
-    if(uid){params.set('uid',String(uid));params.set('user_id',String(uid));}
+    if(uid){params.set('uid',String(uid));}
     const r=await fetch(`${CFG.API}/api/limits?${params}`,{signal:AbortSignal.timeout(12000)});
     if(!r.ok){
       console.warn('[limits] HTTP',r.status);
