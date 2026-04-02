@@ -125,6 +125,11 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
 .ch{font-size:12px;font-weight:600;color:var(--tx4);padding:10px 8px 5px;letter-spacing:.04em;text-transform:uppercase}
 .mr2{display:flex;align-items:center;gap:12px;padding:11px 10px;border-radius:14px;cursor:pointer;margin-bottom:1px}
 .mr2:active{background:var(--s1)}.mr2.sl{background:rgba(255,107,53,.08)}
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 2px 6px}
+.mgbtn{padding:13px 10px;border-radius:14px;background:var(--s1);color:var(--tx);font-size:13px;font-weight:500;text-align:center;cursor:pointer;transition:background .15s,color .15s;border:1.5px solid transparent;line-height:1.3;word-break:break-word}
+.mgbtn:active{opacity:.75}
+.mgbtn.mgactive{background:rgba(48,209,88,.18);color:#30d158;border-color:rgba(48,209,88,.4);font-weight:700}
+.mgbtn.mglocked{opacity:.45;cursor:default}
 .mico{font-size:20px;width:28px;text-align:center}.min{flex:1;min-width:0}
 .mn{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mtg{display:flex;gap:5px;margin-top:2px}
@@ -517,35 +522,91 @@ function renderMods(q=''){
   const ml=document.getElementById('ml');ml.innerHTML='';
   const ql=q.toLowerCase();
   const hasSub=S.lim.has_sub;
-  CATS.forEach(cat=>{
-    const ks=cat.k.filter(k=>{const m=MO[k];return m&&(!ql||m.l.toLowerCase().includes(ql));});
-    if(!ks.length)return;
-    if(!ql){const h=document.createElement('div');h.className='ch';h.textContent=cat.h;ml.appendChild(h);}
-    ks.forEach(k=>{
+
+  // Если поиск — показываем плоский список
+  if(ql){
+    Object.keys(MO).forEach(k=>{
       const m=MO[k];
+      if(!m.l.toLowerCase().includes(ql))return;
       const isActive=(k===S.mdl);
       const isLocked=m.pr&&!hasSub;
-      const em=m.l.split(' ')[0];
-      const nm=m.l.slice(em.length+1);
-      const d=document.createElement('div');
-      d.className='mr2'+(isActive?' sl':'');
-      if(isLocked)d.style.opacity='0.55';
-      const lockBadge=isLocked?'<span class="mb p">🔒 Pro</span>':'';
-      const proBadge=(!isLocked&&m.pr)?'<span class="mb p">⭐ Pro</span>':'';
-      const activeMark=isActive?`<span class="mck" style="color:#30d158">✅</span>`:'';
-      const nameStyle=isActive?'color:#30d158;font-weight:600':'';
-      const icoStyle=isActive?'color:#30d158':'';
-      d.innerHTML=`<span class="mico" style="${icoStyle}">${em}</span>`+
-        `<div class="min"><div class="mn" style="${nameStyle}">${esc(nm)}</div>`+
-        `<div class="mtg">${m.v?'<span class="mb v">📸 Vision</span>':''}${lockBadge}${proBadge}</div></div>${activeMark}`;
-      d.onclick=()=>{
-        hap();
-        if(isLocked){toast('🔒 Нужна подписка для этой модели','er');return;}
-        pickM(k);
-      };
-      ml.appendChild(d);
+      _appendListItem(ml,k,m,isActive,isLocked);
     });
-  });
+    return;
+  }
+
+  // Группа 1: Авто
+  const hAuto=document.createElement('div');
+  hAuto.className='ch';hAuto.textContent='⚡ Авто';ml.appendChild(hAuto);
+  const gridAuto=document.createElement('div');
+  gridAuto.className='mgrid';ml.appendChild(gridAuto);
+  const isAutoActive=(S.mdl==='auto');
+  const btnAuto=document.createElement('div');
+  btnAuto.className='mgbtn'+(isAutoActive?' mgactive':'');
+  btnAuto.innerHTML=(isAutoActive?'✅ ':'⚡ ')+'Авто';
+  btnAuto.style.gridColumn='1/-1';
+  btnAuto.onclick=()=>{hap();pickM('auto');};
+  gridAuto.appendChild(btnAuto);
+
+  // Группа 2: Бесплатные
+  const freeKeys=Object.keys(MO).filter(k=>k!=='auto'&&!MO[k].pr);
+  if(freeKeys.length){
+    const hFree=document.createElement('div');
+    hFree.className='ch';hFree.textContent='🆓 Бесплатные';ml.appendChild(hFree);
+    const gridFree=document.createElement('div');
+    gridFree.className='mgrid';ml.appendChild(gridFree);
+    freeKeys.forEach(k=>{
+      const m=MO[k];
+      const isActive=(k===S.mdl);
+      const btn=document.createElement('div');
+      btn.className='mgbtn'+(isActive?' mgactive':'');
+      const shortName=m.l.replace(/^[^\s]+\s/,'');
+      btn.innerHTML=(isActive?'✅ ':'')+esc(shortName);
+      if(m.v)btn.title='📸 Vision';
+      btn.onclick=()=>{hap();pickM(k);};
+      gridFree.appendChild(btn);
+    });
+  }
+
+  // Группа 3: Платные
+  const paidKeys=Object.keys(MO).filter(k=>k!=='auto'&&MO[k].pr);
+  if(paidKeys.length){
+    const hPaid=document.createElement('div');
+    hPaid.className='ch';hPaid.innerHTML='🔥 Платные'+(hasSub?'':' <span style="font-size:10px;color:var(--tx4)">(нужна подписка)</span>');
+    ml.appendChild(hPaid);
+    const gridPaid=document.createElement('div');
+    gridPaid.className='mgrid';ml.appendChild(gridPaid);
+    paidKeys.forEach(k=>{
+      const m=MO[k];
+      const isActive=(k===S.mdl);
+      const isLocked=!hasSub;
+      const btn=document.createElement('div');
+      btn.className='mgbtn'+(isActive?' mgactive':''+(isLocked?' mglocked':''));
+      const shortName=m.l.replace(/^[^\s]+\s/,'');
+      if(isLocked){
+        btn.innerHTML='🔒 '+esc(shortName);
+        btn.onclick=()=>{hap();toast('🔥 Эта модель доступна только по подписке','er');};
+      } else {
+        btn.innerHTML=(isActive?'✅ ':'')+esc(shortName);
+        btn.onclick=()=>{hap();pickM(k);};
+      }
+      gridPaid.appendChild(btn);
+    });
+  }
+}
+
+function _appendListItem(ml,k,m,isActive,isLocked){
+  const d=document.createElement('div');
+  d.className='mr2'+(isActive?' sl':'');
+  if(isLocked)d.style.opacity='0.55';
+  const em=m.l.split(' ')[0];
+  const nm=m.l.slice(em.length+1);
+  const activeMark=isActive?'<span class="mck" style="color:#30d158">✅</span>':'';
+  const nameStyle=isActive?'color:#30d158;font-weight:600':'';
+  d.innerHTML=`<span class="mico">${isLocked?'🔒':em}</span>`+
+    `<div class="min"><div class="mn" style="${nameStyle}">${esc(nm)}</div></div>${activeMark}`;
+  d.onclick=()=>{hap();if(isLocked){toast('🔥 Эта модель доступна только по подписке','er');return;}pickM(k);};
+  ml.appendChild(d);
 }
 const fmod=v=>renderMods(v);
 function openMS(){hap();renderMods();document.getElementById('msi').value='';document.getElementById('ms').classList.add('o');document.getElementById('sho').classList.add('o');}
