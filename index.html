@@ -237,7 +237,9 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
   <div id="tb">
     <div class="tbl"><button class="ib" onclick="openSB()"><svg viewBox="0 0 20 14" fill="none" width="20" height="14"><rect width="20" height="2" rx="1" fill="currentColor"/><rect y="6" width="14" height="2" rx="1" fill="currentColor"/><rect y="12" width="20" height="2" rx="1" fill="currentColor"/></svg></button></div>
     <div class="tbc"><button class="mb2" onclick="openMS()"><span class="mbn" id="mname">⚡ Авто</span><span class="mbc">▾</span></button></div>
-    <div class="tbr"><button class="rqb" onclick="openProf()" id="rqbtn"><tg-emoji emoji-id="5870657884844462243" style="font-size:14px">💬</tg-emoji><span id="rqnum">—</span><span class="rqb-st" id="rqmax"></span></button></div>
+    <div class="tbr"><button class="ib" onclick="exportPDF()" title="Экспорт чата в PDF" aria-label="Экспорт">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+        </button><button class="rqb" onclick="openProf()" id="rqbtn"><tg-emoji emoji-id="5870657884844462243" style="font-size:14px">💬</tg-emoji><span id="rqnum">—</span><span class="rqb-st" id="rqmax"></span></button></div>
   </div>
   <div id="chat">
     <div id="msgs">
@@ -271,7 +273,13 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
 <div id="sb">
   <div class="sbh">
     <button class="sbbk" onclick="closeSB()">‹</button>
-    <div class="sbai"><div class="sbico">🤖</div><div><div class="sban" id="sban" data-name>ХУЗА AI</div><div class="sbap" id="sbap" data-sub>Free</div></div></div>
+    <div class="sbai"><div class="sbico">🤖</div>
+      <div style="padding:0 14px 10px;position:relative">
+        <input id="srch" type="text" placeholder="🔍 Поиск по чатам..."
+          style="width:100%;background:var(--s1);border:.5px solid var(--bo2);border-radius:14px;
+                 padding:8px 14px;color:var(--tx);font-family:var(--f);font-size:14px;outline:none;"
+          oninput="onSearchInput(this.value)"/>
+      </div><div><div class="sban" id="sban" data-name>ХУЗА AI</div><div class="sbap" id="sbap" data-sub>Free</div></div></div>
   </div>
   <div class="sbsep"></div>
   <div class="sbi" onclick="closeSB();openProf()"><span class="sii"><tg-emoji emoji-id="5769126056262898415">👛</tg-emoji></span><span class="sit">Подписка</span></div>
@@ -519,6 +527,8 @@ async function send(){
   updHist(txt);S.busy=0;document.getElementById('snd').disabled=!document.getElementById('inp').value.trim();sd();
   // FIX: принудительно обновляем лимиты после каждого запроса — счётчик сразу синхронизируется с ботом
   await loadLimits();
+  // Задача 10: генерируем динамические подсказки
+  if(full)fetchDynamicHints(full.slice(0,500));
 }
 async function readSSE(resp,cb){
   if(!resp.body){const d=await resp.json().catch(async()=>({text:await resp.text()}));const t=d.answer||d.text||d.content||d.choices?.[0]?.message?.content||'';if(t)cb(t);return;}
@@ -1184,6 +1194,101 @@ function cpRefLink(){
   const doneRef=()=>toast('🔗 Реф. ссылка скопирована!','ok');
   if(navigator.clipboard){navigator.clipboard.writeText(link).then(doneRef).catch(()=>fallbackCopy(link,doneRef));}else{fallbackCopy(link,doneRef);}
 }
+
+// ═══════════════════════════════════════════════════
+// ЗАДАЧА 8: Экспорт чата в PDF
+// ═══════════════════════════════════════════════════
+async function exportPDF(){
+  const uid=getTgUid();
+  if(!uid||!S.hist.length){toast('⚠️ Нет сообщений для экспорта','er');return;}
+  toast('📄 Создаём PDF...','ok');
+  try{
+    const r=await fetch(`${CFG.API}/api/export`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({uid,session_id:String(S.cur?.id||Date.now()),messages:S.hist,init_data:tg?.initData||''}),
+      signal:(()=>{const _a=new AbortController();setTimeout(()=>_a.abort(),30000);return _a.signal;})()
+    });
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const blob=await r.blob();
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;a.download=`chat_${uid}.pdf`;document.body.appendChild(a);a.click();
+    setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},1000);
+    toast('✅ PDF сохранён','ok');
+  }catch(e){toast('❌ Ошибка: '+e.message,'er');}
+}
+
+// ═══════════════════════════════════════════════════
+// ЗАДАЧА 9: Поиск по истории чатов с debounce
+// ═══════════════════════════════════════════════════
+let _srchTimer=null;
+function onSearchInput(val){
+  clearTimeout(_srchTimer);
+  if(!val.trim()){renderHist();return;}
+  _srchTimer=setTimeout(()=>doSearch(val.trim()),300);
+}
+async function doSearch(q){
+  const uid=getTgUid();
+  if(!uid||!CFG.API)return;
+  try{
+    const r=await fetch(`${CFG.API}/api/history/search?uid=${uid}&q=${encodeURIComponent(q)}&init_data=${encodeURIComponent(tg?.initData||'')}`);
+    const d=await r.json();
+    if(d.ok&&d.sessions){renderHistItems(d.sessions);}
+  }catch(e){}
+}
+function renderHistItems(items){
+  const el=document.getElementById('hlist');
+  if(!el)return;
+  if(!items.length){el.innerHTML='<div style="padding:20px;text-align:center;color:var(--tx4);font-size:13px">Ничего не найдено</div>';return;}
+  el.innerHTML=items.map(s=>`
+    <div class="si" onclick="loadSess('${s.id}')">
+      <div class="st">${s.t||'Чат'}</div>
+      ${s.preview?`<div style="font-size:12px;color:var(--tx4);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.preview}</div>`:''}
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════════════════
+// ЗАДАЧА 10: Динамические подсказки через API
+// ═══════════════════════════════════════════════════
+async function fetchDynamicHints(lastAnswer){
+  if(!CFG.API||!lastAnswer)return;
+  try{
+    const r=await fetch(`${CFG.API}/api/hints`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({answer:lastAnswer.slice(0,500)}),
+      signal:(()=>{const _a=new AbortController();setTimeout(()=>_a.abort(),8000);return _a.signal;})()
+    });
+    const d=await r.json();
+    if(d.ok&&d.hints&&d.hints.length){
+      renderDynamicHints(d.hints);
+    }
+  }catch(e){}
+}
+function renderDynamicHints(hints){
+  // Ищем существующий блок подсказок или создаём новый
+  let container=document.getElementById('dyn-hints');
+  if(!container){
+    container=document.createElement('div');
+    container.id='dyn-hints';
+    container.style.cssText='display:flex;flex-wrap:wrap;gap:6px;padding:4px 14px 6px;';
+    const msgs=document.getElementById('msgs');
+    if(msgs)msgs.parentNode.insertBefore(container,msgs.nextSibling);
+  }
+  container.innerHTML=hints.map(h=>
+    `<button class="wc" onclick="useHint(this.textContent)" style="font-size:12px;padding:6px 12px">${h}</button>`
+  ).join('');
+  container.style.display='flex';
+}
+function useHint(text){
+  const inp=document.getElementById('inp');
+  if(inp){inp.value=text;rsz(inp);inp.focus();}
+  // Скрываем подсказки
+  const c=document.getElementById('dyn-hints');
+  if(c)c.style.display='none';
+}
+
 </script>
 </body>
 </html>
