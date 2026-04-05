@@ -259,6 +259,9 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
         <button class="sb" id="snd" onclick="send()" disabled>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
         </button>
+        <button class="sb stop-btn" id="stopbtn" onclick="stopGen()" style="display:none;background:var(--re,#e74c3c)">
+          <svg viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="5" width="14" height="14" rx="2"/></svg>
+        </button>
       </div>
     </div>
   </div>
@@ -412,12 +415,26 @@ function addMsgActions(el,text){
   act.innerHTML=`<button class="mact" onclick="cpMsg(this,${idx})">📋 Копировать</button><button class="mact" onclick="openShareIdx(${idx})">📤 Поделиться</button>`;
   el.classList.add('show-act');
 }
+// ════════ ГЛОБАЛЬНЫЙ AbortController для остановки генерации ════════
+let _abortCtrl = null;
+
+function stopGen(){
+  if(_abortCtrl){_abortCtrl.abort();_abortCtrl=null;}
+  document.getElementById('stopbtn').style.display='none';
+  document.getElementById('snd').style.display='';
+}
+
 // ════════ SEND — 3 стратегии ════════
 async function send(){
   const inp=document.getElementById('inp');const txt=inp.value.trim();
   if(!txt||S.busy)return;
   // FIX: пользователь гарантированно получен в DOMContentLoaded; здесь просто читаем
-  inp.value='';rsz(inp);document.getElementById('snd').disabled=true;S.busy=1;S.mc++;
+  inp.value='';rsz(inp);document.getElementById('snd').disabled=true;
+  // Показываем кнопку Стоп
+  _abortCtrl=new AbortController();
+  document.getElementById('snd').style.display='none';
+  document.getElementById('stopbtn').style.display='';
+  S.busy=1;S.mc++;
   const imgData=S.pi;S.pi=null;document.getElementById('pprev').classList.remove('s');
   updAttBtn();
   addU(txt,imgData);
@@ -427,9 +444,11 @@ async function send(){
   let _typBuf='';let _typQ=[];let _typRaf=null;
   const _sonar=S.mdl==='sonar';
   const _stripCit=s=>s.replace(/\s*\[\d+(?:[,\s]+\d+)*\]/g,'').replace(/\[\[?\d+\]?\]/g,'');
+  // ── АДАПТИВНАЯ скорость печатания: быстрее для длинных очередей ──
   const _doTyp=()=>{
     if(!_typQ.length){_typRaf=null;return;}
-    const n=Math.min(Math.max(4,Math.ceil(_typQ.length/8)),30);
+    const qlen=_typQ.length;
+    const n=qlen>200?50:qlen>50?20:qlen>10?8:3;
     _typBuf+=_typQ.splice(0,n).join('');
     const rendered=_sonar?_stripCit(_typBuf):_typBuf;
     ac.innerHTML=rmd(rendered)+'<span class="cur"></span>';rk(ac);sd();
@@ -440,6 +459,7 @@ async function send(){
     full+=chunk;_typQ.push(...chunk.split(''));
     if(!_typRaf)_typRaf=requestAnimationFrame(_doTyp);
   };
+  const _sig=()=>_abortCtrl?_abortCtrl.signal:(new AbortController()).signal;
   let ok=false;
   // ─ СТРАТЕГИЯ 1: Backend ─
   if(!ok){
@@ -447,21 +467,21 @@ async function send(){
       const initD=tg?.initData||'';const uid=getTgUid();
       const body={model:S.mdl,messages:S.hist.slice(-20),stream:true,init_data:initD,uid:uid};
       if(imgData)body.images=[imgData];
-      const r=await fetch(`${CFG.API}/api/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:(()=>{const _a=new AbortController();setTimeout(()=>_a.abort(),90000);return _a.signal;})()});
+      const r=await fetch(`${CFG.API}/api/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:_sig()});
       if(r.status===405||r.status===403||r.status===404){dbg(`Backend ${r.status} → пробую SQ Direct`);}
       else if(!r.ok){const t=await r.text().catch(()=>'');throw new Error(`Backend HTTP ${r.status}: ${t.slice(0,100)}`);}
       else{await readSSE(r,onChunk);ok=true;}
-    }catch(e){if(!ok)dbg('Backend fail: '+e.message);}
+    }catch(e){if(e.name==='AbortError'){ok=true;/* частичный ответ уже есть */}else if(!ok)dbg('Backend fail: '+e.message);}
   }
   // ─ СТРАТЕГИЯ 2: OnlySQ напрямую ─
   if(!ok&&CFG.SQ_KEY){
     try{
       dbg('Пробую OnlySQ Direct...');
       const model=MO[S.mdl];
-      const r=await fetch(CFG.SQ_URL,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${CFG.SQ_KEY}`},body:JSON.stringify({model:model.n,messages:[{role:'system',content:'Ты — ИИ-ассистент ХУЗА. Отвечай на языке пользователя. Используй LaTeX: $формула$. Код в ```lang блоках.'},...S.hist.slice(-20)],stream:true,max_tokens:4096}),signal:(()=>{const _a=new AbortController();setTimeout(()=>_a.abort(),90000);return _a.signal;})()});
+      const r=await fetch(CFG.SQ_URL,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${CFG.SQ_KEY}`},body:JSON.stringify({model:model.n,messages:[{role:'system',content:'Ты — ИИ-ассистент ХУЗА. Отвечай на языке пользователя. Используй LaTeX: $формула$. Код в ```lang блоках.'},...S.hist.slice(-20)],stream:true,max_tokens:4096}),signal:_sig()});
       if(!r.ok){const t=await r.text().catch(()=>'');throw new Error(`SQ HTTP ${r.status}: ${t.slice(0,150)}`);}
       await readSSE(r,onChunk);ok=true;dbg('');
-    }catch(e){dbg('SQ Direct fail: '+e.message);}
+    }catch(e){if(e.name==='AbortError'){ok=true;}else dbg('SQ Direct fail: '+e.message);}
   }
   // ─ СТРАТЕГИЯ 3: Backend без стрима ─
   if(!ok){
@@ -469,11 +489,11 @@ async function send(){
       dbg('Пробую backend no-stream...');
       const body={model:S.mdl,messages:S.hist.slice(-20),stream:false,init_data:tg?.initData||'',uid:getTgUid()};
       if(imgData)body.images=[imgData];
-      const r=await fetch(`${CFG.API}/api/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:(()=>{const _a=new AbortController();setTimeout(()=>_a.abort(),90000);return _a.signal;})()});
+      const r=await fetch(`${CFG.API}/api/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:_sig()});
       if(!r.ok)throw new Error(`HTTP ${r.status}`);
       const d=await r.json();const t=d.answer||d.text||d.content||d.choices?.[0]?.message?.content||'';
       if(t){onChunk(t);ok=true;dbg('');}
-    }catch(e){dbg('Backend no-stream fail: '+e.message);}
+    }catch(e){if(e.name==='AbortError'){ok=true;}else dbg('Backend no-stream fail: '+e.message);}
   }
   // Ждём очередь печатания
   await new Promise(res=>{const w=()=>{if(_typQ.length===0&&!_typRaf){res();}else{setTimeout(w,30);}};w();});
@@ -486,6 +506,10 @@ async function send(){
     </div>`;
   }
   ac.querySelectorAll('.cur').forEach(c=>c.remove());
+  // Скрываем Стоп, показываем кнопку отправки
+  _abortCtrl=null;
+  document.getElementById('stopbtn').style.display='none';
+  document.getElementById('snd').style.display='';
   if(full){
     const finalText=_sonar?_stripCit(full):full;
     ac.innerHTML=rmd(finalText);rk(ac);
@@ -507,12 +531,57 @@ async function readSSE(resp,cb){
 let _dbt;function dbg(msg){const el=document.getElementById('dbg');if(!msg){el.classList.remove('s');el.textContent='';return;}el.textContent=msg;el.classList.add('s');clearTimeout(_dbt);if(msg)_dbt=setTimeout(()=>{el.classList.remove('s');},5000);}
 function onK(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}}
 function rsz(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,130)+'px';document.getElementById('snd').disabled=!el.value.trim();}
-function updHist(msg){const t=msg.slice(0,22)+(msg.length>22?'...':'');if(!S.cur){S.cur={id:Date.now(),t};S.sess.unshift(S.cur);}saveHistory();renderHist();}
-function saveHistory(){try{const slim=S.sess.slice(0,50).map(s=>({id:s.id,t:s.t}));localStorage.setItem('huza_sess',JSON.stringify(slim));if(S.cur&&S.hist.length){const safeHist=S.hist.filter(m=>typeof m.content==='string').slice(-40);localStorage.setItem('huza_h_'+S.cur.id,JSON.stringify(safeHist));}}catch(e){}}
-function loadHistory(){try{const raw=localStorage.getItem('huza_sess');if(raw){S.sess=JSON.parse(raw)||[];renderHist();}}catch(e){}}
+function updHist(msg){const t=msg.slice(0,22)+(msg.length>22?'...':'');if(!S.cur){S.cur={id:Date.now()+'_'+Math.random().toString(36).slice(2),t};S.sess.unshift(S.cur);}saveHistory();renderHist();}
+// ── История чатов: сохраняем и на сервере, и в localStorage как fallback ──
+function saveHistory(){
+  try{
+    const slim=S.sess.slice(0,50).map(s=>({id:s.id,t:s.t}));
+    localStorage.setItem('huza_sess',JSON.stringify(slim));
+    if(S.cur&&S.hist.length){
+      const safeHist=S.hist.filter(m=>typeof m.content==='string').slice(-40);
+      localStorage.setItem('huza_h_'+S.cur.id,JSON.stringify(safeHist));
+      // Асинхронно сохраняем на сервере (без блокировки)
+      const uid=getTgUid();
+      if(uid&&CFG.API){
+        fetch(`${CFG.API}/api/history`,{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({uid,session_id:String(S.cur.id),messages:safeHist,init_data:tg?.initData||''}),
+          signal:(()=>{const _a=new AbortController();setTimeout(()=>_a.abort(),10000);return _a.signal;})()
+        }).catch(()=>{});
+      }
+    }
+  }catch(e){}
+}
+function loadHistory(){
+  // Сначала грузим из localStorage (быстро), потом обновляем с сервера
+  try{const raw=localStorage.getItem('huza_sess');if(raw){S.sess=JSON.parse(raw)||[];renderHist();}}catch(e){}
+  // Фоновая синхронизация с сервером
+  const uid=getTgUid();
+  if(uid&&CFG.API){
+    fetch(`${CFG.API}/api/history?uid=${uid}&init_data=${encodeURIComponent(tg?.initData||'')}`)
+      .then(r=>r.json())
+      .then(d=>{
+        if(d.ok&&d.sessions&&d.sessions.length){
+          // Объединяем: серверные сессии приоритетнее
+          const serverIds=new Set(d.sessions.map(s=>String(s.id)));
+          const localOnly=S.sess.filter(s=>!serverIds.has(String(s.id)));
+          S.sess=[...d.sessions.map(s=>({id:s.id,t:s.t||'Чат'})),...localOnly].slice(0,50);
+          // Кешируем сообщения из сессий в localStorage
+          d.sessions.forEach(s=>{
+            if(s.messages&&s.messages.length){
+              try{localStorage.setItem('huza_h_'+s.id,JSON.stringify(s.messages));}catch(e){}
+            }
+          });
+          renderHist();
+        }
+      })
+      .catch(()=>{});
+  }
+}
 function loadSession(id,t){hap();const raw=localStorage.getItem('huza_h_'+id);S.cur={id,t};if(raw){try{S.hist=JSON.parse(raw)||[];}catch(e){S.hist=[];}renderStoredMsgs();}else{S.hist=[];}closeSB();}
 function renderStoredMsgs(){const m=document.getElementById('msgs');m.innerHTML='';document.getElementById('wlc')?.classList.add('g');S.hist.forEach(msg=>{if(msg.role==='user'&&typeof msg.content==='string'){addU(msg.content,null);}else if(msg.role==='assistant'&&typeof msg.content==='string'){const{td,ac,el}=addA();td.style.display='none';ac.style.display='block';ac.innerHTML=rmd(msg.content);rk(ac);addMsgActions(el,msg.content);}});sd();}
-function renderHist(){const h=document.getElementById('hist');h.innerHTML='';if(!S.sess.length){const e=document.createElement('div');e.style.cssText='padding:12px 18px;font-size:13px;color:var(--tx4)';e.textContent='Нет сохранённых чатов';h.appendChild(e);return;}S.sess.slice(0,30).forEach(s=>{const d=document.createElement('div');d.className='sbi';d.style.cssText='cursor:pointer';const isCur=S.cur&&S.cur.id===s.id;d.innerHTML=`<span class="sii" style="font-size:13px">${isCur?'▶':'💬'}</span><span class="sit" style="font-size:14px;color:${isCur?'var(--acc)':'inherit'}">${esc(s.t)}</span><button class="sdl" onclick="dSess(${s.id},event)">🗑</button>`;d.onclick=(e)=>{if(e.target.classList.contains('sdl'))return;loadSession(s.id,s.t);};h.appendChild(d);});}
+function renderHist(){const h=document.getElementById('hist');h.innerHTML='';if(!S.sess.length){const e=document.createElement('div');e.style.cssText='padding:12px 18px;font-size:13px;color:var(--tx4)';e.textContent='Нет сохранённых чатов';h.appendChild(e);return;}S.sess.slice(0,30).forEach(s=>{const d=document.createElement('div');d.className='sbi';d.style.cssText='cursor:pointer';const isCur=S.cur&&S.cur.id===s.id;d.innerHTML=`<span class="sii" style="font-size:13px">${isCur?'▶':'💬'}</span><span class="sit" style="font-size:14px;color:${isCur?'var(--acc)':'inherit'}">${esc(s.t)}</span><button class="sdl" onclick="dSess(${JSON.stringify(s.id)},event)">🗑</button>`;d.onclick=(e)=>{if(e.target.classList.contains('sdl'))return;loadSession(s.id,s.t);};h.appendChild(d);});}
 function dSess(id,e){e.stopPropagation();S.sess=S.sess.filter(s=>s.id!==id);try{localStorage.removeItem('huza_h_'+id);}catch(ex){}if(S.cur&&S.cur.id===id){S.cur=null;S.hist=[];}saveHistory();renderHist();}
 function newChat(){S.hist=[];S.cur=null;_msgStore.length=0;document.getElementById('msgs').innerHTML='<div id="wlc"><div class="wi">🤖</div><div class="wt">ХУЗА AI</div><div class="ws">Умный ИИ-помощник. Задай вопрос или выбери пример.</div><div class="wch" id="wch"></div></div>';renderSuggest();closeSB();}
 // ════════ SIDEBAR/SHEETS ════════
@@ -932,6 +1001,15 @@ async function gImg(){
   if(!p){toast('⚠️ Введи описание','er');return;}
   ld('gibtn',1);const pr=pg('gipw','gipf');
   document.getElementById('gires')?.classList.remove('s');
+
+  // ── Фазы прогресса изображения ──
+  const phases=['🎨 Улучшаю промпт...','⚡️ Генерирую...','🖼 Обрабатываю...'];
+  let _phIdx=0,_phDone=false;
+  const _phBtn=document.getElementById('gibtn');
+  const _phOrig=_phBtn?_phBtn.querySelector('.bl')?.textContent:'✨ Генерировать';
+  const _phTick=()=>{if(_phDone)return;if(_phBtn){const bl=_phBtn.querySelector('.bl');if(bl)bl.textContent=phases[_phIdx%phases.length];}_phIdx++;setTimeout(_phTick,4000);};
+  _phTick();
+
   try{
     const m=document.getElementById('gim')?.value||'flux';
     const ratio=document.getElementById('giratio')?.value||'1:1';
@@ -956,6 +1034,9 @@ async function gImg(){
     document.getElementById('gires')?.classList.add('s');
     loadLimits();toast('✅ Картинка готова!','ok');
   }catch(e){toast('❌ Ошибка: '+(e.message||'попробуй снова'),'er');}
+  // Сбрасываем фазы прогресса
+  _phDone=true;
+  if(_phBtn){const bl=_phBtn.querySelector('.bl');if(bl)bl.textContent=_phOrig||'✨ Генерировать';}
   pr.done();ld('gibtn',0);
 }
 const dlI=()=>{const i=document.getElementById('giimg');if(!i?.src)return;Object.assign(document.createElement('a'),{href:i.src,download:`img_${Date.now()}.jpg`}).click();};
