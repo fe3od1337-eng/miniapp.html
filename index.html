@@ -663,25 +663,13 @@ function renderHist(){
 function dSess(id,e){
   e.stopPropagation();
   hap('medium');
-  // Двойное нажатие для подтверждения
-  const btn=e.target.closest('.si-chat-del');
-  if(!btn)return;
-  if(btn._confirmPending){
-    clearTimeout(btn._confirmTimer);
-    S.sess=S.sess.filter(s=>s.id!==id);
-    try{localStorage.removeItem('huza_h_'+id);}catch(ex){}
-    if(S.cur&&S.cur.id===id){S.cur=null;S.hist=[];}
-    // Удаляем с сервера
-    const uid=getTgUid();
-    if(uid&&CFG.API){fetch(`${CFG.API}/api/history/delete`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({uid,session_id:String(id),init_data:tg?.initData||''})}).catch(()=>{});}
-    saveHistory();renderHist();
-    toast('🗑 Чат удалён','ok');
-  } else {
-    btn._confirmPending=true;
-    btn.style.color='var(--re)';
-    btn._confirmTimer=setTimeout(()=>{btn._confirmPending=false;btn.style.color='';},2500);
-    toast('Нажми ещё раз для удаления','');
-  }
+  S.sess=S.sess.filter(s=>s.id!==id);
+  try{localStorage.removeItem('huza_h_'+id);}catch(ex){}
+  if(S.cur&&S.cur.id===id){S.cur=null;S.hist=[];}
+  const uid=getTgUid();
+  if(uid&&CFG.API){fetch(`${CFG.API}/api/history/delete`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({uid,session_id:String(id),init_data:tg?.initData||''})}).catch(()=>{});}
+  saveHistory();renderHist();
+  toast('🗑 Чат удалён','ok');
 }
 function newChat(){S.hist=[];S.cur=null;_msgStore.length=0;document.getElementById('msgs').innerHTML='<div id="wlc"><div class="wi">🤖</div><div class="wt">ХУЗА AI</div><div class="ws">Умный ИИ-помощник. Задай вопрос или выбери пример.</div><div class="wch" id="wch"></div></div>';renderSuggest();closeSB();}
 // ════════ SIDEBAR/SHEETS ════════
