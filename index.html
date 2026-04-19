@@ -104,7 +104,18 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
 .sbsep{height:.5px;background:var(--bo);margin:2px 0}
 .sbi{display:flex;align-items:center;gap:14px;padding:13px 18px;cursor:pointer;color:var(--tx);font-size:16px}
 .sbi:active{background:var(--s1)}.sii{width:22px;text-align:center;font-size:17px;color:var(--tx2)}.sit{flex:1}
-.sdl{width:28px;height:28px;border-radius:8px;background:none;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--tx4);font-size:13px}
+.si-chat{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;border-radius:12px;margin:1px 8px;transition:background .15s}
+.si-chat:active,.si-chat:hover{background:var(--s1)}
+.si-chat-active{background:rgba(255,107,53,.1)!important}
+.si-chat-active .si-chat-title{color:var(--acc);font-weight:600}
+.si-chat-ico{font-size:16px;flex-shrink:0;opacity:.6;width:22px;text-align:center}
+.si-chat-active .si-chat-ico{opacity:1}
+.si-chat-body{flex:1;min-width:0}
+.si-chat-title{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
+.si-chat-preview{font-size:11px;color:var(--tx4);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;line-height:1.3}
+.si-chat-del{width:30px;height:30px;border-radius:8px;background:none;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--tx4);font-size:14px;flex-shrink:0;transition:color .2s,background .2s}
+.si-chat-del:active{background:rgba(255,69,58,.15);color:var(--re)}
+
 .sbsl{font-size:13px;color:var(--tx4);padding:14px 18px 5px}
 .sbft{margin-top:auto;padding:10px 18px;padding-bottom:calc(10px + var(--sb))}
 .sbcl{width:100%;padding:14px;border-radius:14px;background:var(--s1);border:none;cursor:pointer;color:var(--tx);font-size:16px;font-weight:500;font-family:var(--f)}
@@ -373,7 +384,7 @@ const IEX=['🏙 Неоновый Токио, киберпанк','🌲 Лесн
 const MEX=['Вдохновляющий гимн, оркестр','Меланхоличная ночь, пианино lo-fi','Рэп о мечтах, trap'];
 const MSTY=['Поп','Электронная','Lo-fi','Рок','Хип-хоп','Трэп','Джаз','Классика'];
 // ════════ STATE ════════
-const S={mdl:'auto',hist:[],sess:[],cur:null,busy:0,mc:0,ic:0,tgu:null,pi:null,mum:'suno',vum:'wan',lim:{pro_used:0,pro_max:0,img_used:0,img_max:0,music_used:0,music_max:0,video_used:0,video_max:0,has_sub:false,sub_plan:'',sub_expires:'',level:0,level_max:50,referrals:0,join_date:'',model:'',mode:'',total_requests:0,total_gens:0,total_generations:0,reset_in:'',name:'',username:''}};
+const S={mdl:'auto',hist:[],sess:[],cur:null,busy:0,mc:0,ic:0,tgu:null,pi:null,mum:'suno',vum:'wan',availModels:null,lim:{pro_used:0,pro_max:0,img_used:0,img_max:0,music_used:0,music_max:0,video_used:0,video_max:0,has_sub:false,sub_plan:'',sub_expires:'',level:0,level_max:50,referrals:0,join_date:'',model:'',mode:'',total_requests:0,total_gens:0,total_generations:0,reset_in:'',name:'',username:''}};
 // Глобальное хранилище текстов сообщений (безопасное — без inline JS)
 const _msgStore=[];
 // ════════ TG ════════
@@ -541,11 +552,22 @@ async function readSSE(resp,cb){
 let _dbt;function dbg(msg){const el=document.getElementById('dbg');if(!msg){el.classList.remove('s');el.textContent='';return;}el.textContent=msg;el.classList.add('s');clearTimeout(_dbt);if(msg)_dbt=setTimeout(()=>{el.classList.remove('s');},5000);}
 function onK(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}}
 function rsz(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,130)+'px';document.getElementById('snd').disabled=!el.value.trim();}
-function updHist(msg){const t=msg.slice(0,22)+(msg.length>22?'...':'');if(!S.cur){S.cur={id:Date.now()+'_'+Math.random().toString(36).slice(2),t};S.sess.unshift(S.cur);}saveHistory();renderHist();}
+function updHist(msg){
+  const t=msg.slice(0,40)+(msg.length>40?'...':'');
+  if(!S.cur){
+    S.cur={id:Date.now()+'_'+Math.random().toString(36).slice(2),t,preview:msg.slice(0,80)};
+    S.sess.unshift(S.cur);
+  } else if(!S.cur.t||S.cur.t==='Чат'){
+    S.cur.t=t;S.cur.preview=msg.slice(0,80);
+    const idx=S.sess.findIndex(s=>s.id===S.cur.id);
+    if(idx!==-1){S.sess[idx].t=t;S.sess[idx].preview=S.cur.preview;}
+  }
+  saveHistory();renderHist();
+}
 // ── История чатов: сохраняем и на сервере, и в localStorage как fallback ──
 function saveHistory(){
   try{
-    const slim=S.sess.slice(0,50).map(s=>({id:s.id,t:s.t}));
+    const slim=S.sess.slice(0,50).map(s=>({id:s.id,t:s.t,preview:s.preview||''}));
     localStorage.setItem('huza_sess',JSON.stringify(slim));
     if(S.cur&&S.hist.length){
       const safeHist=S.hist.filter(m=>typeof m.content==='string').slice(-40);
@@ -576,7 +598,7 @@ function loadHistory(){
           // Объединяем: серверные сессии приоритетнее
           const serverIds=new Set(d.sessions.map(s=>String(s.id)));
           const localOnly=S.sess.filter(s=>!serverIds.has(String(s.id)));
-          S.sess=[...d.sessions.map(s=>({id:s.id,t:s.t||'Чат'})),...localOnly].slice(0,50);
+          S.sess=[...d.sessions.map(s=>({id:s.id,t:s.t||'Чат',preview:s.preview||s.first_message||''})),...localOnly].slice(0,50);
           // Кешируем сообщения из сессий в localStorage
           d.sessions.forEach(s=>{
             if(s.messages&&s.messages.length){
@@ -591,8 +613,56 @@ function loadHistory(){
 }
 function loadSession(id,t){hap();const raw=localStorage.getItem('huza_h_'+id);S.cur={id,t};if(raw){try{S.hist=JSON.parse(raw)||[];}catch(e){S.hist=[];}renderStoredMsgs();}else{S.hist=[];}closeSB();}
 function renderStoredMsgs(){const m=document.getElementById('msgs');m.innerHTML='';document.getElementById('wlc')?.classList.add('g');S.hist.forEach(msg=>{if(msg.role==='user'&&typeof msg.content==='string'){addU(msg.content,null);}else if(msg.role==='assistant'&&typeof msg.content==='string'){const{td,ac,el}=addA();td.style.display='none';ac.style.display='block';ac.innerHTML=rmd(msg.content);rk(ac);addMsgActions(el,msg.content);}});sd();}
-function renderHist(){const h=document.getElementById('hist');h.innerHTML='';if(!S.sess.length){const e=document.createElement('div');e.style.cssText='padding:12px 18px;font-size:13px;color:var(--tx4)';e.textContent='Нет сохранённых чатов';h.appendChild(e);return;}S.sess.slice(0,30).forEach(s=>{const d=document.createElement('div');d.className='sbi';d.style.cssText='cursor:pointer';const isCur=S.cur&&S.cur.id===s.id;d.innerHTML=`<span class="sii" style="font-size:13px">${isCur?'▶':'💬'}</span><span class="sit" style="font-size:14px;color:${isCur?'var(--acc)':'inherit'}">${esc(s.t)}</span><button class="sdl" onclick="dSess(${JSON.stringify(s.id)},event)">🗑</button>`;d.onclick=(e)=>{if(e.target.classList.contains('sdl'))return;loadSession(s.id,s.t);};h.appendChild(d);});}
-function dSess(id,e){e.stopPropagation();S.sess=S.sess.filter(s=>s.id!==id);try{localStorage.removeItem('huza_h_'+id);}catch(ex){}if(S.cur&&S.cur.id===id){S.cur=null;S.hist=[];}saveHistory();renderHist();}
+function renderHist(){
+  const h=document.getElementById('hist');
+  h.innerHTML='';
+  if(!S.sess.length){
+    const e=document.createElement('div');
+    e.style.cssText='padding:20px 18px;font-size:13px;color:var(--tx4);text-align:center';
+    e.innerHTML='<div style="font-size:28px;margin-bottom:8px">💬</div>Нет сохранённых чатов';
+    h.appendChild(e);return;
+  }
+  S.sess.slice(0,30).forEach(s=>{
+    const d=document.createElement('div');
+    d.className='si-chat'+(S.cur&&S.cur.id===s.id?' si-chat-active':'');
+    const title=s.t||'Чат';
+    const preview=s.preview||'';
+    d.innerHTML=`
+      <div class="si-chat-ico"><tg-emoji emoji-id="5870657884844462243">💬</tg-emoji></div>
+      <div class="si-chat-body">
+        <div class="si-chat-title">${esc(title)}</div>
+        ${preview?`<div class="si-chat-preview">${esc(preview)}</div>`:''}
+      </div>
+      <button class="si-chat-del" onclick="dSess(${JSON.stringify(s.id)},event)" title="Удалить чат">
+        <tg-emoji emoji-id="5870875489362513438">🗑</tg-emoji>
+      </button>`;
+    d.onclick=(e)=>{if(e.target.closest('.si-chat-del'))return;loadSession(s.id,s.t);};
+    h.appendChild(d);
+  });
+}
+function dSess(id,e){
+  e.stopPropagation();
+  hap('medium');
+  // Двойное нажатие для подтверждения
+  const btn=e.target.closest('.si-chat-del');
+  if(!btn)return;
+  if(btn._confirmPending){
+    clearTimeout(btn._confirmTimer);
+    S.sess=S.sess.filter(s=>s.id!==id);
+    try{localStorage.removeItem('huza_h_'+id);}catch(ex){}
+    if(S.cur&&S.cur.id===id){S.cur=null;S.hist=[];}
+    // Удаляем с сервера
+    const uid=getTgUid();
+    if(uid&&CFG.API){fetch(`${CFG.API}/api/history/delete`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({uid,session_id:String(id),init_data:tg?.initData||''})}).catch(()=>{});}
+    saveHistory();renderHist();
+    toast('🗑 Чат удалён','ok');
+  } else {
+    btn._confirmPending=true;
+    btn.style.color='var(--re)';
+    btn._confirmTimer=setTimeout(()=>{btn._confirmPending=false;btn.style.color='';},2500);
+    toast('Нажми ещё раз для удаления','');
+  }
+}
 function newChat(){S.hist=[];S.cur=null;_msgStore.length=0;document.getElementById('msgs').innerHTML='<div id="wlc"><div class="wi">🤖</div><div class="wt">ХУЗА AI</div><div class="ws">Умный ИИ-помощник. Задай вопрос или выбери пример.</div><div class="wch" id="wch"></div></div>';renderSuggest();closeSB();}
 // ════════ SIDEBAR/SHEETS ════════
 const openSB=()=>{hap();document.getElementById('sb').classList.add('o');document.getElementById('sbo').classList.add('o');};
@@ -601,6 +671,8 @@ function renderMods(q=''){
   const ml=document.getElementById('ml');ml.innerHTML='';
   const ql=q.toLowerCase();
   const hasSub=S.lim.has_sub;
+  // isModelAvail: если S.availModels не загружены — показываем все; если загружены — только те что есть в списке
+  const isModelAvail=k=>!S.availModels||S.availModels.has(k)||S.availModels.has(MO[k]?.n)||k==='auto';
 
   // Если поиск — показываем плоский список
   if(ql){
@@ -609,7 +681,8 @@ function renderMods(q=''){
       if(!m.l.toLowerCase().includes(ql))return;
       const isActive=(k===S.mdl);
       const isLocked=m.pr&&!hasSub;
-      _appendListItem(ml,k,m,isActive,isLocked);
+      const isDisabled=!isModelAvail(k);
+      _appendListItem(ml,k,m,isActive,isLocked,isDisabled);
     });
     return;
   }
@@ -637,12 +710,19 @@ function renderMods(q=''){
     freeKeys.forEach(k=>{
       const m=MO[k];
       const isActive=(k===S.mdl);
+      const isDisabled=!isModelAvail(k);
       const btn=document.createElement('div');
-      btn.className='mgbtn'+(isActive?' mgactive':'');
+      btn.className='mgbtn'+(isActive?' mgactive':''+(isDisabled?' mglocked':''));
       const shortName=m.l.replace(/^[^\s]+\s/,'');
-      btn.innerHTML=(isActive?'✅ ':'')+esc(shortName);
-      if(m.v)btn.title='📸 Vision';
-      btn.onclick=()=>{hap();pickM(k);};
+      if(isDisabled){
+        btn.innerHTML='🚫 '+esc(shortName);
+        btn.title='Модель временно отключена';
+        btn.onclick=()=>{hap();toast('🚫 Модель временно недоступна','er');};
+      } else {
+        btn.innerHTML=(isActive?'✅ ':'')+esc(shortName);
+        if(m.v)btn.title='📸 Vision';
+        btn.onclick=()=>{hap();pickM(k);};
+      }
       gridFree.appendChild(btn);
     });
   }
@@ -659,10 +739,15 @@ function renderMods(q=''){
       const m=MO[k];
       const isActive=(k===S.mdl);
       const isLocked=!hasSub;
+      const isDisabled=!isModelAvail(k);
       const btn=document.createElement('div');
-      btn.className='mgbtn'+(isActive?' mgactive':''+(isLocked?' mglocked':''));
+      btn.className='mgbtn'+(isActive?' mgactive':''+(isLocked||isDisabled?' mglocked':''));
       const shortName=m.l.replace(/^[^\s]+\s/,'');
-      if(isLocked){
+      if(isDisabled){
+        btn.innerHTML='🚫 '+esc(shortName);
+        btn.title='Модель временно отключена';
+        btn.onclick=()=>{hap();toast('🚫 Модель временно недоступна','er');};
+      } else if(isLocked){
         btn.innerHTML='🔒 '+esc(shortName);
         btn.onclick=()=>{hap();toast('🔥 Эта модель доступна только по подписке','er');};
       } else {
@@ -674,21 +759,54 @@ function renderMods(q=''){
   }
 }
 
-function _appendListItem(ml,k,m,isActive,isLocked){
+function _appendListItem(ml,k,m,isActive,isLocked,isDisabled){
   const d=document.createElement('div');
   d.className='mr2'+(isActive?' sl':'');
-  if(isLocked)d.style.opacity='0.55';
+  if(isLocked||isDisabled)d.style.opacity='0.55';
   const em=m.l.split(' ')[0];
   const nm=m.l.slice(em.length+1);
   const activeMark=isActive?'<span class="mck" style="color:#30d158">✅</span>':'';
   const nameStyle=isActive?'color:#30d158;font-weight:600':'';
-  d.innerHTML=`<span class="mico">${isLocked?'🔒':em}</span>`+
-    `<div class="min"><div class="mn" style="${nameStyle}">${esc(nm)}</div></div>${activeMark}`;
-  d.onclick=()=>{hap();if(isLocked){toast('🔥 Эта модель доступна только по подписке','er');return;}pickM(k);};
+  const ico=isDisabled?'🚫':isLocked?'🔒':em;
+  const badge=isDisabled?'<span style="font-size:10px;color:var(--re);margin-left:4px">отключена</span>':'';
+  d.innerHTML=`<span class="mico">${ico}</span>`+
+    `<div class="min"><div class="mn" style="${nameStyle}">${esc(nm)}${badge}</div></div>${activeMark}`;
+  d.onclick=()=>{
+    hap();
+    if(isDisabled){toast('🚫 Модель временно недоступна','er');return;}
+    if(isLocked){toast('🔥 Эта модель доступна только по подписке','er');return;}
+    pickM(k);
+  };
   ml.appendChild(d);
 }
+// ═══════════════════════════════════════════════════
+// ДОСТУПНЫЕ МОДЕЛИ: загрузка с сервера
+// ═══════════════════════════════════════════════════
+async function fetchAvailableModels(){
+  if(!CFG.API)return;
+  try{
+    const r=await fetch(`${CFG.API}/api/models`,{
+      signal:(()=>{const _a=new AbortController();setTimeout(()=>_a.abort(),8000);return _a.signal;})()
+    });
+    if(!r.ok)return;
+    const d=await r.json();
+    // Ожидаем: {ok:true, models:['auto','gpt52_chat',...]} или {ok:true, available:['auto',...]}
+    const list=d.models||d.available||d.enabled||null;
+    if(Array.isArray(list)&&list.length){
+      S.availModels=new Set(list.map(String));
+    }
+  }catch(e){/* тихо игнорируем — покажем все модели */}
+}
+
 const fmod=v=>renderMods(v);
-function openMS(){hap();renderMods();document.getElementById('msi').value='';document.getElementById('ms').classList.add('o');document.getElementById('sho').classList.add('o');}
+function openMS(){
+  hap();
+  renderMods();
+  document.getElementById('msi').value='';
+  document.getElementById('ms').classList.add('o');
+  document.getElementById('sho').classList.add('o');
+  fetchAvailableModels().then(()=>renderMods(document.getElementById('msi')?.value||''));
+}
 function pickM(k){
   S.mdl=k;
   const label=MO[k]?.l||k;
@@ -1097,6 +1215,8 @@ document.addEventListener('DOMContentLoaded',async()=>{
   setupMD();renderSuggest();renderMods();loadHistory();
   document.getElementById('mname').textContent=MO[S.mdl]?.l||'⚡ Авто';
   updAttBtn();
+  // Фоново грузим список доступных моделей
+  fetchAvailableModels();
   // Показываем … пока грузятся данные
   const _rqEl=document.getElementById('rqnum');
   const _mxEl=document.getElementById('rqmax');
