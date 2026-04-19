@@ -648,15 +648,29 @@ function renderHist(){
     const title=s.t||'Чат';
     const preview=s.preview||'';
     d.innerHTML=`
-      <div class="si-chat-ico"><tg-emoji emoji-id="5870657884844462243">💬</tg-emoji></div>
+      <div class="si-chat-ico">💬</div>
       <div class="si-chat-body">
         <div class="si-chat-title">${esc(title)}</div>
         ${preview?`<div class="si-chat-preview">${esc(preview)}</div>`:''}
       </div>
-      <button class="si-chat-del" onclick="dSess(${JSON.stringify(s.id)},event)" title="Удалить чат">
-        <tg-emoji emoji-id="5870875489362513438">🗑</tg-emoji>
+      <button class="si-chat-del" title="Удалить чат">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events:none"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
       </button>`;
-    d.onclick=(e)=>{if(e.target.closest('.si-chat-del'))return;loadSession(s.id,s.t);};
+    // Кнопка удаления
+    d.querySelector('.si-chat-del').addEventListener('click', function(ev){
+      ev.stopPropagation();
+      ev.preventDefault();
+      hap('medium');
+      S.sess=S.sess.filter(x=>x.id!==s.id);
+      try{localStorage.removeItem('huza_h_'+s.id);}catch(ex){}
+      if(S.cur&&S.cur.id===s.id){S.cur=null;S.hist=[];}
+      const uid=getTgUid();
+      if(uid&&CFG.API){fetch(`${CFG.API}/api/history/delete`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({uid,session_id:String(s.id),init_data:tg?.initData||''})}).catch(()=>{});}
+      saveHistory();renderHist();
+      toast('🗑 Чат удалён','ok');
+    });
+    // Открыть чат
+    d.addEventListener('click', function(){loadSession(s.id,s.t);});
     h.appendChild(d);
   });
 }
