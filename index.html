@@ -547,6 +547,15 @@ async function send(){
   }
   else{S.hist.push({role:'user',content:txt});}
   const{td,ac,el}=addA();let full='';
+  // Показываем прогресс ожидания если есть фото (vision долгий)
+  let _waitSec = 0;
+  const _waitTimer = photos.length ? setInterval(() => {
+    _waitSec++;
+    if(td.style.display !== 'none') {
+      td.textContent = `⏳ Анализирую фото... ${_waitSec}с`;
+    }
+    if(_waitSec >= 90) clearInterval(_waitTimer);
+  }, 1000) : null;
   let _typBuf='';let _typQ=[];let _typRaf=null;
   const _sonar=S.mdl==='sonar';
   const _stripCit=s=>s.replace(/\s*\[\d+(?:[,\s]+\d+)*\]/g,'').replace(/\[\[?\d+\]?\]/g,'');
@@ -561,11 +570,24 @@ async function send(){
     _typRaf=requestAnimationFrame(_doTyp);
   };
   const onChunk=chunk=>{
-    if(td.style.display!=='none'){td.style.display='none';ac.style.display='block';}
+    if(td.style.display!=='none'){td.style.display='none';ac.style.display='block';if(_waitTimer)clearInterval(_waitTimer);}
     full+=chunk;_typQ.push(...chunk.split(''));
     if(!_typRaf)_typRaf=requestAnimationFrame(_doTyp);
   };
-  const _sig=()=>_abortCtrl?_abortCtrl.signal:(new AbortController()).signal;
+  // Таймаут: 90 сек если есть фото (vision медленнее), 45 сек для текста
+  const _timeoutMs = photos.length ? 90000 : 45000;
+  const _timeoutAC = new AbortController();
+  const _timeoutT = setTimeout(() => _timeoutAC.abort(), _timeoutMs);
+  const _sig = () => {
+    if (_abortCtrl) {
+      // Объединяем два сигнала: ручная остановка + таймаут
+      const combined = new AbortController();
+      _abortCtrl.signal.addEventListener('abort', () => combined.abort());
+      _timeoutAC.signal.addEventListener('abort', () => combined.abort());
+      return combined.signal;
+    }
+    return _timeoutAC.signal;
+  };
   let ok=false;
   // ─ СТРАТЕГИЯ 1: Backend ─
   if(!ok){
@@ -607,12 +629,18 @@ async function send(){
   await new Promise(res=>{const w=()=>{if(_typQ.length===0&&!_typRaf){res();}else{setTimeout(w,30);}};w();});
   if(!ok){
     td.style.display='none';ac.style.display='block';
-    ac.innerHTML=`<div style="color:var(--re);font-size:14px;margin-bottom:6px">⚠️ Нет соединения с ИИ</div>
+    if(_waitTimer)clearInterval(_waitTimer);
+    const _isTimeout = _timeoutAC.signal.aborted;
+    const _errMsg = _isTimeout
+      ? (photos.length ? '⏱️ Анализ фото занял слишком долго. Попробуй фото меньшего размера или повтори позже.' : '⏱️ Сервер не ответил вовремя. Попробуй ещё раз.')
+      : 'Бот не отвечает. Возможно, Railway сервер не запущен.';
+    ac.innerHTML=`<div style="color:var(--re);font-size:14px;margin-bottom:6px">${_isTimeout ? '⏱️ Таймаут' : '⚠️ Нет соединения с ИИ'}</div>
     <div style="font-size:13px;color:var(--tx4);line-height:1.7;background:var(--s1);border-radius:12px;padding:12px">
-      Бот не отвечает. Возможно, Railway сервер не запущен.<br>
+      ${_errMsg}<br>
       <a href="${CFG.API}/api/chat" target="_blank" style="color:var(--blue);margin-top:4px;display:inline-block">🔍 Проверить сервер →</a>
     </div>`;
   }
+  clearTimeout(_timeoutT);
   ac.querySelectorAll('.cur').forEach(c=>c.remove());
   // Скрываем Стоп, показываем кнопку отправки
   _abortCtrl=null;
