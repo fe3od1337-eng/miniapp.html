@@ -527,7 +527,7 @@ function stopGen(){
 // ════════ SEND — 3 стратегии ════════
 async function send(){
   const inp=document.getElementById('inp');const txt=inp.value.trim();
-  if(!txt||S.busy)return;
+  if((!txt&&!(S.photos&&S.photos.length))||S.busy)return;
   // FIX: пользователь гарантированно получен в DOMContentLoaded; здесь просто читаем
   inp.value='';rsz(inp);document.getElementById('snd').disabled=true;
   // Показываем кнопку Стоп
@@ -624,7 +624,7 @@ async function send(){
     S.hist.push({role:'assistant',content:finalText});saveHistory();
     addMsgActions(el,finalText);
   }
-  updHist(txt);S.busy=0;document.getElementById('snd').disabled=!document.getElementById('inp').value.trim()&&!(S.photos&&S.photos.length);sd();
+  updHist(txt||(photos.length?'📷 Фото':''));S.busy=0;document.getElementById('snd').disabled=!document.getElementById('inp').value.trim()&&!(S.photos&&S.photos.length);sd();
   // FIX: принудительно обновляем лимиты после каждого запроса — счётчик сразу синхронизируется с ботом
   await loadLimits();
   // Задача 10: генерируем динамические подсказки
@@ -659,7 +659,17 @@ function saveHistory(){
     const slim=S.sess.slice(0,50).map(s=>({id:s.id,t:s.t,preview:s.preview||''}));
     localStorage.setItem('huza_sess',JSON.stringify(slim));
     if(S.cur&&S.hist.length){
-      const safeHist=S.hist.filter(m=>typeof m.content==='string').slice(-40);
+      // Сохраняем историю: строки сохраняем как есть, мультимодальный контент (фото) — только текст
+      const safeHist=S.hist.map(m=>{
+        if(typeof m.content==='string') return m;
+        if(Array.isArray(m.content)){
+          const textBlock=m.content.find(b=>b.type==='text');
+          const hasImg=m.content.some(b=>b.type==='image_url');
+          const txt=(textBlock?.text||'').trim();
+          return {...m,content:(hasImg?'📷 '+(txt||'[фото]'):txt)||'[фото]'};
+        }
+        return null;
+      }).filter(Boolean).slice(-40);
       localStorage.setItem('huza_h_'+S.cur.id,JSON.stringify(safeHist));
       // Асинхронно сохраняем на сервере (без блокировки)
       const uid=getTgUid();
@@ -721,7 +731,17 @@ function loadHistory(){
   }
 }
 function loadSession(id,t){hap();const raw=localStorage.getItem('huza_h_'+id);S.cur={id,t};if(raw){try{S.hist=JSON.parse(raw)||[];}catch(e){S.hist=[];}renderStoredMsgs();}else{S.hist=[];}closeSB();}
-function renderStoredMsgs(){const m=document.getElementById('msgs');m.innerHTML='';document.getElementById('wlc')?.classList.add('g');S.hist.forEach(msg=>{if(msg.role==='user'&&typeof msg.content==='string'){addU(msg.content,null);}else if(msg.role==='assistant'&&typeof msg.content==='string'){const{td,ac,el}=addA();td.style.display='none';ac.style.display='block';ac.innerHTML=rmd(msg.content);rk(ac);addMsgActions(el,msg.content);}});sd();}
+function renderStoredMsgs(){const m=document.getElementById('msgs');m.innerHTML='';document.getElementById('wlc')?.classList.add('g');S.hist.forEach(msg=>{
+  const c=msg.content;
+  if(msg.role==='user'){
+    if(typeof c==='string'){addU(c,null);}
+    else if(Array.isArray(c)){
+      const txt=c.find(b=>b.type==='text')?.text||'';
+      const imgs=c.filter(b=>b.type==='image_url').map(b=>b.image_url.url.split(',')[1]||'');
+      addU(txt,imgs.length?imgs:null);
+    }
+  }else if(msg.role==='assistant'&&typeof c==='string'){const{td,ac,el}=addA();td.style.display='none';ac.style.display='block';ac.innerHTML=rmd(c);rk(ac);addMsgActions(el,c);}
+});sd();}
 function renderHist(){
   const h=document.getElementById('hist');
   h.innerHTML='';
