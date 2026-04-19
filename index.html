@@ -572,7 +572,7 @@ async function send(){
     try{
       const initD=tg?.initData||'';const uid=getTgUid();
       const _sysp=getSysPrompt?getSysPrompt():'';const _msgs=_sysp?[{role:'system',content:_sysp},...S.hist.slice(-20)]:S.hist.slice(-20);
-      const body={model:S.mdl,messages:_msgs,stream:true,init_data:initD,uid:uid};
+      const body={model:S.mdl,messages:_msgs,stream:true,init_data:initD,uid:uid,text:txt};
       if(photos.length)body.images=photos;
       const r=await fetch(`${CFG.API}/api/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:_sig()});
       if(r.status===405||r.status===403||r.status===404){dbg(`Backend ${r.status} → пробую SQ Direct`);}
@@ -580,8 +580,8 @@ async function send(){
       else{await readSSE(r,onChunk);ok=true;}
     }catch(e){if(e.name==='AbortError'){ok=true;/* частичный ответ уже есть */}else if(!ok)dbg('Backend fail: '+e.message);}
   }
-  // ─ СТРАТЕГИЯ 2: OnlySQ напрямую ─
-  if(!ok&&CFG.SQ_KEY){
+  // ─ СТРАТЕГИЯ 2: OnlySQ напрямую ─ (пропускаем если есть фото — нет гарантии vision-модели)
+  if(!ok&&CFG.SQ_KEY&&!photos.length){
     try{
       dbg('Пробую OnlySQ Direct...');
       const model=MO[S.mdl];
@@ -595,7 +595,7 @@ async function send(){
     try{
       dbg('Пробую backend no-stream...');
       const _sysp2=getSysPrompt?getSysPrompt():'';const _msgs2=_sysp2?[{role:'system',content:_sysp2},...S.hist.slice(-20)]:S.hist.slice(-20);
-      const body={model:S.mdl,messages:_msgs2,stream:false,init_data:tg?.initData||'',uid:getTgUid()};
+      const body={model:S.mdl,messages:_msgs2,stream:false,init_data:tg?.initData||'',uid:getTgUid(),text:txt};
       if(photos.length)body.images=photos;
       const r=await fetch(`${CFG.API}/api/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:_sig()});
       if(!r.ok)throw new Error(`HTTP ${r.status}`);
