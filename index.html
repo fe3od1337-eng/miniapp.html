@@ -578,7 +578,14 @@ function saveHistory(){
         fetch(`${CFG.API}/api/history`,{
           method:'POST',
           headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({uid,session_id:String(S.cur.id),messages:safeHist,init_data:tg?.initData||''}),
+          body:JSON.stringify({
+            uid,
+            session_id:String(S.cur.id),
+            title:S.cur.t||'Чат',
+            preview:S.cur.preview||'',
+            messages:safeHist,
+            init_data:tg?.initData||''
+          }),
           signal:(()=>{const _a=new AbortController();setTimeout(()=>_a.abort(),10000);return _a.signal;})()
         }).catch(()=>{});
       }
@@ -586,8 +593,11 @@ function saveHistory(){
   }catch(e){}
 }
 function loadHistory(){
-  // Сначала грузим из localStorage (быстро), потом обновляем с сервера
-  try{const raw=localStorage.getItem('huza_sess');if(raw){S.sess=JSON.parse(raw)||[];renderHist();}}catch(e){}
+  // Сначала грузим из localStorage (быстро)
+  try{
+    const raw=localStorage.getItem('huza_sess');
+    if(raw){S.sess=JSON.parse(raw)||[];renderHist();}
+  }catch(e){}
   // Фоновая синхронизация с сервером
   const uid=getTgUid();
   if(uid&&CFG.API){
@@ -595,18 +605,28 @@ function loadHistory(){
       .then(r=>r.json())
       .then(d=>{
         if(d.ok&&d.sessions&&d.sessions.length){
-          // Объединяем: серверные сессии приоритетнее
-          const serverIds=new Set(d.sessions.map(s=>String(s.id)));
-          const localOnly=S.sess.filter(s=>!serverIds.has(String(s.id)));
-          S.sess=[...d.sessions.map(s=>({id:s.id,t:s.t||'Чат',preview:s.preview||s.first_message||''})),...localOnly].slice(0,50);
+          const serverMap=new Map(d.sessions.map(s=>[String(s.id),s]));
+          // Локальные сессии которых нет на сервере — сохраняем (они могут быть новыми)
+          const localOnly=S.sess.filter(s=>!serverMap.has(String(s.id)));
+          // Серверные сессии — обновляем title/preview если сервер знает больше
+          const merged=d.sessions.map(s=>({
+            id:s.id,
+            // Приоритет: локальное название (пользователь уже написал) > серверное > 'Чат'
+            t:(S.sess.find(ls=>String(ls.id)===String(s.id))?.t)||s.t||'Чат',
+            preview:(S.sess.find(ls=>String(ls.id)===String(s.id))?.preview)||s.preview||s.first_message||''
+          }));
+          S.sess=[...merged,...localOnly].slice(0,50);
           // Кешируем сообщения из сессий в localStorage
           d.sessions.forEach(s=>{
             if(s.messages&&s.messages.length){
               try{localStorage.setItem('huza_h_'+s.id,JSON.stringify(s.messages));}catch(e){}
             }
           });
+          // Сохраняем объединённый список
+          try{localStorage.setItem('huza_sess',JSON.stringify(S.sess.map(s=>({id:s.id,t:s.t,preview:s.preview||''}))));}catch(e){}
           renderHist();
         }
+        // Если сервер вернул пустой список — НЕ затираем локальные (они могут быть актуальны)
       })
       .catch(()=>{});
   }
@@ -805,7 +825,7 @@ function openMS(){
   document.getElementById('msi').value='';
   document.getElementById('ms').classList.add('o');
   document.getElementById('sho').classList.add('o');
-  fetchAvailableModels().then(()=>renderMods(document.getElementById('msi')?.value||''));
+  // availModels уже загружены из /api/limits, просто перерисовываем
 }
 function pickM(k){
   S.mdl=k;
@@ -936,6 +956,20 @@ async function loadLimits(retries=2){
       username:d.username||'',
       user_id:d.user_id||0
     };
+    // ── Загружаем список доступных моделей из /api/limits ──
+    // Сервер может вернуть: available_models:[...ключи...], disabled_models:[...], или models:[...]
+    {
+      const avail = d.available_models||d.models||d.enabled_models||null;
+      const disabled = d.disabled_models||d.unavailable_models||null;
+      if(Array.isArray(avail)&&avail.length){
+        S.availModels=new Set(avail.map(String));
+      } else if(Array.isArray(disabled)){
+        // Если сервер шлёт список ОТКЛЮЧЁННЫХ — строим множество доступных как "все кроме отключённых"
+        const disabledSet=new Set(disabled.map(String));
+        S.availModels=new Set(Object.keys(MO).filter(k=>!disabledSet.has(k)&&!disabledSet.has(MO[k]?.n)));
+      }
+      // Если сервер ничего не прислал — S.availModels остаётся null → показываем все
+    }
     // ── Обновляем счётчик в хедере: показываем ОСТАВШИЕСЯ (pro_max - pro_used) ──
     const left=Math.max(0,S.lim.pro_max-S.lim.pro_used);
     const numEl=document.getElementById('rqnum');
@@ -953,6 +987,8 @@ async function loadLimits(retries=2){
     const sban=document.getElementById('sban');
     if(sbap) sbap.textContent=S.lim.has_sub?(S.lim.sub_plan||'Pro'):'Free';
     if(sban&&S.tgu) sban.textContent=[S.tgu.first_name,S.tgu.last_name].filter(Boolean).join(' ')||'ХУЗА AI';
+    // ── Обновляем список моделей с учётом available_models ──
+    renderMods();
   }catch(e){
     console.error('[limits] ошибка: name='+e.name+' msg='+e.message, e);
     _showDash();
@@ -1215,8 +1251,6 @@ document.addEventListener('DOMContentLoaded',async()=>{
   setupMD();renderSuggest();renderMods();loadHistory();
   document.getElementById('mname').textContent=MO[S.mdl]?.l||'⚡ Авто';
   updAttBtn();
-  // Фоново грузим список доступных моделей
-  fetchAvailableModels();
   // Показываем … пока грузятся данные
   const _rqEl=document.getElementById('rqnum');
   const _mxEl=document.getElementById('rqmax');
