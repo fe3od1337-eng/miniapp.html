@@ -2,10 +2,11 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
 <meta http-equiv="Pragma" content="no-cache"/>
 <meta http-equiv="Expires" content="0"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob:; script-src 'self' 'unsafe-inline' https://telegram.org https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com https://fonts.gstatic.com;">
 <title>ХУЗА AI</title>
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -15,6 +16,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked@9.1.6/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <link href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -500,7 +502,7 @@ function setupMD(){
   marked.use({renderer:r,breaks:true,gfm:true});
 }
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-const rmd=t=>{try{return marked.parse(t)}catch(e){return esc(t).replace(/\n/g,'<br>')}};
+const rmd=t=>{try{const html=marked.parse(t);return(typeof DOMPurify!=='undefined')?DOMPurify.sanitize(html):html;}catch(e){return esc(t).replace(/\n/g,'<br>');}};
 function rk(el){if(!window.renderMathInElement)return;try{renderMathInElement(el,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false},{left:'\\[',right:'\\]',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});}catch(e){}}
 function fallbackCopy(t,cb){const el=document.createElement('textarea');el.value=t;el.style.cssText='position:fixed;opacity:0;top:0;left:0;pointer-events:none';document.body.appendChild(el);el.focus();el.select();try{document.execCommand('copy');if(cb)cb();}catch(e){}document.body.removeChild(el);}
 function cpc(b){const t=b.closest('.cb').querySelector('code').innerText;const done=()=>{b.textContent='✅ Скопировано';b.classList.add('ok');setTimeout(()=>{b.textContent='📋 Скопировать';b.classList.remove('ok');},2000);};if(navigator.clipboard){navigator.clipboard.writeText(t).then(done).catch(()=>fallbackCopy(t,done));}else{fallbackCopy(t,done);}}
@@ -1990,11 +1992,11 @@ function onbNext(){
 }
 function onbDone(){
   document.getElementById('onb').classList.add('done');
-  try{localStorage.setItem('huza_onb','1');}catch(e){}
+  _store.set('huza_onb','1');
   hap('medium');
 }
 function initOnb(){
-  try{if(localStorage.getItem('huza_onb'))return;}catch(e){return;}
+  if(_store.get('huza_onb'))return;
   document.getElementById('onb').classList.remove('done');
   const s=ONB_STEPS[0];
   document.getElementById('onb-ico').textContent=s.ico;
@@ -2009,7 +2011,7 @@ function openProf(){
   document.getElementById('prof').classList.add('o');
   if(tg)tg.BackButton.show();
   showProfileSkeleton();
-  loadLimits().then(()=>{renderProfile();setTimeout(patchLevelCard,50);});
+  loadLimits().then(()=>{renderProfile();requestAnimationFrame(()=>requestAnimationFrame(patchLevelCard));});
 }
 
 // ════════════════════════════════════════════════
@@ -2018,6 +2020,8 @@ function openProf(){
 // Вставляем sys prompt при сборке body запроса
 // Перехватываем через модификацию S.hist перед отправкой
 // Патчим getMessages для вставки системного промпта
+// БЕЗОПАСНОСТЬ: системный промпт в идеале должен применяться на сервере.
+// Текущая реализация — клиентская, промпт доступен пользователю.
 function _buildMessages(){
   const sysp=getSysPrompt();
   const msgs=S.hist.slice(-20);
@@ -2033,6 +2037,15 @@ window.addEventListener('load',()=>{
   initTheme();
   initOnb();
 });
+
+
+
+/* Безопасная обёртка localStorage — защита от SecurityError в ограниченных контекстах */
+const _store = {
+  get(k){try{return localStorage.getItem(k);}catch(e){return null;}},
+  set(k,v){try{localStorage.setItem(k,v);}catch(e){}},
+  del(k){try{localStorage.removeItem(k);}catch(e){}}
+};
 
 </script>
 </body>
