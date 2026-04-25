@@ -17,7 +17,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked@9.1.6/marked.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<link href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600;700;800;900&family=Montserrat:wght@600;700;800;900&family=Unbounded:wght@700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
@@ -27,7 +27,7 @@
   --tx:#fff;--tx2:rgba(235,235,245,.6);--tx3:rgba(235,235,245,.3);--tx4:#636366;
   --gr:#30d158;--re:#ff453a;--yl:#ffd60a;
   --f:'Onest',-apple-system,sans-serif;--mo:'JetBrains Mono',monospace;
-  --sb:env(safe-area-inset-bottom,16px);--st:env(safe-area-inset-top,0px);--th:52px;
+  --sb:env(safe-area-inset-bottom,16px);--st:env(safe-area-inset-top,0px);--th:52px;--app-h:100dvh;--display:'Unbounded','Montserrat','Onest',sans-serif;
 }
 body.light{
   --bg:#f2f2f7;--bg1:#fff;--bg2:#f2f2f7;--s1:#e5e5ea;--s2:#d1d1d6;--s3:#c7c7cc;
@@ -35,7 +35,7 @@ body.light{
   --tx:#000;--tx2:rgba(60,60,67,.6);--tx3:rgba(60,60,67,.3);--tx4:#8e8e93;
 }
 html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-family:var(--f);font-size:16px;-webkit-font-smoothing:antialiased}
-#app{height:100vh;height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+#app{height:100vh;height:var(--app-h,100dvh);display:flex;flex-direction:column;overflow:hidden}
 #tb{flex-shrink:0;height:var(--th);padding:0 10px;padding-top:var(--st);display:flex;align-items:center;background:var(--bg);border-bottom:.5px solid var(--bo);z-index:30}
 .tbl,.tbr{width:72px;display:flex;align-items:center}.tbr{justify-content:flex-end}.tbc{flex:1;display:flex;justify-content:center}
 .ib{width:38px;height:38px;border-radius:50%;background:none;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--tx2)}
@@ -310,6 +310,204 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
 .lvl-bar-wrap{margin-top:8px}
 .lvl-bar{height:6px;background:var(--bg1);border-radius:3px;overflow:hidden;margin-top:4px}
 .lvl-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--acc),var(--acc2));transition:width .6s}
+
+/* SORAVPN visual skin: design-only overrides, functionality stays intact */
+body:not(.light){
+  --bg:#050505;--bg1:#080808;--bg2:#0b0b0b;--s1:#151515;--s2:#202020;--s3:#303030;
+  --bo:rgba(255,255,255,.08);--bo2:rgba(255,255,255,.14);
+  --acc:#fff;--acc2:#dcdcdc;--tx:#fff;--tx2:rgba(255,255,255,.62);--tx3:rgba(255,255,255,.38);--tx4:rgba(255,255,255,.45);
+}
+html,body{background:#050505}
+#app,#chat,.fp{
+  position:relative;
+  background:#050505;
+}
+#app::before,.fp::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:
+    linear-gradient(rgba(255,255,255,.055) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.055) 1px,transparent 1px);
+  background-size:58px 58px;
+  opacity:.62;
+}
+#app::after,.fp::after{
+  content:"";
+  position:absolute;
+  left:0;right:0;bottom:0;height:34%;
+  pointer-events:none;
+  background:linear-gradient(transparent,#020202 72%,#000);
+}
+#chat,#msgs,#ib,#sb,.sheet,.fpbd,.fptb{position:relative;z-index:1}
+#tb{
+  position:relative;
+  height:104px;
+  padding:18px 24px 20px;
+  background:#050505;
+  border-bottom:1px solid rgba(255,255,255,.075);
+  align-items:flex-start;
+}
+#tb::before{
+  content:"SORAVPN";
+  position:absolute;
+  left:26px;
+  bottom:26px;
+  font-family:var(--display);
+  font-size:30px;
+  font-weight:900;
+  line-height:1;
+  letter-spacing:-.03em;
+  color:#fff;
+  pointer-events:none;
+}
+#tb::after{
+  content:"";
+  position:absolute;
+  right:26px;
+  bottom:25px;
+  width:48px;
+  height:28px;
+  background:
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 58 34' xmlns='http://www.w3.org/2000/svg' fill='none'%3E%3Crect x='3' y='8' width='42' height='18' rx='5' stroke='white' stroke-width='3'/%3E%3Cpath d='M48 13h3a4 4 0 0 1 0 8h-3' stroke='white' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M18 26 27 9h-8l-4 9h8l-5 8Z' fill='white'/%3E%3Cpath d='M31 10h9v14h-9' stroke='white' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;
+  opacity:.95;
+  pointer-events:none;
+}
+#tb .tbl,#tb .tbc,#tb .tbr{position:absolute;top:16px;z-index:2}
+#tb .tbl{left:18px;width:auto;gap:8px}
+#tb .tbc{left:100px;right:100px;width:auto}
+#tb .tbr{right:18px;width:auto;gap:8px}
+.ib,.mb2,.rqb,.sbbk,.att-btn,.mic-btn,.mact,.shbtn,.theme-btn{
+  background:rgba(255,255,255,.08)!important;
+  border:1px solid rgba(255,255,255,.08)!important;
+  color:#fff!important;
+}
+.mb2,.rqb{border-radius:22px;font-weight:900}
+.mbn,.stt,.fptit,.wt,.pn,.scv,.subn,.plt,.limt,.limv,.sban{font-weight:900}
+#msgs{padding:18px 18px 8px;background:transparent}
+#wlc{justify-content:flex-start;padding-top:84px}
+#wlc .wi{display:none}
+#wlc .wt{
+  font-family:var(--display);
+  font-size:42px;
+  line-height:1;
+  letter-spacing:-.04em;
+}
+#wlc .ws{font-weight:800;color:rgba(255,255,255,.58)}
+.wc,.bu,.cb,.tw,.gc,.sc,.subc,.liml,.pg,.ph,.sheet,#shbox{
+  background:rgba(20,20,20,.96)!important;
+  border:1px solid rgba(255,255,255,.08)!important;
+  box-shadow:none!important;
+}
+.wc,.bu,.cb,.tw,.gc,.sc,.subc,.liml,.pg,.sheet,#shbox{border-radius:24px}
+.mr.u .bu{border-bottom-right-radius:8px}
+.mr.a .bu{background:transparent!important;border:0!important}
+.av,.sbico,.subico,.pa{
+  background:linear-gradient(145deg,#ff9b69,#ff3f78)!important;
+  color:#fff!important;
+}
+#ib{
+  background:rgba(5,5,5,.98);
+  border-top:1px solid rgba(255,255,255,.08);
+}
+#inp{
+  min-height:52px;
+  border-radius:26px;
+  background:#111;
+  border:1px solid rgba(255,255,255,.12);
+  font-weight:700;
+}
+.sb,.gb,.onb-btn{
+  background:#f5f5f5!important;
+  color:#000!important;
+  border-radius:26px!important;
+  font-weight:900!important;
+}
+.sb svg{color:#000}
+#sb{
+  background:#070707;
+  border-right:1px solid rgba(255,255,255,.08);
+}
+.sbi,.pr2,.limr,.mr2{border-color:rgba(255,255,255,.08)!important}
+.fp{
+  padding-top:0;
+  overflow:hidden;
+}
+.fptb{
+  height:104px;
+  padding:22px 24px;
+  background:#050505;
+  border-bottom:1px solid rgba(255,255,255,.075);
+  align-items:flex-end;
+}
+.fpbk{
+  position:absolute;
+  top:18px;
+  left:18px;
+  color:#fff;
+  background:rgba(255,255,255,.08);
+  border-radius:22px;
+  padding:8px 12px;
+  font-weight:900;
+}
+.fptit{
+  flex:1;
+  text-align:center;
+  font-family:var(--display);
+  font-size:36px;
+  letter-spacing:-.04em;
+}
+.fpbd{padding:30px 26px calc(28px + var(--sb));gap:20px}
+.ph{
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+  border-radius:0!important;
+}
+.pa{
+  width:82px;
+  height:82px;
+  border-radius:23px;
+  font-family:var(--display);
+  font-size:34px;
+}
+.pn{font-size:30px;line-height:1.05}
+.pu{font-size:18px;font-weight:800;color:rgba(255,255,255,.58)}
+.pid{display:none}
+.subc,.liml,.pg{border-radius:28px!important;overflow:hidden}
+.subc{padding:30px!important}
+.sc{border-radius:24px!important;padding:24px!important}
+.scl,.subs,.sec-hdr,.fl,.eyebrow{font-weight:900;color:rgba(255,255,255,.52)!important}
+.limr,.pr2{padding:17px 24px!important}
+.limt{font-size:18px;color:rgba(255,255,255,.52)}
+.limv{font-size:18px;color:#fff}
+.pr2{font-size:18px;font-weight:900}
+.ch2,.exch,.gs,.gi,.gta,.ss{
+  border-radius:20px!important;
+  background:#0b0b0b!important;
+  border:1px solid rgba(255,255,255,.12)!important;
+}
+.ch2.on{
+  background:#f5f5f5!important;
+  border-color:#f5f5f5!important;
+  color:#000!important;
+}
+@media(max-width:430px){
+  #tb,.fptb{height:96px;padding-left:22px;padding-right:22px}
+  #tb::before{font-size:28px;left:24px;bottom:24px}
+  #tb::after{right:24px;bottom:23px}
+  .fptit{font-size:34px}
+  .fpbd{padding-left:24px;padding-right:24px}
+  .pn{font-size:27px}
+}
+@media(max-width:360px){
+  #tb::before{font-size:24px}
+  #tb::after{width:40px}
+  .fptit{font-size:28px}
+  .traffic-value,.scv{font-size:26px}
+  .fpbd,#msgs{padding-left:18px;padding-right:18px}
+}
 </style>
 </head>
 <body>
@@ -474,11 +672,25 @@ const S={mdl:'auto',hist:[],sess:[],cur:null,busy:0,mc:0,ic:0,tgu:null,pi:null,p
 const _msgStore=[];
 // ════════ TG ════════
 const tg=window.Telegram?.WebApp;
+function applyTelegramFullscreen(){
+  const w=window.Telegram?.WebApp;
+  if(!w)return;
+  try{w.ready?.();}catch(e){}
+  try{w.expand?.();}catch(e){}
+  try{w.requestFullscreen?.();}catch(e){}
+  try{w.disableVerticalSwipes?.();}catch(e){}
+  try{w.setHeaderColor?.('#000000');}catch(e){}
+  try{w.setBackgroundColor?.('#000000');}catch(e){}
+  try{w.setBottomBarColor?.('#000000');}catch(e){}
+  const fit=()=>{
+    const h=w.viewportStableHeight||w.viewportHeight||window.innerHeight;
+    if(h)document.documentElement.style.setProperty('--app-h',h+'px');
+  };
+  fit();
+  try{w.onEvent?.('viewportChanged',fit);}catch(e){}
+}
 if(tg){
-  tg.ready();
-  tg.expand();
-  tg.setHeaderColor?.('#000');
-  tg.setBackgroundColor?.('#000');
+  applyTelegramFullscreen();
   tg.enableClosingConfirmation?.();
   // FIX: НЕ читаем initDataUnsafe здесь — SDK может ещё не заполнить user.
   // Инициализация S.tgu происходит в DOMContentLoaded через waitForTgUser().
@@ -1445,7 +1657,7 @@ function renderSuggest(){const c=document.getElementById('wch');if(!c)return;c.i
 // ════ INIT ════
 document.addEventListener('DOMContentLoaded',async()=>{
   // Единственное место инициализации TG WebApp
-  if(window.Telegram?.WebApp){window.Telegram.WebApp.ready();window.Telegram.WebApp.expand();}
+  if(window.Telegram?.WebApp){applyTelegramFullscreen();}
   setupMD();renderSuggest();renderMods();loadHistory();
   document.getElementById('mname').textContent=MO[S.mdl]?.l||'⚡ Авто';
   updAttBtn();
