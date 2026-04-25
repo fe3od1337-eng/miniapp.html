@@ -559,6 +559,50 @@ body.light .ch2.on{
   .traffic-value,.scv{font-size:26px}
   .fpbd,#msgs{padding-left:18px;padding-right:18px}
 }
+
+/* Final reachability fixes: no battery, controls below Telegram chrome */
+#tb{
+  height:220px!important;
+  padding:18px 24px 22px!important;
+}
+#tb::before{
+  content:"Хуза AI"!important;
+  left:26px!important;
+  bottom:88px!important;
+  color:var(--tx)!important;
+}
+#tb::after{display:none!important}
+#tb .tbl,#tb .tbc,#tb .tbr{
+  top:auto!important;
+  bottom:24px!important;
+}
+#tb .tbl{left:24px!important}
+#tb .tbc{left:92px!important;right:132px!important}
+#tb .tbr{right:24px!important}
+.fp .fptb{
+  height:184px!important;
+  padding-bottom:24px!important;
+}
+.fpbk{
+  top:auto!important;
+  bottom:24px!important;
+}
+.fptit{
+  padding-bottom:0!important;
+}
+@media(max-width:430px){
+  #tb{height:220px!important}
+  #tb::before{left:24px!important;bottom:88px!important;font-size:31px!important}
+  #tb .tbl,#tb .tbc,#tb .tbr{bottom:24px!important}
+  #tb .tbc{left:88px!important;right:122px!important}
+  #tb::after{display:none!important}
+  .fp .fptb{height:176px!important}
+}
+@media(max-width:360px){
+  #tb{height:208px!important}
+  #tb::before{bottom:82px!important;font-size:27px!important}
+  #tb .tbc{left:78px!important;right:110px!important}
+}
 </style>
 </head>
 <body>
