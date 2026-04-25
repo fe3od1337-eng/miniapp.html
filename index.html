@@ -560,48 +560,52 @@ body.light .ch2.on{
   .fpbd,#msgs{padding-left:18px;padding-right:18px}
 }
 
-/* Final reachability fixes: no battery, controls below Telegram chrome */
+/* Final miniapp usability fixes: compact and reachable top bar */
 #tb{
-  height:220px!important;
-  padding:18px 24px 22px!important;
+  height:132px!important;
+  padding:calc(8px + var(--st)) 14px 10px!important;
 }
 #tb::before{
   content:"Хуза AI"!important;
-  left:26px!important;
-  bottom:88px!important;
+  left:14px!important;
+  bottom:12px!important;
   color:var(--tx)!important;
+  font-size:30px!important;
 }
 #tb::after{display:none!important}
 #tb .tbl,#tb .tbc,#tb .tbr{
-  top:auto!important;
-  bottom:24px!important;
+  top:calc(8px + var(--st))!important;
+  bottom:auto!important;
 }
-#tb .tbl{left:24px!important}
-#tb .tbc{left:92px!important;right:132px!important}
-#tb .tbr{right:24px!important}
+#tb .tbl{left:14px!important}
+#tb .tbc{left:84px!important;right:112px!important}
+#tb .tbr{right:14px!important}
 .fp .fptb{
-  height:184px!important;
-  padding-bottom:24px!important;
+  height:118px!important;
+  padding:calc(8px + var(--st)) 14px 10px!important;
 }
 .fpbk{
-  top:auto!important;
-  bottom:24px!important;
+  top:calc(8px + var(--st))!important;
+  bottom:auto!important;
 }
 .fptit{
   padding-bottom:0!important;
+  font-size:28px!important;
 }
 @media(max-width:430px){
-  #tb{height:220px!important}
-  #tb::before{left:24px!important;bottom:88px!important;font-size:31px!important}
-  #tb .tbl,#tb .tbc,#tb .tbr{bottom:24px!important}
-  #tb .tbc{left:88px!important;right:122px!important}
+  #tb{height:126px!important}
+  #tb::before{left:12px!important;bottom:10px!important;font-size:28px!important}
+  #tb .tbl,#tb .tbc,#tb .tbr{top:calc(6px + var(--st))!important}
+  #tb .tbc{left:78px!important;right:104px!important}
   #tb::after{display:none!important}
-  .fp .fptb{height:176px!important}
+  .fp .fptb{height:112px!important}
+  .fptit{font-size:24px!important}
 }
 @media(max-width:360px){
-  #tb{height:208px!important}
-  #tb::before{bottom:82px!important;font-size:27px!important}
-  #tb .tbc{left:78px!important;right:110px!important}
+  #tb{height:118px!important}
+  #tb::before{bottom:8px!important;font-size:24px!important}
+  #tb .tbc{left:72px!important;right:92px!important}
+  .fptit{font-size:22px!important}
 }
 </style>
 </head>
