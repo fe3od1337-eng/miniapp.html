@@ -341,51 +341,78 @@ html,body{background:#050505}
   background:linear-gradient(transparent,#020202 72%,#000);
 }
 #chat,#msgs,#ib,#sb,.sheet,.fpbd,.fptb{position:relative;z-index:1}
+/* ── TOOLBAR ── компактный, всё в одну строку */
 #tb{
   position:relative;
-  height:88px;
-  padding:calc(6px + var(--st)) 24px 10px;
+  height:calc(52px + var(--st));
+  padding:var(--st) 8px 0;
   background:#050505;
   border-bottom:1px solid rgba(255,255,255,.075);
-  align-items:flex-start;
+  align-items:center;
+  flex-direction:row;
 }
-#tb::before{
-  content:"Хуза AI";
-  position:absolute;
-  left:26px;
-  bottom:10px;
-  font-family:var(--display);
-  font-size:26px;
-  font-weight:900;
-  line-height:1;
-  letter-spacing:-.03em;
-  color:#fff;
-  pointer-events:none;
+#tb::before{ display:none; }
+#tb::after{ display:none; }
+#tb .tbl,#tb .tbc,#tb .tbr{
+  position:static;
+  top:auto; bottom:auto;
 }
-#tb::after{
-  display:none;
-}
-#tb .tbl,#tb .tbc,#tb .tbr{position:absolute;top:calc(6px + var(--st));bottom:auto;z-index:2}
-#tb .tbl{left:14px;width:auto;gap:8px}
-#tb .tbc{left:84px;right:112px;width:auto}
-#tb .tbr{right:14px;width:auto;gap:8px}
+#tb .tbl{ width:auto; gap:4px; }
+#tb .tbc{ flex:1; justify-content:center; }
+#tb .tbr{ width:auto; gap:4px; }
+.mb2{ padding:6px 10px; gap:4px; }
+.mbn{ font-size:14px; font-weight:700; }
 .ib,.mb2,.rqb,.sbbk,.att-btn,.mic-btn,.mact,.shbtn,.theme-btn{
   background:rgba(255,255,255,.08)!important;
   border:1px solid rgba(255,255,255,.08)!important;
   color:#fff!important;
 }
-.mb2,.rqb{border-radius:22px;font-weight:900}
-.mbn,.stt,.fptit,.wt,.pn,.scv,.subn,.plt,.limt,.limv,.sban{font-weight:900}
-#msgs{padding:18px 18px 8px;background:transparent}
-#wlc{justify-content:flex-start;padding-top:20px}
-#wlc .wi{display:none}
+.mb2,.rqb{ border-radius:22px; font-weight:700; }
+.mbn,.stt,.fptit,.wt,.pn,.scv,.subn,.plt,.limt,.limv,.sban{ font-weight:700; }
+/* ── MSGS + WELCOME ── */
+#msgs{ padding:14px 16px 8px; background:transparent; }
+#wlc{
+  justify-content:flex-start;
+  padding:20px 4px 10px;
+  gap:4px;
+  text-align:left;
+  align-items:flex-start;
+}
+#wlc .wi{ display:none; }
 #wlc .wt{
   font-family:var(--display);
-  font-size:42px;
-  line-height:1;
-  letter-spacing:-.04em;
+  font-size:26px;
+  line-height:1.1;
+  letter-spacing:-.03em;
 }
-#wlc .ws{font-weight:800;color:rgba(255,255,255,.58)}
+#wlc .ws{
+  font-size:13px;
+  font-weight:600;
+  color:rgba(255,255,255,.45);
+  margin-top:2px;
+  max-width:100%;
+}
+/* ── ПОДСКАЗКИ — горизонтальный скролл ── */
+#wlc .wch{
+  display:flex;
+  flex-wrap:nowrap;
+  overflow-x:auto;
+  gap:6px;
+  margin-top:12px;
+  padding-bottom:4px;
+  width:100%;
+  scrollbar-width:none;
+  justify-content:flex-start;
+}
+#wlc .wch::-webkit-scrollbar{ display:none; }
+#wlc .wc{
+  flex-shrink:0;
+  padding:8px 13px;
+  font-size:12px;
+  font-weight:600;
+  border-radius:20px;
+  white-space:nowrap;
+}
 .wc,.bu,.cb,.tw,.gc,.sc,.subc,.liml,.pg,.ph,.sheet,#shbox{
   background:rgba(20,20,20,.96)!important;
   border:1px solid rgba(255,255,255,.08)!important;
@@ -426,22 +453,21 @@ html,body{background:#050505}
   overflow:hidden;
 }
 .fptb{
-  height:88px;
-  padding:calc(6px + var(--st)) 24px 10px;
+  height:calc(52px + var(--st));
+  padding:var(--st) 8px 0;
   background:#050505;
   border-bottom:1px solid rgba(255,255,255,.075);
-  align-items:flex-end;
+  align-items:center;
 }
 .fpbk{
-  position:absolute;
-  top:calc(6px + var(--st));
+  position:static;
+  top:auto;
   bottom:auto;
-  left:14px;
   color:#fff;
   background:rgba(255,255,255,.08);
   border-radius:22px;
   padding:8px 12px;
-  font-weight:900;
+  font-weight:700;
 }
 .fptit{
   flex:1;
@@ -537,71 +563,42 @@ body.light .ch2.on{
   color:#fff!important;
 }
 @media(max-width:430px){
-  #tb,.fptb{height:84px;padding-left:14px;padding-right:14px}
-  #tb::before{font-size:24px;left:14px;bottom:8px}
-  .fptit{font-size:22px}
   .fpbd{padding-left:20px;padding-right:20px}
   .pn{font-size:27px}
 }
 @media(max-width:360px){
-  #tb::before{font-size:22px}
-  .fptit{font-size:20px}
   .traffic-value,.scv{font-size:26px}
   .fpbd,#msgs{padding-left:16px;padding-right:16px}
 }
 
-/* Final miniapp usability fixes: compact and reachable top bar */
-#tb{
-  height:88px!important;
-  padding:calc(6px + var(--st)) 14px 10px!important;
-}
-#tb::before{
-  content:"Хуза AI"!important;
-  left:14px!important;
-  bottom:10px!important;
-  color:var(--tx)!important;
-  font-size:26px!important;
-}
-#tb::after{display:none!important}
-#tb .tbl,#tb .tbc,#tb .tbr{
-  top:calc(6px + var(--st))!important;
-  bottom:auto!important;
-}
-#tb .tbl{left:14px!important}
-#tb .tbc{left:84px!important;right:112px!important}
-#tb .tbr{right:14px!important}
+/* Final miniapp usability fixes */
 .fp .fptb{
-  height:88px!important;
-  padding:calc(6px + var(--st)) 14px 10px!important;
+  height:calc(52px + var(--st))!important;
+  padding:var(--st) 8px 0!important;
+  align-items:center!important;
 }
 .fpbk{
-  top:calc(6px + var(--st))!important;
+  position:static!important;
+  top:auto!important;
   bottom:auto!important;
 }
 .fptit{
-  padding-bottom:0!important;
-  font-size:26px!important;
+  font-size:17px!important;
+  font-family:var(--f)!important;
+  letter-spacing:0!important;
+  font-weight:700!important;
 }
 #wlc{
   justify-content:flex-start!important;
-  padding-top:28px!important;
+  padding-top:20px!important;
 }
 @media(max-width:430px){
-  #tb{height:84px!important}
-  #tb::before{left:12px!important;bottom:8px!important;font-size:24px!important}
-  #tb .tbl,#tb .tbc,#tb .tbr{top:calc(5px + var(--st))!important}
-  #tb .tbc{left:78px!important;right:104px!important}
-  #tb::after{display:none!important}
-  .fp .fptb{height:84px!important}
-  .fptit{font-size:22px!important}
-  #wlc{padding-top:22px!important}
+  #tb{ height:calc(50px + var(--st))!important; }
+  .fp .fptb{ height:calc(50px + var(--st))!important; }
 }
 @media(max-width:360px){
-  #tb{height:80px!important}
-  #tb::before{bottom:7px!important;font-size:22px!important}
-  #tb .tbc{left:72px!important;right:92px!important}
-  .fptit{font-size:20px!important}
-  #wlc{padding-top:18px!important}
+  #tb{ height:calc(48px + var(--st))!important; }
+  .fp .fptb{ height:calc(48px + var(--st))!important; }
 }
 </style>
 </head>
