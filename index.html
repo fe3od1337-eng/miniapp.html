@@ -311,7 +311,7 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(
 .lvl-bar{height:6px;background:var(--bg1);border-radius:3px;overflow:hidden;margin-top:4px}
 .lvl-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--acc),var(--acc2));transition:width .6s}
 
-/* SORAVPN visual skin: design-only overrides, functionality stays intact */
+/* Хуза AI visual skin: design-only overrides, functionality stays intact */
 body:not(.light){
   --bg:#050505;--bg1:#080808;--bg2:#0b0b0b;--s1:#151515;--s2:#202020;--s3:#303030;
   --bo:rgba(255,255,255,.08);--bo2:rgba(255,255,255,.14);
@@ -343,17 +343,17 @@ html,body{background:#050505}
 #chat,#msgs,#ib,#sb,.sheet,.fpbd,.fptb{position:relative;z-index:1}
 #tb{
   position:relative;
-  height:104px;
+  height:138px;
   padding:18px 24px 20px;
   background:#050505;
   border-bottom:1px solid rgba(255,255,255,.075);
   align-items:flex-start;
 }
 #tb::before{
-  content:"SORAVPN";
+  content:"Хуза AI";
   position:absolute;
   left:26px;
-  bottom:26px;
+  bottom:78px;
   font-family:var(--display);
   font-size:30px;
   font-weight:900;
@@ -366,7 +366,7 @@ html,body{background:#050505}
   content:"";
   position:absolute;
   right:26px;
-  bottom:25px;
+  bottom:77px;
   width:48px;
   height:28px;
   background:
@@ -374,7 +374,7 @@ html,body{background:#050505}
   opacity:.95;
   pointer-events:none;
 }
-#tb .tbl,#tb .tbc,#tb .tbr{position:absolute;top:16px;z-index:2}
+#tb .tbl,#tb .tbc,#tb .tbr{position:absolute;top:auto;bottom:20px;z-index:2}
 #tb .tbl{left:18px;width:auto;gap:8px}
 #tb .tbc{left:100px;right:100px;width:auto}
 #tb .tbr{right:18px;width:auto;gap:8px}
@@ -435,7 +435,7 @@ html,body{background:#050505}
   overflow:hidden;
 }
 .fptb{
-  height:104px;
+  height:132px;
   padding:22px 24px;
   background:#050505;
   border-bottom:1px solid rgba(255,255,255,.075);
@@ -443,7 +443,8 @@ html,body{background:#050505}
 }
 .fpbk{
   position:absolute;
-  top:18px;
+  top:auto;
+  bottom:18px;
   left:18px;
   color:#fff;
   background:rgba(255,255,255,.08);
@@ -493,10 +494,60 @@ html,body{background:#050505}
   border-color:#f5f5f5!important;
   color:#000!important;
 }
+body.light{
+  background:#f2f2f7;
+  color:#000;
+}
+body.light #app,body.light #chat,body.light .fp{
+  background:#f2f2f7;
+}
+body.light #app::before,body.light .fp::before{
+  background:
+    linear-gradient(rgba(0,0,0,.06) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,0,0,.06) 1px,transparent 1px);
+}
+body.light #app::after,body.light .fp::after{
+  background:linear-gradient(transparent,rgba(242,242,247,.9) 72%,#f2f2f7);
+}
+body.light #tb,body.light .fptb,body.light #ib{
+  background:#f7f7fa;
+  border-color:rgba(0,0,0,.08);
+}
+body.light #tb::before,body.light .fptit,body.light .pn,body.light .plt,body.light .limv,body.light .scv,body.light .wt{
+  color:#000!important;
+}
+body.light #tb::after{filter:invert(1)}
+body.light .ib,body.light .mb2,body.light .rqb,body.light .sbbk,body.light .att-btn,body.light .mic-btn,body.light .mact,body.light .shbtn,body.light .theme-btn,body.light .fpbk{
+  background:rgba(0,0,0,.06)!important;
+  border-color:rgba(0,0,0,.08)!important;
+  color:#000!important;
+}
+body.light .wc,body.light .bu,body.light .cb,body.light .tw,body.light .gc,body.light .sc,body.light .subc,body.light .liml,body.light .pg,body.light .ph,body.light .sheet,body.light #shbox{
+  background:rgba(255,255,255,.96)!important;
+  border-color:rgba(0,0,0,.08)!important;
+}
+body.light #inp,body.light .ch2,body.light .exch,body.light .gs,body.light .gi,body.light .gta,body.light .ss{
+  background:#fff!important;
+  border-color:rgba(0,0,0,.12)!important;
+  color:#000!important;
+}
+body.light .sb,body.light .gb,body.light .onb-btn{
+  background:#000!important;
+  color:#fff!important;
+}
+body.light .sb svg{color:#fff}
+body.light .limt,body.light .scl,body.light .subs,body.light .sec-hdr,body.light .fl,body.light .eyebrow,body.light .ws,body.light .pu{
+  color:rgba(0,0,0,.56)!important;
+}
+body.light .ch2.on{
+  background:#000!important;
+  border-color:#000!important;
+  color:#fff!important;
+}
 @media(max-width:430px){
-  #tb,.fptb{height:96px;padding-left:22px;padding-right:22px}
-  #tb::before{font-size:28px;left:24px;bottom:24px}
-  #tb::after{right:24px;bottom:23px}
+  #tb,.fptb{height:126px;padding-left:22px;padding-right:22px}
+  #tb::before{font-size:28px;left:24px;bottom:72px}
+  #tb::after{right:24px;bottom:71px}
   .fptit{font-size:34px}
   .fpbd{padding-left:24px;padding-right:24px}
   .pn{font-size:27px}
