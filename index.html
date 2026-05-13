@@ -658,7 +658,14 @@ body.light .ch2.on{
 }
 #wlc{
   justify-content:flex-start!important;
-  padding-top:16px!important;
+  padding-top:32px!important;
+}
+#wlc .wt{
+  margin-top:8px!important;
+}
+#wlc .wch{
+  margin-top:20px!important;
+  padding-bottom:8px!important;
 }
 @media(max-width:430px){
   #tb{ height:calc(90px + var(--st))!important; }
@@ -882,6 +889,22 @@ function applyTelegramFullscreen(){
   try{w.setHeaderColor?.('#000000');}catch(e){}
   try{w.setBackgroundColor?.('#000000');}catch(e){}
   try{w.setBottomBarColor?.('#000000');}catch(e){}
+  const applyInsets=()=>{
+    // Учитываем contentSafeAreaInsets (Telegram Bot API 8.0+, fullscreen mode)
+    const csi=w.contentSafeAreaInsets||{top:0,bottom:0};
+    const si=w.safeAreaInsets||{top:0,bottom:0};
+    const topInset=Math.max(csi.top||0,si.top||0);
+    if(topInset>0){
+      document.documentElement.style.setProperty('--st',topInset+'px');
+    }
+    const botInset=Math.max(csi.bottom||0,si.bottom||0);
+    if(botInset>0){
+      document.documentElement.style.setProperty('--sb',botInset+'px');
+    }
+  };
+  applyInsets();
+  try{w.onEvent?.('safeAreaChanged',applyInsets);}catch(e){}
+  try{w.onEvent?.('contentSafeAreaChanged',applyInsets);}catch(e){}
   const fit=()=>{
     const h=w.viewportStableHeight||w.viewportHeight||window.innerHeight;
     if(h)document.documentElement.style.setProperty('--app-h',h+'px');
