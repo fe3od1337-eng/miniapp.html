@@ -407,15 +407,17 @@ html,body{background:#050505}
   pointer-events:none;
 }
 #tb::after{ display:none; }
+/* ПАТЧ 71: кнопки тулбара через flexbox — без position:absolute, чтобы не теряться тачи в Telegram WebView */
 #tb .tbl,#tb .tbc,#tb .tbr{
-  position:absolute;
-  top:calc(var(--st) + 6px);
-  bottom:auto;
-  z-index:2;
+  position:relative;
+  top:auto;left:auto;right:auto;bottom:auto;
+  z-index:10;
+  padding-top:6px;
+  -webkit-tap-highlight-color:transparent;
 }
-#tb .tbl{ left:14px; width:auto; gap:4px; }
-#tb .tbc{ left:80px; right:108px; width:auto; justify-content:center; }
-#tb .tbr{ right:14px; width:auto; gap:4px; }
+#tb .tbl{ width:auto; gap:4px; flex-shrink:0; align-items:center; }
+#tb .tbc{ width:auto; flex:1; justify-content:center; align-items:center; }
+#tb .tbr{ width:auto; gap:4px; flex-shrink:0; justify-content:flex-end; align-items:center; }
 .mb2{ padding:5px 10px; gap:4px; }
 .mbn{ font-size:13px; font-weight:700; }
 .ib,.mb2,.rqb,.sbbk,.att-btn,.mic-btn,.mact,.shbtn,.theme-btn{
@@ -670,6 +672,27 @@ body.light .ch2.on{
   .fp .fptb{ height:calc(84px + var(--st))!important; }
   .fptit{ font-size:20px!important; }
 }
+
+/* ── ПАТЧ 71: гарантируем что тулбар всегда кликабелен ─────────────────── */
+#tb{
+  z-index:50!important;
+  isolation:isolate;
+  -webkit-user-select:none;
+  user-select:none;
+}
+#tb .tbl, #tb .tbc, #tb .tbr{
+  pointer-events:all!important;
+  cursor:pointer;
+  touch-action:manipulation;
+}
+#tb button, #tb .rqb, #tb .mb2, #tb .ib, #tb .theme-btn{
+  pointer-events:all!important;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+  cursor:pointer;
+  position:relative;
+  z-index:51;
+}
 </style>
 </head>
 <body>
@@ -801,28 +824,43 @@ const CFG={
   PV:'https://videos.pollinations.ai/',
 };
 // ════════ MODELS ════════
+// ПАТЧ 71: синхронизированы с MODELS в боте (bot_fixed_11.py)
 const MO={
-  auto:{n:'auto',l:'⚡ Авто',v:0,pr:0,auto:1},
-  gpt52_chat:{n:'gpt-5.2-chat',l:'💬 GPT-5.2 Chat',v:0,pr:0},
-  gpt52:{n:'gpt-5.2',l:'⚡ GPT-5.2',v:1,pr:1},
-  claude_haiku:{n:'claude-haiku-4-5',l:'💎 Claude Haiku 4.5',v:1,pr:0},
-  claude_sonnet:{n:'claude-sonnet-4-5',l:'🔷 Claude Sonnet 4.5',v:1,pr:1},
-  claude_opus:{n:'claude-opus-4-5',l:'🔵 Claude Opus 4.5',v:1,pr:1},
-  gemini_fl:{n:'gemini-2.5-flash',l:'🔥 Gemini 2.5 Flash',v:1,pr:0},
-  gemini_pr:{n:'gemini-2.5-pro',l:'💎 Gemini 2.5 Pro',v:1,pr:1},
-  gemini_3f:{n:'gemini-3-flash',l:'🚀 Gemini 3 Flash',v:1,pr:0},
-  gemini_3p:{n:'gemini-3-pro',l:'🌟 Gemini 3 Pro',v:1,pr:1},
-  dsv3:{n:'deepseek-v3',l:'🧬 DeepSeek V3',v:0,pr:0},
-  dsr1:{n:'deepseek-ai/DeepSeek-R1-0528',l:'🧠 DeepSeek R1',v:0,pr:0},
-  qwen:{n:'qwen3-max',l:'🌐 Qwen3-Max',v:0,pr:0},
-  sonar:{n:'sonar',l:'🌐 Sonar (веб-поиск)',v:0,pr:0},
+  // ─── Auto ───────────────────────────────────────────────────────────────────
+  auto:              {n:'auto',               l:'⚡ Авто',                   v:0, pr:0, auto:1},
+  // ─── Claude ─────────────────────────────────────────────────────────────────
+  claude_haiku:      {n:'claude-haiku-4-5',   l:'💎 Claude Haiku 4.5 📸',   v:1, pr:0},
+  claude_sonnet:     {n:'claude-sonnet-4-5',  l:'🔷 Claude Sonnet 4.5 📸',  v:1, pr:1},
+  claude_opus:       {n:'claude-sonnet-4-6',  l:'🔵 Claude Sonnet 4.6 📸',  v:1, pr:1},
+  // ─── GPT ────────────────────────────────────────────────────────────────────
+  gpt52_chat:        {n:'gpt-5.2-chat',       l:'💬 GPT-5.2 Chat',           v:0, pr:0},
+  gpt52:             {n:'gpt-5.2',            l:'⚡ GPT-5.2 📸',              v:1, pr:1},
+  gpt5:              {n:'gpt-5',              l:'🟢 GPT-5 📸',               v:1, pr:1},
+  // ─── Gemini ─────────────────────────────────────────────────────────────────
+  gemini_25_flash:   {n:'gemini-2.5-flash',   l:'🔥 Gemini 2.5 Flash 📸',   v:1, pr:0},
+  gemini_20_flash:   {n:'gemini-2.0-flash',   l:'✨ Gemini 2.0 Flash 📸',    v:1, pr:0},
+  gemini_25_pro:     {n:'gemini-2.5-pro',     l:'💎 Gemini 2.5 Pro 📸',     v:1, pr:1},
+  gemini_3_flash:    {n:'gemini-3-flash',     l:'🚀 Gemini 3 Flash 📸',     v:1, pr:0},
+  gemini_3_pro:      {n:'gemini-3-pro',       l:'🌟 Gemini 3 Pro 📸',       v:1, pr:1},
+  // ─── DeepSeek ───────────────────────────────────────────────────────────────
+  deepseek_v3_sq:    {n:'deepseek-v3',        l:'🧬 DeepSeek V3',            v:0, pr:0},
+  deepseek_v4_flash: {n:'deepseek-v4-flash',  l:'🧬 DeepSeek V4 Flash',      v:0, pr:1},
+  // ─── Qwen ───────────────────────────────────────────────────────────────────
+  qwen3_max:         {n:'qwen3-max',          l:'🌐 Qwen3-Max',              v:0, pr:0},
+  qwen3_vl:          {n:'qwen3-vl-plus',      l:'👁 Qwen3-VL 📸',            v:1, pr:0},
+  groq_qwen3_32b:    {n:'qwen/qwen3-32b',    l:'🌐 Qwen3 32B',              v:0, pr:0},
+  // ─── Sonar / Perplexity ──────────────────────────────────────────────────────
+  sonar:             {n:'sonar',              l:'🌐 Sonar 📸',               v:1, pr:0},
+  sonar_pro:         {n:'sonar-pro',          l:'🌐 Sonar Pro 📸',           v:1, pr:1},
+  sonar_reasoning_pro:{n:'sonar-reasoning-pro',l:'🧠 Sonar Reasoning 📸',   v:1, pr:1},
 };
 const CATS=[
-  {h:'⚡ Авто',k:['auto']},
-  {h:'💬 GPT',k:['gpt52_chat','gpt52']},
-  {h:'🔵 Claude',k:['claude_haiku','claude_sonnet','claude_opus']},
-  {h:'🔮 Gemini',k:['gemini_fl','gemini_pr','gemini_3f','gemini_3p']},
-  {h:'🧬 DeepSeek / Другие',k:['dsv3','dsr1','qwen','sonar']}
+  {h:'⚡ Авто',          k:['auto']},
+  {h:'🔵 Claude',        k:['claude_haiku','claude_sonnet','claude_opus']},
+  {h:'💬 GPT',           k:['gpt52_chat','gpt52','gpt5']},
+  {h:'🔮 Gemini',        k:['gemini_25_flash','gemini_20_flash','gemini_25_pro','gemini_3_flash','gemini_3_pro']},
+  {h:'🧬 DeepSeek',      k:['deepseek_v3_sq','deepseek_v4_flash']},
+  {h:'🌐 Qwen / Другие', k:['qwen3_max','qwen3_vl','groq_qwen3_32b','sonar','sonar_pro','sonar_reasoning_pro']}
 ];
 const SUGG=['🔬 Объясни квантовую запутанность','💻 Напиши Python скрипт','📐 Реши x²+5x+6=0','✍️ Стихотворение о весне'];
 const IEX=['🏙 Неоновый Токио, киберпанк','🌲 Лесная хижина осенью','🚀 Космическая станция','🦁 Лев в короне, фэнтези'];
